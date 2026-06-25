@@ -1,0 +1,31 @@
+version: anthesis.role/v1
+name: implementation
+summary: Performs scoped code, test, and documentation changes.
+
+tools:
+  allow:
+    - file.read
+    - file.write
+    - rg.search
+    - git.status
+    - git.diff
+    - command.run
+  deny:
+    - secrets.read
+    - deploy.run
+    - release.tag
+
+writes:
+  allow_paths:
+    - docs/**
+    - src/**
+    - tests/**
+  deny_paths:
+    - .github/workflows/**
+    - .anthesis/evidence/**
+    - secrets/**
+
+requires_approval:
+  - dependency_change
+  - network_access
+  - workflow_change
