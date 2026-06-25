@@ -1,0 +1,45 @@
+version: anthesis.config/v1
+project:
+  name: anthesis-governance-lab
+  repo: ryjen/anthesis-governance-lab
+
+defaults:
+  runner: local
+  policy: local-sdlc
+  evidence_store: .anthesis/evidence
+  workspace_strategy: git_worktree
+  agent_runtime: ollama-qwen3-14b
+
+agent_runtimes:
+  ollama-qwen3-14b:
+    type: local_model
+    provider: ollama
+    endpoint: http://127.0.0.1:11434
+    model: qwen3:14b
+    trust_level: local_untrusted
+    network_required: false
+
+  external-cli-example:
+    type: external_agent_cli
+    provider: configurable
+    command: anthesis-example-agent
+    trust_level: external_managed
+    network_required: true
+    requires_approval:
+      - external_model_use
+      - network_access
+
+approval:
+  mode: terminal
+  require_for:
+    - external_model_use
+    - network_access
+    - dependency_change
+    - workflow_change
+    - secrets_access
+    - model_changed
+
+limits:
+  max_runtime_minutes: 30
+  max_changed_files: 8
+  max_diff_lines: 400
