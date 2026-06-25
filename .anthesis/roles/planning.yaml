@@ -1,0 +1,24 @@
+version: anthesis.role/v1
+name: planning
+summary: Produces implementation plans and issue refinements.
+
+tools:
+  allow:
+    - file.read
+    - file.write
+    - rg.search
+    - git.status
+  deny:
+    - network.request
+    - secrets.read
+    - deploy.run
+    - release.tag
+
+writes:
+  allow_paths:
+    - docs/**
+    - .anthesis/scenarios/**
+  deny_paths:
+    - src/**
+    - tests/**
+    - .github/workflows/**
