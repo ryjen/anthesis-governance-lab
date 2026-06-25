@@ -1,0 +1,20 @@
+version: anthesis.role/v1
+name: review
+summary: Reviews changes, policy decisions, and evidence. Read-only by default.
+
+tools:
+  allow:
+    - file.read
+    - rg.search
+    - git.status
+    - git.diff
+  deny:
+    - file.write
+    - command.run
+    - network.request
+    - secrets.read
+    - deploy.run
+    - release.tag
+
+writes:
+  allow_paths: []
