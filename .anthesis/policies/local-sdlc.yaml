@@ -1,0 +1,100 @@
+version: anthesis.policy/v1
+name: local-sdlc
+summary: Conservative policy for local governed SDLC agent evaluation.
+
+default: deny
+
+rules:
+  - id: repo-read
+    effect: allow
+    actions:
+      - file.read
+      - git.status
+      - git.diff
+      - rg.search
+
+  - id: scoped-docs-and-code-write
+    effect: allow
+    actions:
+      - file.write
+    paths:
+      - docs/**
+      - src/**
+      - tests/**
+    evidence_required: true
+
+  - id: test-execution
+    effect: allow
+    actions:
+      - command.run
+    commands:
+      - pytest
+      - python -m pytest
+    evidence_required: true
+
+  - id: ci-workflow-change
+    effect: approval_required
+    actions:
+      - file.write
+    paths:
+      - .github/workflows/**
+    reason: workflow_change
+
+  - id: dependency-change
+    effect: approval_required
+    actions:
+      - file.write
+    paths:
+      - pyproject.toml
+      - requirements*.txt
+      - package.json
+      - package-lock.json
+      - pnpm-lock.yaml
+      - yarn.lock
+      - go.mod
+      - go.sum
+      - Cargo.toml
+      - Cargo.lock
+    reason: dependency_change
+
+  - id: network-access
+    effect: approval_required
+    actions:
+      - network.request
+      - command.run
+    commands:
+      - curl
+      - wget
+      - pip install
+      - npm install
+    reason: network_access
+
+  - id: secrets-access
+    effect: deny
+    actions:
+      - file.read
+      - file.write
+    paths:
+      - .env
+      - .env.*
+      - secrets/**
+      - ~/.ssh/**
+      - ~/.aws/**
+    reason: secrets_access
+
+  - id: evidence-protection
+    effect: deny
+    actions:
+      - file.write
+      - file.delete
+    paths:
+      - .anthesis/evidence/**
+    reason: evidence_tamper
+
+  - id: release-deploy-deny
+    effect: deny
+    actions:
+      - release.tag
+      - deploy.run
+      - git.merge
+    reason: release_or_deploy_not_allowed
