@@ -66,8 +66,10 @@ def main() -> int:
         canonical_scenarios = {
             scenario["id"]: scenario for scenario in vectors.get("scenarios", [])
         }
-        local_paths = sorted((ROOT / ".anthesis" / "scenarios").glob("*.yaml"))
-        local_scenarios = {load_yaml(path)["id"]: load_yaml(path) for path in local_paths}
+        local_scenarios: dict[str, Any] = {}
+        for path in sorted((ROOT / ".anthesis" / "scenarios").glob("*.yaml")):
+            scenario = load_yaml(path)
+            local_scenarios[scenario["id"]] = scenario
 
         if set(local_scenarios) != set(canonical_scenarios):
             errors.append(
