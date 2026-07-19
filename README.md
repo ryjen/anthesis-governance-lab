@@ -2,7 +2,9 @@
 
 A deliberately small repository for evaluating deterministic governance of AI-assisted SDLC workflows.
 
-This repository is a consumer of the accepted public Governance Lab CLI contract in [`hackelia-micrantha/anthesis-community`](https://github.com/hackelia-micrantha/anthesis-community/tree/main/specs/governance-lab). Contract semantics, schemas, matching rules, and canonical conformance expectations are defined there rather than duplicated here.
+This repository consumes the accepted public Governance Lab CLI contract in [`hackelia-micrantha/anthesis-community`](https://github.com/hackelia-micrantha/anthesis-community/tree/main/specs/governance-lab). Contract semantics, schemas, matching rules, and canonical conformance expectations are defined there rather than duplicated here.
+
+The exact contract revision used by this lab is pinned in `.anthesis/contract-reference.yaml`. CI checks out that revision and verifies that the local policy, runtime profile, and seven scenarios remain identical to its canonical fixtures.
 
 ## What the lab evaluates
 
@@ -22,6 +24,7 @@ A successful evaluation does not mean every attempted action completes. Success 
 
 The lab stores its accepted inputs under `.anthesis/`:
 
+- `contract-reference.yaml` — pinned public contract repository, revision, and path
 - `policies/local-sdlc.yaml` — canonical default-deny policy
 - `runtime-profile.yaml` — explicit runtime allowlist
 - `scenarios/` — seven single-effect conformance scenarios
