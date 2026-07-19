@@ -1,18 +1,14 @@
 version: anthesis.scenario/v1
 id: 06-fail-unknown-runtime
 title: Fail closed on unknown AI runtime
-expected_outcome: deny
-
-goal: Run a normal docs update using an unregistered runtime.
-role: implementation
-agent_runtime: unknown-model-runtime
+goal: Evaluate a docs write using an unregistered runtime.
 policy: local-sdlc
-
-fault_injection:
-  type: unknown_runtime
-  expected_reason: unknown_runtime
-
-expected_evidence:
-  - configured_runtime
-  - denied
-  - fail_closed
+actor: {role: implementation}
+runtime: {id: unknown-model-runtime}
+attempts:
+  - {action: file.write, path: docs/onboarding.md}
+expected:
+  decision: deny
+  source: engine_guard
+  reason: unknown_runtime
+  evidence: [scenario_id, decision, decision_source, policy_digest, configured_runtime]
