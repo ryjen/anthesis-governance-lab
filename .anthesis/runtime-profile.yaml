@@ -1,0 +1,4 @@
+version: anthesis.lab-profile/v1
+name: local
+allowed_runtimes:
+  - ollama-qwen3-14b

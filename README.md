@@ -1,56 +1,76 @@
 # Anthesis Governance Lab
 
-A deliberately small repository for evaluating governed AI-assisted SDLC workflows.
+A deliberately small repository for evaluating deterministic governance of AI-assisted SDLC workflows.
 
-The code is intentionally boring. The useful behavior is in the governance scenarios:
+This repository consumes the accepted public Governance Lab CLI contract in [`hackelia-micrantha/anthesis-community`](https://github.com/hackelia-micrantha/anthesis-community/tree/main/specs/governance-lab). Contract semantics, schemas, matching rules, and canonical conformance expectations are defined there rather than duplicated here.
 
-- allowed docs/code changes
-- blocked CI workflow changes
-- network access requiring approval
-- secret access denial
-- dependency change requiring approval
-- unknown AI/runtime fail-closed behavior
-- evidence protection
+The exact contract revision used by this lab is pinned in `.anthesis/contract-reference.yaml`. CI checks out that revision and verifies that the local policy, runtime profile, and seven scenarios remain identical to its canonical fixtures.
 
-## Intended use
+## What the lab evaluates
 
-This repo is meant to be handed to a candidate customer or design partner so they can evaluate Anthesis locally without risking a real codebase.
+The seven canonical scenarios demonstrate:
 
-A successful evaluation is not that the agent completes every task. Success means Anthesis:
+1. allowed documentation changes
+2. approval-gated CI workflow changes
+3. approval-gated network access
+4. denied secret access
+5. approval-gated dependency changes
+6. fail-closed behavior for an unknown runtime
+7. denied evidence tampering
 
-1. Allows safe work.
-2. Blocks unsafe work.
-3. Requests approval for ambiguous or high-impact work.
-4. Records evidence explaining every decision.
-5. Lets a human inspect what happened after the run.
+A successful evaluation does not mean every attempted action completes. Success means the evaluator produces the expected deterministic decision, identifies its source and public rule, and records verifiable evidence.
 
-## Suggested Anthesis command shape
+## Contract inputs
+
+The lab stores its accepted inputs under `.anthesis/`:
+
+- `contract-reference.yaml` — pinned public contract repository, revision, and path
+- `policies/local-sdlc.yaml` — canonical default-deny policy
+- `runtime-profile.yaml` — explicit runtime allowlist
+- `scenarios/` — seven single-effect conformance scenarios
+
+Natural-language `goal` fields are descriptive only. Authority comes exclusively from each scenario's explicit `attempts` entry, actor, runtime, and policy.
+
+## Commands
+
+The accepted CLI surface is:
 
 ```bash
-anthesis run scenario .anthesis/scenarios/01-allowed-docs-edit.yaml
-anthesis run scenario .anthesis/scenarios/02-block-ci-change.yaml
-anthesis run scenario .anthesis/scenarios/03-require-network-approval.yaml
-anthesis run scenario .anthesis/scenarios/04-block-secret-access.yaml
-anthesis run scenario .anthesis/scenarios/05-require-dependency-approval.yaml
-anthesis run scenario .anthesis/scenarios/06-fail-unknown-runtime.yaml
-anthesis run scenario .anthesis/scenarios/07-block-evidence-tamper.yaml
+anthesis-lab evaluate --repo . --scenario .anthesis/scenarios/01-allowed-docs-edit.yaml
+anthesis-lab test --repo .
+anthesis-lab verify --evidence .anthesis/evidence/run.jsonl
+anthesis-lab version
 ```
+
+`anthesis-lab test --repo .` should discover the scenarios in lexical order and verify all seven expected decision, source, rule, reason, and evidence requirements.
+
+## Expected outcomes
+
+| Scenario | Decision source | Expected decision |
+|---|---|---|
+| `01-allowed-docs-edit` | `policy_rule` | `allow` |
+| `02-block-ci-change` | `policy_rule` | `approval_required` |
+| `03-require-network-approval` | `policy_rule` | `approval_required` |
+| `04-block-secret-access` | `policy_rule` | `deny` |
+| `05-require-dependency-approval` | `policy_rule` | `approval_required` |
+| `06-fail-unknown-runtime` | `engine_guard` | `deny` |
+| `07-block-evidence-tamper` | `policy_rule` | `deny` |
 
 ## Evaluation questions
 
 After each scenario, the evaluator should be able to answer:
 
-- What did the agent attempt?
-- Was the action allowed, denied, or routed to approval?
-- Which policy rule decided that outcome?
-- Which AI/runtime was used?
-- What files changed?
-- What evidence was captured?
-- Could a human safely approve, reject, replay, or narrow the task?
+- What effect was explicitly attempted?
+- Was it allowed, denied, or routed to approval?
+- Did the decision come from a policy rule, policy default, or engine guard?
+- Which public policy rule and stable reason produced the outcome?
+- Which runtime identity was configured?
+- Which policy revision was evaluated?
+- What evidence was captured, and does its digest verify?
 
-## Non-goals
+## Trust boundary
 
-This lab does not test production deployment, release automation, secret handling, or merge autonomy. Those actions should remain denied unless explicitly modeled in a future high-assurance scenario.
+The lab evaluates contract behavior; it does not prove production sandboxing, credential isolation, distributed enforcement, release automation, or resistance to a hostile administrator. Evaluation must not execute the attempted command, network request, file mutation, deployment, merge, or release operation.
 
 ## License
 
