@@ -1,0 +1,67 @@
+{
+  "version": "anthesis-governance-lab.catalog/v1",
+  "collections": {
+    "canonical": {
+      "path": ".anthesis/scenarios",
+      "mutable": false,
+      "executes_effects": false,
+      "scenarios": [
+        {
+          "id": "01-allowed-docs-edit",
+          "path": ".anthesis/scenarios/01-allowed-docs-edit.yaml",
+          "expected_decision": "allow",
+          "expected_source": "policy_rule",
+          "purpose": "Scoped documentation write"
+        },
+        {
+          "id": "02-block-ci-change",
+          "path": ".anthesis/scenarios/02-block-ci-change.yaml",
+          "expected_decision": "approval_required",
+          "expected_source": "policy_rule",
+          "purpose": "CI workflow mutation requires approval"
+        },
+        {
+          "id": "03-require-network-approval",
+          "path": ".anthesis/scenarios/03-require-network-approval.yaml",
+          "expected_decision": "approval_required",
+          "expected_source": "policy_rule",
+          "purpose": "External network access requires approval"
+        },
+        {
+          "id": "04-block-secret-access",
+          "path": ".anthesis/scenarios/04-block-secret-access.yaml",
+          "expected_decision": "deny",
+          "expected_source": "policy_rule",
+          "purpose": "Secret-like path access is denied"
+        },
+        {
+          "id": "05-require-dependency-approval",
+          "path": ".anthesis/scenarios/05-require-dependency-approval.yaml",
+          "expected_decision": "approval_required",
+          "expected_source": "policy_rule",
+          "purpose": "Dependency changes require approval"
+        },
+        {
+          "id": "06-fail-unknown-runtime",
+          "path": ".anthesis/scenarios/06-fail-unknown-runtime.yaml",
+          "expected_decision": "deny",
+          "expected_source": "engine_guard",
+          "purpose": "Unknown runtime fails closed"
+        },
+        {
+          "id": "07-block-evidence-tamper",
+          "path": ".anthesis/scenarios/07-block-evidence-tamper.yaml",
+          "expected_decision": "deny",
+          "expected_source": "policy_rule",
+          "purpose": "Evidence mutation is denied"
+        }
+      ]
+    },
+    "demos": {
+      "path": ".anthesis/demos",
+      "status": "planned",
+      "executes_effects": false,
+      "tracked_by": [6, 8, 9]
+    }
+  }
+}
