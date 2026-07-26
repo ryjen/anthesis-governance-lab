@@ -8,6 +8,16 @@ install_dir="${1:-$repo_root/.anthesis/bin}"
 # shellcheck disable=SC1090
 source "$artifact_env"
 
+[[ "$ANTHESIS_ARTIFACT_ID" =~ ^[0-9]+$ ]] || {
+  echo "artifact ID must be numeric" >&2
+  exit 3
+}
+expected_artifact_url="https://api.github.com/repos/hackelia-micrantha/anthesis/actions/artifacts/${ANTHESIS_ARTIFACT_ID}/zip"
+[[ "$ANTHESIS_ARTIFACT_URL" == "$expected_artifact_url" ]] || {
+  echo "artifact URL does not match the pinned Anthesis producer endpoint" >&2
+  exit 3
+}
+
 [[ ! -L "$repo_root/.anthesis" ]] || {
   echo ".anthesis must not be a symlink" >&2
   exit 3
@@ -42,7 +52,7 @@ if [[ -n "${GITHUB_TOKEN:-}" ]]; then
   headers+=(-H "Authorization: Bearer $GITHUB_TOKEN")
 fi
 curl --fail --location --proto '=https' --tlsv1.2 "${headers[@]}" \
-  "$ANTHESIS_ARTIFACT_URL" --output "$archive"
+  "$expected_artifact_url" --output "$archive"
 
 printf '%s  %s\n' "$ANTHESIS_ARTIFACT_ARCHIVE_SHA256" "$archive" | sha256sum --check --strict
 test "$(unzip -Z1 "$archive")" = "anthesis-lab-linux-x86_64.tar.gz"
