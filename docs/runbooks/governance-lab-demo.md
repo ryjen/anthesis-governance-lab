@@ -93,14 +93,7 @@ The canonical fixtures under `.anthesis/scenarios` are synchronized public-contr
 | `deny` from `policy_rule` | A policy rule explicitly blocks the declaration. |
 | `deny` from `engine_guard` | The evaluator rejects the declaration independently of normal rule matching, such as an unregistered runtime. |
 
-For each scenario inspect:
-
-- actual decision;
-- decision source;
-- rule ID;
-- stable reason;
-- expected result;
-- mismatch details, if any.
+For each scenario inspect the actual decision, source, rule ID, stable reason, expected result, and mismatch details.
 
 Expected fixture data is an assertion about the decision. Changing an expected result must not change the actual policy decision.
 
@@ -110,11 +103,7 @@ Expected fixture data is an assertion about the decision. Changing an expected r
 bash scripts/validate-governance-lab.sh
 ```
 
-This performs:
-
-1. CLI contract validation;
-2. the seven-scenario canonical suite;
-3. an isolated expectation-drift exercise.
+This validates the CLI contract, the seven canonical scenarios, and an isolated expectation-drift exercise.
 
 Expected final output:
 
@@ -123,19 +112,33 @@ Canonical suite: 7 passed, 0 failed
 Intentional governance drift: detected with exit code 7
 ```
 
-## 7. Understand expectation drift
+## 7. Validate documentation and catalog integrity
+
+```bash
+bash scripts/validate-docs-and-catalog.sh
+```
+
+This checks:
+
+- the machine-readable catalog contract;
+- one-to-one coverage of all seven canonical fixtures;
+- unique scenario IDs and paths;
+- required documentation and script paths;
+- README links to the runbook and scenario guides;
+- runbook command references;
+- explicit separation of canonical and planned demo collections.
+
+## 8. Understand expectation drift
 
 The validation script copies the canonical fixtures into a repository-contained temporary directory and changes only scenario 01's expected decision from `allow` to `deny`.
 
 The policy still returns `allow`. The test report detects the mismatch and exits with status `7`. This proves that fixture expectations do not alter evaluator behavior.
 
-## 8. Evaluator versus executor boundary
+## 9. Evaluator versus executor boundary
 
 The Governance Lab proves that a pinned evaluator can deterministically decide declared attempts against pinned policy and runtime contracts.
 
 It does not prove that an agent cannot bypass the evaluator. A production integration must ensure the agent can reach effectful tools only through a governed wrapper, gateway, broker, supervisor dispatch boundary, sandbox, or equivalent enforcement point.
-
-A safe architecture requires:
 
 ```text
 agent -> governed boundary -> Anthesis decision -> approval check -> bounded executor
@@ -143,7 +146,7 @@ agent -> governed boundary -> Anthesis decision -> approval check -> bounded exe
 
 Registering Anthesis beside unwrapped effectful tools is insufficient.
 
-## 9. Safe scenario authoring
+## 10. Safe scenario authoring
 
 Before adding a scenario:
 
@@ -153,24 +156,34 @@ Before adding a scenario:
 4. state the threat or control being demonstrated;
 5. state explicitly that no real effect executes;
 6. keep paths repository-relative and portable;
-7. place non-canonical scenarios in the separate demo collection defined by the catalog contract;
+7. place non-canonical scenarios in the separate demo collection;
 8. run structural and executable validation.
 
 See:
 
 - `docs/scenarios/authoring.md`;
 - `docs/scenarios/catalog.md`;
+- `docs/scenarios/catalog.json`;
 - `docs/scenarios/interpretation.md`.
 
-## 10. Troubleshooting
+## Pending demo-pack tooling
+
+The canonical suite can be run today. Commands for selecting one additional demo scenario or a themed demo pack are intentionally not documented as available yet.
+
+They are tracked by:
+
+- issue #8 for the use-case scenario packs;
+- issue #9 for `scripts/run-demo-pack.sh` and catalog validation.
+
+Until those issues land, do not copy canonical fixtures into ad hoc directories or treat planned `.anthesis/demos` paths as executable interfaces.
+
+## 11. Troubleshooting
 
 ### Artifact acquisition fails
 
 Confirm the exact pinned metadata, token permission for the transitional artifact, artifact expiry, TLS availability, archive checksum, and packaged checksum. Never substitute a mutable `latest` asset or skip verification.
 
 ### Unsupported contract
-
-Run:
 
 ```bash
 anthesis-lab version --format json | jq .supported_contracts
@@ -186,7 +199,7 @@ Use repository-relative, non-symlinked paths. The CLI rejects absolute paths, ho
 
 Exit status `7` means at least one actual decision did not match its fixture expectation. Inspect the `mismatches` entries. It is not a successful canonical run.
 
-## 11. Cleanup
+## 12. Cleanup
 
 The validation script cleans its repository-contained temporary fixture automatically. Remove a locally acquired evaluator with:
 
