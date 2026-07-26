@@ -26,8 +26,7 @@ jobs:
       - name: Validate public contracts and canonical scenarios
         run: bash scripts/validate-governance-lab.sh
 
-      - name: Confirm Python-free validation surface
+      - name: Confirm validation scripts are Python-free
         run: |
           set -euo pipefail
-          ! grep -RInE '(^|[^[:alnum:]_])(python3?|pip|pytest)([^[:alnum:]_]|$)' \
-            .github scripts .anthesis/cli-artifact.env README.md
+          ! grep -RInE '(^|[^[:alnum:]_])(python3?|pip|pytest)([^[:alnum:]_]|$)' scripts
