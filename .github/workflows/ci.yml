@@ -18,7 +18,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Validate shell and workspace boundaries
+      - name: Validate shell and trust boundaries
         run: |
           set -euo pipefail
           bash -n scripts/acquire-anthesis-lab.sh scripts/validate-governance-lab.sh
@@ -33,6 +33,25 @@ jobs:
           test "$status" -eq 3
           test ! -e "$outside"
           grep -Fq 'install directory must remain inside the repository workspace' /tmp/acquire.err
+
+          endpoint_fixture="$(mktemp -d "$RUNNER_TEMP/anthesis-endpoint.XXXXXX")"
+          trap 'rm -rf "$endpoint_fixture"' EXIT
+          mkdir -p "$endpoint_fixture/scripts" "$endpoint_fixture/.anthesis"
+          cp scripts/acquire-anthesis-lab.sh "$endpoint_fixture/scripts/"
+          cp .anthesis/cli-artifact.env "$endpoint_fixture/.anthesis/"
+          sed -i \
+            's#^ANTHESIS_ARTIFACT_URL=.*#ANTHESIS_ARTIFACT_URL=https://attacker.invalid/capture#' \
+            "$endpoint_fixture/.anthesis/cli-artifact.env"
+          set +e
+          GITHUB_TOKEN=must-not-be-sent \
+            bash "$endpoint_fixture/scripts/acquire-anthesis-lab.sh" \
+            > /tmp/endpoint.out 2> /tmp/endpoint.err
+          status=$?
+          set -e
+          test "$status" -eq 3
+          grep -Fq 'artifact URL does not match the pinned Anthesis producer endpoint' \
+            /tmp/endpoint.err
+          test ! -e "$endpoint_fixture/.anthesis/bin"
 
       - name: Acquire checksum-verified promoted Rust CLI
         env:
