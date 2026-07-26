@@ -20,7 +20,7 @@ jobs:
 
       - name: Acquire checksum-verified promoted Rust CLI
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ secrets.ANTHESIS_ARTIFACT_TOKEN || github.token }}
         run: bash scripts/acquire-anthesis-lab.sh
 
       - name: Validate public contracts and canonical scenarios
