@@ -5,37 +5,71 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 artifact_env="$repo_root/.anthesis/cli-artifact.env"
 install_dir="${1:-$repo_root/.anthesis/bin}"
 
-# shellcheck disable=SC1090
-source "$artifact_env"
-
-[[ "$ANTHESIS_ARTIFACT_ID" =~ ^[0-9]+$ ]] || {
-  echo "artifact ID must be numeric" >&2
+fail_boundary() {
+  echo "$1" >&2
   exit 3
 }
+
+[[ -f "$artifact_env" && ! -L "$artifact_env" ]] || \
+  fail_boundary "artifact metadata must be a regular, non-symlink file"
+
+declare -A metadata=()
+allowed_keys=' ANTHESIS_REVISION ANTHESIS_WORKFLOW_RUN_ID ANTHESIS_ARTIFACT_ID ANTHESIS_ARTIFACT_NAME ANTHESIS_ARTIFACT_ARCHIVE_SHA256 ANTHESIS_ARTIFACT_EXPIRES_AT ANTHESIS_ARTIFACT_URL '
+while IFS= read -r line || [[ -n "$line" ]]; do
+  [[ -n "$line" && "$line" != *$'\r'* && "$line" == *=* ]] || \
+    fail_boundary "artifact metadata contains a malformed line"
+  key=${line%%=*}
+  value=${line#*=}
+  [[ "$key" =~ ^[A-Z0-9_]+$ && "$allowed_keys" == *" $key "* ]] || \
+    fail_boundary "artifact metadata contains an unknown key"
+  [[ -z "${metadata[$key]+x}" ]] || fail_boundary "artifact metadata contains a duplicate key"
+  [[ -n "$value" && "$value" != *$'\n'* ]] || fail_boundary "artifact metadata contains an empty value"
+  metadata[$key]=$value
+done < "$artifact_env"
+
+for key in \
+  ANTHESIS_REVISION \
+  ANTHESIS_WORKFLOW_RUN_ID \
+  ANTHESIS_ARTIFACT_ID \
+  ANTHESIS_ARTIFACT_NAME \
+  ANTHESIS_ARTIFACT_ARCHIVE_SHA256 \
+  ANTHESIS_ARTIFACT_EXPIRES_AT \
+  ANTHESIS_ARTIFACT_URL
+do
+  [[ -n "${metadata[$key]:-}" ]] || fail_boundary "artifact metadata is missing $key"
+done
+
+ANTHESIS_REVISION=${metadata[ANTHESIS_REVISION]}
+ANTHESIS_WORKFLOW_RUN_ID=${metadata[ANTHESIS_WORKFLOW_RUN_ID]}
+ANTHESIS_ARTIFACT_ID=${metadata[ANTHESIS_ARTIFACT_ID]}
+ANTHESIS_ARTIFACT_NAME=${metadata[ANTHESIS_ARTIFACT_NAME]}
+ANTHESIS_ARTIFACT_ARCHIVE_SHA256=${metadata[ANTHESIS_ARTIFACT_ARCHIVE_SHA256]}
+ANTHESIS_ARTIFACT_EXPIRES_AT=${metadata[ANTHESIS_ARTIFACT_EXPIRES_AT]}
+ANTHESIS_ARTIFACT_URL=${metadata[ANTHESIS_ARTIFACT_URL]}
+
+[[ "$ANTHESIS_REVISION" =~ ^[0-9a-f]{40}$ ]] || fail_boundary "Anthesis revision must be a full commit SHA"
+[[ "$ANTHESIS_WORKFLOW_RUN_ID" =~ ^[0-9]+$ ]] || fail_boundary "workflow run ID must be numeric"
+[[ "$ANTHESIS_ARTIFACT_ID" =~ ^[0-9]+$ ]] || fail_boundary "artifact ID must be numeric"
+[[ "$ANTHESIS_ARTIFACT_NAME" == 'anthesis-lab-linux-x86_64' ]] || \
+  fail_boundary "artifact name is not the promoted Linux x86_64 package"
+[[ "$ANTHESIS_ARTIFACT_ARCHIVE_SHA256" =~ ^[0-9a-f]{64}$ ]] || \
+  fail_boundary "artifact archive SHA-256 is malformed"
+[[ "$ANTHESIS_ARTIFACT_EXPIRES_AT" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$ ]] || \
+  fail_boundary "artifact expiry is malformed"
 expected_artifact_url="https://api.github.com/repos/hackelia-micrantha/anthesis/actions/artifacts/${ANTHESIS_ARTIFACT_ID}/zip"
-[[ "$ANTHESIS_ARTIFACT_URL" == "$expected_artifact_url" ]] || {
-  echo "artifact URL does not match the pinned Anthesis producer endpoint" >&2
-  exit 3
-}
+[[ "$ANTHESIS_ARTIFACT_URL" == "$expected_artifact_url" ]] || \
+  fail_boundary "artifact URL does not match the pinned Anthesis producer endpoint"
 
-[[ ! -L "$repo_root/.anthesis" ]] || {
-  echo ".anthesis must not be a symlink" >&2
-  exit 3
-}
-command -v realpath >/dev/null || {
-  echo "realpath is required to validate the install path" >&2
-  exit 3
-}
+[[ ! -L "$repo_root/.anthesis" ]] || fail_boundary ".anthesis must not be a symlink"
+command -v realpath >/dev/null || fail_boundary "realpath is required to validate the install path"
 resolved_install_dir="$(realpath -m -- "$install_dir")"
 case "$resolved_install_dir" in
   "$repo_root"/*) ;;
-  *) echo "install directory must remain inside the repository workspace" >&2; exit 3 ;;
+  *) fail_boundary "install directory must remain inside the repository workspace" ;;
 esac
 mkdir -p "$resolved_install_dir"
-[[ "$(cd "$resolved_install_dir" && pwd -P)" == "$resolved_install_dir" ]] || {
-  echo "install directory must not traverse symlinks outside the repository workspace" >&2
-  exit 3
-}
+[[ "$(cd "$resolved_install_dir" && pwd -P)" == "$resolved_install_dir" ]] || \
+  fail_boundary "install directory must not traverse symlinks outside the repository workspace"
 
 work_dir="$(mktemp -d "$repo_root/.anthesis/artifact.XXXXXX")"
 trap 'rm -rf "$work_dir"' EXIT
