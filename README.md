@@ -54,6 +54,17 @@ For the complete canonical and drift exercise used by CI:
 bash scripts/validate-governance-lab.sh
 ```
 
+## CI validation and credential boundary
+
+CI deliberately separates untrusted pull-request validation from authenticated executable validation:
+
+- **Pull requests** run only `structural-validation`. This job receives no Anthesis artifact credential and checks shell syntax, the absence of Python tooling, install-path confinement, endpoint pinning, and non-executing metadata parsing.
+- **Pushes to `main`** may run `executable-validation` after structural validation succeeds. This job checks out `refs/heads/main`, obtains `ANTHESIS_ARTIFACT_TOKEN` through the `trusted-artifact-validation` GitHub environment, downloads and verifies the pinned binary, and runs the public-contract and canonical-scenario suite.
+
+The protected environment, repository workflow configuration, `main` branch controls, runner image, and maintainers able to change them are part of this trial's trusted computing base. The artifact token must not be exposed to pull-request-controlled code, scenario content, or arbitrary branch revisions.
+
+A green pull request proves the secretless structural preflight. The executable contract is complete only after the merged `main` revision produces a successful trusted run showing seven canonical passes and the intentional expectation mismatch exiting with status `7`.
+
 ## Public contract check
 
 `anthesis-lab version --format json` must identify `anthesis-lab` and advertise support for:
