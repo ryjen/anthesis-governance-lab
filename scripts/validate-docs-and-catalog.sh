@@ -46,22 +46,16 @@ jq -e '
     (.scenarios | length == 3) and
     all(.scenarios[];
       (.id | type == "string" and length > 0) and
-      (.path | type == "string" and startswith(. as $unused | "") )
+      (.path | type == "string" and startswith(".anthesis/demos/") and endswith(".yaml") and (contains("..") | not)) and
+      (.expected.decision | IN("allow", "approval_required", "deny")) and
+      (.expected.source | IN("policy_rule", "policy_default")) and
+      (.expected.reason | type == "string" and length > 0) and
+      ((.expected.source != "policy_rule") or (.expected.rule_id | type == "string" and length > 0)) and
+      (.use_case | type == "string" and length > 0) and
+      (.threat | type == "string" and length > 0) and
+      (.trust_assumption | type == "string" and length > 0) and
+      .executes_effect == false
     )
-  )
-' "$demo_catalog" >/dev/null 2>&1 || true
-
-jq -e '
-  all(.packs[].scenarios[];
-    (.path | type == "string" and startswith(".anthesis/demos/") and endswith(".yaml") and (contains("..") | not)) and
-    (.expected.decision | IN("allow", "approval_required", "deny")) and
-    (.expected.source | IN("policy_rule", "policy_default")) and
-    (.expected.reason | type == "string" and length > 0) and
-    ((.expected.source != "policy_rule") or (.expected.rule_id | type == "string" and length > 0)) and
-    (.use_case | type == "string" and length > 0) and
-    (.threat | type == "string" and length > 0) and
-    (.trust_assumption | type == "string" and length > 0) and
-    .executes_effect == false
   )
 ' "$demo_catalog" >/dev/null || fail "demo catalog contract is invalid"
 
