@@ -8,7 +8,13 @@ install_dir="${1:-$repo_root/.anthesis/bin}"
 # shellcheck disable=SC1090
 source "$artifact_env"
 
-case "$install_dir" in
+[[ ! -L "$repo_root/.anthesis" ]] || {
+  echo ".anthesis must not be a symlink" >&2
+  exit 3
+}
+mkdir -p "$install_dir"
+resolved_install_dir="$(cd "$install_dir" && pwd -P)"
+case "$resolved_install_dir" in
   "$repo_root"/*) ;;
   *) echo "install directory must remain inside the repository workspace" >&2; exit 3 ;;
 esac
@@ -31,10 +37,13 @@ curl --fail --location --proto '=https' --tlsv1.2 "${headers[@]}" \
   "$ANTHESIS_ARTIFACT_URL" --output "$archive"
 
 printf '%s  %s\n' "$ANTHESIS_ARTIFACT_ARCHIVE_SHA256" "$archive" | sha256sum --check --strict
+test "$(unzip -Z1 "$archive")" = "anthesis-lab-linux-x86_64.tar.gz"
 unzip -q "$archive" -d "$work_dir/upload"
 
 tarball="$work_dir/upload/anthesis-lab-linux-x86_64.tar.gz"
 test -f "$tarball"
+test "$(tar -tzf "$tarball" | sort)" = \
+  "$(printf '%s\n' anthesis-lab anthesis-lab.sha256 | sort)"
 mkdir -p "$work_dir/package"
 tar -xzf "$tarball" -C "$work_dir/package" --no-same-owner --no-same-permissions
 
@@ -46,7 +55,6 @@ test -f "$work_dir/package/anthesis-lab.sha256"
   sha256sum --check --strict anthesis-lab.sha256
 )
 
-mkdir -p "$install_dir"
-install -m 0755 "$work_dir/package/anthesis-lab" "$install_dir/anthesis-lab"
+install -m 0755 "$work_dir/package/anthesis-lab" "$resolved_install_dir/anthesis-lab"
 printf 'Verified binary SHA-256: '
-sha256sum "$install_dir/anthesis-lab"
+sha256sum "$resolved_install_dir/anthesis-lab"
