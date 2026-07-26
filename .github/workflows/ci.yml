@@ -18,6 +18,22 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Validate shell and workspace boundaries
+        run: |
+          set -euo pipefail
+          bash -n scripts/acquire-anthesis-lab.sh scripts/validate-governance-lab.sh
+          ! grep -RInE '(^|[^[:alnum:]_])(python3?|pip|pytest)([^[:alnum:]_]|$)' scripts
+
+          outside="$RUNNER_TEMP/anthesis-governance-lab-rejected-install"
+          rm -rf "$outside"
+          set +e
+          bash scripts/acquire-anthesis-lab.sh "$outside" >/tmp/acquire.out 2>/tmp/acquire.err
+          status=$?
+          set -e
+          test "$status" -eq 3
+          test ! -e "$outside"
+          grep -Fq 'install directory must remain inside the repository workspace' /tmp/acquire.err
+
       - name: Acquire checksum-verified promoted Rust CLI
         env:
           GITHUB_TOKEN: ${{ secrets.ANTHESIS_ARTIFACT_TOKEN || github.token }}
@@ -25,8 +41,3 @@ jobs:
 
       - name: Validate public contracts and canonical scenarios
         run: bash scripts/validate-governance-lab.sh
-
-      - name: Confirm validation scripts are Python-free
-        run: |
-          set -euo pipefail
-          ! grep -RInE '(^|[^[:alnum:]_])(python3?|pip|pytest)([^[:alnum:]_]|$)' scripts
