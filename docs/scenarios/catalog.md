@@ -1,5 +1,7 @@
 # Governance Lab Scenario Catalog
 
+The human-readable catalog is paired with the validated machine-readable manifest at [`docs/scenarios/catalog.json`](catalog.json).
+
 ## Collections
 
 ### Canonical conformance suite
@@ -18,6 +20,12 @@ These seven scenarios are synchronized public-contract fixtures. They validate e
 | `06-fail-unknown-runtime` | `deny` from `engine_guard` | Unregistered runtime fails closed. |
 | `07-block-evidence-tamper` | `deny` | Evidence mutation is blocked. |
 
+The manifest and fixture directory are checked one-to-one by:
+
+```bash
+bash scripts/validate-docs-and-catalog.sh
+```
+
 ### Demonstration catalog
 
 The separate demo collection is tracked by issues #6–#9. It will contain themed, synthetic use cases without changing the canonical conformance suite.
@@ -33,6 +41,8 @@ Planned packs:
 - runtime and identity;
 - deployment and repository administration;
 - adversarial declarations.
+
+The `.anthesis/demos` path is currently a planned interface, not an executable collection. Pack selection is not available until issues #8 and #9 land.
 
 ## Required demo metadata
 
