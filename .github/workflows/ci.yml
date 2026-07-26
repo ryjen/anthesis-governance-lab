@@ -9,28 +9,87 @@ permissions:
   contents: read
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  structural-validation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
       - name: Check out governance lab
-        uses: actions/checkout@v4
-
-      - name: Check out pinned public contract
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
-          repository: hackelia-micrantha/anthesis-community
-          ref: 7f6cdd59c640d38a2e951032ca5c9a1707b696f2
-          path: .contract
+          persist-credentials: false
 
-      - uses: actions/setup-python@v5
+      - name: Validate shell and trust boundaries
+        run: |
+          set -euo pipefail
+          bash -n scripts/acquire-anthesis-lab.sh scripts/validate-governance-lab.sh
+          ! grep -RInE '(^|[^[:alnum:]_])(python3?|pip|pytest)([^[:alnum:]_]|$)' scripts
+
+          outside="$RUNNER_TEMP/anthesis-governance-lab-rejected-install"
+          rm -rf "$outside"
+          set +e
+          bash scripts/acquire-anthesis-lab.sh "$outside" >/tmp/acquire.out 2>/tmp/acquire.err
+          status=$?
+          set -e
+          test "$status" -eq 3
+          test ! -e "$outside"
+          grep -Fq 'install directory must remain inside the repository workspace' /tmp/acquire.err
+
+          endpoint_fixture="$(mktemp -d "$RUNNER_TEMP/anthesis-endpoint.XXXXXX")"
+          trap 'rm -rf "$endpoint_fixture"' EXIT
+          mkdir -p "$endpoint_fixture/scripts" "$endpoint_fixture/.anthesis"
+          cp scripts/acquire-anthesis-lab.sh "$endpoint_fixture/scripts/"
+          cp .anthesis/cli-artifact.env "$endpoint_fixture/.anthesis/"
+          sed -i \
+            's#^ANTHESIS_ARTIFACT_URL=.*#ANTHESIS_ARTIFACT_URL=https://attacker.invalid/capture#' \
+            "$endpoint_fixture/.anthesis/cli-artifact.env"
+          set +e
+          GITHUB_TOKEN=must-not-be-sent \
+            bash "$endpoint_fixture/scripts/acquire-anthesis-lab.sh" \
+            > /tmp/endpoint.out 2> /tmp/endpoint.err
+          status=$?
+          set -e
+          test "$status" -eq 3
+          grep -Fq 'artifact URL does not match the pinned Anthesis producer endpoint' \
+            /tmp/endpoint.err
+          test ! -e "$endpoint_fixture/.anthesis/bin"
+
+          parser_fixture="$(mktemp -d "$RUNNER_TEMP/anthesis-parser.XXXXXX")"
+          mkdir -p "$parser_fixture/scripts" "$parser_fixture/.anthesis"
+          cp scripts/acquire-anthesis-lab.sh "$parser_fixture/scripts/"
+          cp .anthesis/cli-artifact.env "$parser_fixture/.anthesis/"
+          marker="$parser_fixture/metadata-executed"
+          sed -i \
+            "s#^ANTHESIS_REVISION=.*#ANTHESIS_REVISION=\$(touch $marker)#" \
+            "$parser_fixture/.anthesis/cli-artifact.env"
+          set +e
+          bash "$parser_fixture/scripts/acquire-anthesis-lab.sh" \
+            > /tmp/parser.out 2> /tmp/parser.err
+          status=$?
+          set -e
+          test "$status" -eq 3
+          test ! -e "$marker"
+          grep -Fq 'Anthesis revision must be a full commit SHA' /tmp/parser.err
+
+  executable-validation:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: structural-validation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment: trusted-artifact-validation
+    steps:
+      - name: Check out trusted governance lab revision
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
-          python-version: '3.11'
+          persist-credentials: false
+          ref: refs/heads/main
 
-      - name: Install test dependencies
-        run: python -m pip install --disable-pip-version-check pytest pyyaml==6.0.2
+      - name: Acquire checksum-verified promoted Rust CLI
+        env:
+          GITHUB_TOKEN: ${{ secrets.ANTHESIS_ARTIFACT_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$GITHUB_TOKEN"
+          bash scripts/acquire-anthesis-lab.sh
 
-      - name: Verify pinned contract synchronization
-        run: python scripts/check_contract_sync.py
-
-      - name: Run lab tests
-        run: pytest
+      - name: Validate public contracts and canonical scenarios
+        run: bash scripts/validate-governance-lab.sh
