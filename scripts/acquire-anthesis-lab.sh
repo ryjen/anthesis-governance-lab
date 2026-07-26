@@ -12,12 +12,20 @@ source "$artifact_env"
   echo ".anthesis must not be a symlink" >&2
   exit 3
 }
-mkdir -p "$install_dir"
-resolved_install_dir="$(cd "$install_dir" && pwd -P)"
+command -v realpath >/dev/null || {
+  echo "realpath is required to validate the install path" >&2
+  exit 3
+}
+resolved_install_dir="$(realpath -m -- "$install_dir")"
 case "$resolved_install_dir" in
   "$repo_root"/*) ;;
   *) echo "install directory must remain inside the repository workspace" >&2; exit 3 ;;
 esac
+mkdir -p "$resolved_install_dir"
+[[ "$(cd "$resolved_install_dir" && pwd -P)" == "$resolved_install_dir" ]] || {
+  echo "install directory must not traverse symlinks outside the repository workspace" >&2
+  exit 3
+}
 
 work_dir="$(mktemp -d "$repo_root/.anthesis/artifact.XXXXXX")"
 trap 'rm -rf "$work_dir"' EXIT
