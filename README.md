@@ -8,7 +8,9 @@ This repository consumes the accepted public Governance Lab contract from [`hack
 
 - [Governance Lab operator runbook](docs/runbooks/governance-lab-demo.md)
 - [Scenario catalog](docs/scenarios/catalog.md)
-- [Machine-readable catalog](docs/scenarios/catalog.json)
+- [Machine-readable canonical catalog](docs/scenarios/catalog.json)
+- [Baseline SDLC demo packs](docs/scenarios/demo-packs.md)
+- [Machine-readable demo catalog](docs/scenarios/demo-catalog.json)
 - [Scenario authoring guide](docs/scenarios/authoring.md)
 - [Decision and report interpretation](docs/scenarios/interpretation.md)
 
@@ -75,6 +77,12 @@ The canonical suite must report:
   "failed_count": 0
 }
 ```
+
+## Baseline SDLC demo packs
+
+Four non-canonical packs under `.anthesis/demos` add 12 synthetic declarations for documentation, source-code, CI/release, and dependency workflows. They cover `allow`, `approval_required`, policy-rule `deny`, and default `deny` outcomes without changing the accepted policy.
+
+These fixtures are cataloged and structurally validated. Issue #9 tracks the stable pack runner and real executable pack selection. No declared effect is executed by this repository.
 
 The evaluator parses and decides declared attempts. It does **not** execute file, command, network, merge, deployment, release, or repository-administration effects, and it does not persist approvals.
 
