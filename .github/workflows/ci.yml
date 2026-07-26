@@ -9,28 +9,25 @@ permissions:
   contents: read
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  governance-lab:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
       - name: Check out governance lab
-        uses: actions/checkout@v4
-
-      - name: Check out pinned public contract
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
-          repository: hackelia-micrantha/anthesis-community
-          ref: 7f6cdd59c640d38a2e951032ca5c9a1707b696f2
-          path: .contract
+          persist-credentials: false
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+      - name: Acquire checksum-verified promoted Rust CLI
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: bash scripts/acquire-anthesis-lab.sh
 
-      - name: Install test dependencies
-        run: python -m pip install --disable-pip-version-check pytest pyyaml==6.0.2
+      - name: Validate public contracts and canonical scenarios
+        run: bash scripts/validate-governance-lab.sh
 
-      - name: Verify pinned contract synchronization
-        run: python scripts/check_contract_sync.py
-
-      - name: Run lab tests
-        run: pytest
+      - name: Confirm Python-free validation surface
+        run: |
+          set -euo pipefail
+          ! grep -RInE '(^|[^[:alnum:]_])(python3?|pip|pytest)([^[:alnum:]_]|$)' \
+            .github scripts .anthesis/cli-artifact.env README.md
