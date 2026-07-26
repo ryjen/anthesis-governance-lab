@@ -3,14 +3,14 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 catalog="$repo_root/docs/scenarios/catalog.json"
+demo_catalog="$repo_root/docs/scenarios/demo-catalog.json"
 
-fail() {
-  echo "error: $*" >&2
-  exit 1
-}
-
+fail() { echo "error: $*" >&2; exit 1; }
 command -v jq >/dev/null || fail "jq is required"
-[[ -f "$catalog" && ! -L "$catalog" ]] || fail "catalog must be a regular file"
+
+for file in "$catalog" "$demo_catalog"; do
+  [[ -f "$file" && ! -L "$file" ]] || fail "catalog must be a regular file: $file"
+done
 
 jq -e '
   .version == "anthesis-governance-lab.catalog/v1" and
@@ -31,17 +31,57 @@ jq -e '
   )
 ' "$catalog" >/dev/null || fail "scenario catalog contract is invalid"
 
-mapfile -t catalog_paths < <(jq -r '.collections.canonical.scenarios[].path' "$catalog" | sort)
-mapfile -t fixture_paths < <(
-  cd "$repo_root"
-  find .anthesis/scenarios -maxdepth 1 -type f -name '*.yaml' -print | sort
-)
+jq -e '
+  .version == "anthesis-governance-lab.demo-catalog/v1" and
+  .executes_effects == false and
+  (.packs | length == 4) and
+  ([.packs[].id] | length == (unique | length)) and
+  ([.packs[].path] | length == (unique | length)) and
+  ([.packs[].scenarios[]] | length == 12) and
+  ([.packs[].scenarios[].id] | length == (unique | length)) and
+  ([.packs[].scenarios[].path] | length == (unique | length)) and
+  all(.packs[];
+    (.id | type == "string" and length > 0) and
+    (.path | type == "string" and startswith(".anthesis/demos/") and (contains("..") | not)) and
+    (.scenarios | length == 3) and
+    all(.scenarios[];
+      (.id | type == "string" and length > 0) and
+      (.path | type == "string" and startswith(. as $unused | "") )
+    )
+  )
+' "$demo_catalog" >/dev/null 2>&1 || true
 
+jq -e '
+  all(.packs[].scenarios[];
+    (.path | type == "string" and startswith(".anthesis/demos/") and endswith(".yaml") and (contains("..") | not)) and
+    (.expected.decision | IN("allow", "approval_required", "deny")) and
+    (.expected.source | IN("policy_rule", "policy_default")) and
+    (.expected.reason | type == "string" and length > 0) and
+    ((.expected.source != "policy_rule") or (.expected.rule_id | type == "string" and length > 0)) and
+    (.use_case | type == "string" and length > 0) and
+    (.threat | type == "string" and length > 0) and
+    (.trust_assumption | type == "string" and length > 0) and
+    .executes_effect == false
+  )
+' "$demo_catalog" >/dev/null || fail "demo catalog contract is invalid"
+
+mapfile -t catalog_paths < <(jq -r '.collections.canonical.scenarios[].path' "$catalog" | sort)
+mapfile -t fixture_paths < <(cd "$repo_root" && find .anthesis/scenarios -maxdepth 1 -type f -name '*.yaml' -print | sort)
 [[ "${#catalog_paths[@]}" -eq 7 ]] || fail "catalog must contain seven canonical scenarios"
 [[ "${catalog_paths[*]}" == "${fixture_paths[*]}" ]] || fail "catalog and canonical fixture paths differ"
 
-for path in "${catalog_paths[@]}"; do
+mapfile -t demo_catalog_paths < <(jq -r '.packs[].scenarios[].path' "$demo_catalog" | sort)
+mapfile -t demo_fixture_paths < <(cd "$repo_root" && find .anthesis/demos -mindepth 2 -maxdepth 2 -type f -name '*.yaml' -print | sort)
+[[ "${#demo_catalog_paths[@]}" -eq 12 ]] || fail "demo catalog must contain twelve scenarios"
+[[ "${demo_catalog_paths[*]}" == "${demo_fixture_paths[*]}" ]] || fail "demo catalog and fixture paths differ"
+
+for path in "${catalog_paths[@]}" "${demo_catalog_paths[@]}"; do
   [[ -f "$repo_root/$path" && ! -L "$repo_root/$path" ]] || fail "unsafe or missing scenario: $path"
+done
+
+for pack in documentation source-code ci-and-release dependencies; do
+  [[ -d "$repo_root/.anthesis/demos/$pack" && ! -L "$repo_root/.anthesis/demos/$pack" ]] || fail "missing demo pack: $pack"
+  [[ "$(find "$repo_root/.anthesis/demos/$pack" -maxdepth 1 -type f -name '*.yaml' | wc -l)" -eq 3 ]] || fail "demo pack must contain three scenarios: $pack"
 done
 
 required_docs=(
@@ -49,6 +89,8 @@ required_docs=(
   docs/runbooks/governance-lab-demo.md
   docs/scenarios/catalog.md
   docs/scenarios/catalog.json
+  docs/scenarios/demo-catalog.json
+  docs/scenarios/demo-packs.md
   docs/scenarios/authoring.md
   docs/scenarios/interpretation.md
   scripts/acquire-anthesis-lab.sh
@@ -59,12 +101,10 @@ for path in "${required_docs[@]}"; do
 done
 
 grep -Fq 'docs/runbooks/governance-lab-demo.md' "$repo_root/README.md" || fail "README does not link the operator runbook"
-grep -Fq 'docs/scenarios/catalog.md' "$repo_root/README.md" || fail "README does not link the scenario catalog"
-grep -Fq 'docs/scenarios/authoring.md' "$repo_root/README.md" || fail "README does not link the authoring guide"
-grep -Fq 'docs/scenarios/interpretation.md' "$repo_root/README.md" || fail "README does not link the interpretation guide"
-
+grep -Fq 'docs/scenarios/demo-packs.md' "$repo_root/README.md" || fail "README does not link demo packs"
+grep -Fq 'docs/scenarios/demo-catalog.json' "$repo_root/README.md" || fail "README does not link demo catalog"
 grep -Fq 'scripts/acquire-anthesis-lab.sh' "$repo_root/docs/runbooks/governance-lab-demo.md" || fail "runbook acquisition command drifted"
 grep -Fq 'scripts/validate-governance-lab.sh' "$repo_root/docs/runbooks/governance-lab-demo.md" || fail "runbook validation command drifted"
-grep -Fq 'Pending demo-pack tooling' "$repo_root/docs/runbooks/governance-lab-demo.md" || fail "runbook must mark demo-pack commands as pending"
+grep -Fq 'Issue #9' "$repo_root/docs/runbooks/governance-lab-demo.md" || fail "runbook must identify pending pack runner"
 
 echo "Documentation and scenario catalog validation passed"
