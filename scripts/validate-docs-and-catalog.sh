@@ -99,6 +99,6 @@ grep -Fq 'docs/scenarios/demo-packs.md' "$repo_root/README.md" || fail "README d
 grep -Fq 'docs/scenarios/demo-catalog.json' "$repo_root/README.md" || fail "README does not link demo catalog"
 grep -Fq 'scripts/acquire-anthesis-lab.sh' "$repo_root/docs/runbooks/governance-lab-demo.md" || fail "runbook acquisition command drifted"
 grep -Fq 'scripts/validate-governance-lab.sh' "$repo_root/docs/runbooks/governance-lab-demo.md" || fail "runbook validation command drifted"
-grep -Fq 'issue #9' "$repo_root/docs/runbooks/governance-lab-demo.md" || fail "runbook must identify pending pack runner"
+grep -Fiq 'issue #9' "$repo_root/docs/runbooks/governance-lab-demo.md" || fail "runbook must identify pending pack runner"
 
 echo "Documentation and scenario catalog validation passed"
