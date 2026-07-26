@@ -4,12 +4,13 @@ on:
   pull_request:
   push:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  governance-lab:
+  structural-validation:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -53,10 +54,42 @@ jobs:
             /tmp/endpoint.err
           test ! -e "$endpoint_fixture/.anthesis/bin"
 
+          parser_fixture="$(mktemp -d "$RUNNER_TEMP/anthesis-parser.XXXXXX")"
+          mkdir -p "$parser_fixture/scripts" "$parser_fixture/.anthesis"
+          cp scripts/acquire-anthesis-lab.sh "$parser_fixture/scripts/"
+          cp .anthesis/cli-artifact.env "$parser_fixture/.anthesis/"
+          marker="$parser_fixture/metadata-executed"
+          sed -i \
+            "s#^ANTHESIS_REVISION=.*#ANTHESIS_REVISION=\$(touch $marker)#" \
+            "$parser_fixture/.anthesis/cli-artifact.env"
+          set +e
+          bash "$parser_fixture/scripts/acquire-anthesis-lab.sh" \
+            > /tmp/parser.out 2> /tmp/parser.err
+          status=$?
+          set -e
+          test "$status" -eq 3
+          test ! -e "$marker"
+          grep -Fq 'Anthesis revision must be a full commit SHA' /tmp/parser.err
+
+  executable-validation:
+    if: github.event_name != 'pull_request'
+    needs: structural-validation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment: trusted-artifact-validation
+    steps:
+      - name: Check out trusted governance lab revision
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+
       - name: Acquire checksum-verified promoted Rust CLI
         env:
-          GITHUB_TOKEN: ${{ secrets.ANTHESIS_ARTIFACT_TOKEN || github.token }}
-        run: bash scripts/acquire-anthesis-lab.sh
+          GITHUB_TOKEN: ${{ secrets.ANTHESIS_ARTIFACT_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$GITHUB_TOKEN"
+          bash scripts/acquire-anthesis-lab.sh
 
       - name: Validate public contracts and canonical scenarios
         run: bash scripts/validate-governance-lab.sh
