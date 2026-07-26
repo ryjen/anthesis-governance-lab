@@ -1,0 +1,26 @@
+{
+  "version": "anthesis-governance-lab.demo-catalog/v1",
+  "executes_effects": false,
+  "packs": [
+    {"id":"documentation","path":".anthesis/demos/documentation","scenarios":[
+      {"id":"documentation-01-allow-docs-write","path":".anthesis/demos/documentation/01-allow-docs-write.yaml","expected":{"decision":"allow","source":"policy_rule","rule_id":"scoped-docs-and-code-write","reason":"scoped_write"},"use_case":"Scoped documentation maintenance","threat":"Unbounded repository mutation","trust_assumption":"The evaluator receives declarations only","executes_effect":false},
+      {"id":"documentation-02-allow-docs-read","path":".anthesis/demos/documentation/02-allow-docs-read.yaml","expected":{"decision":"allow","source":"policy_rule","rule_id":"repo-read","reason":"repository_read"},"use_case":"Documentation inspection","threat":"Unauthorized effect execution","trust_assumption":"Read declarations do not execute effects","executes_effect":false},
+      {"id":"documentation-03-deny-outside-boundary","path":".anthesis/demos/documentation/03-deny-outside-boundary.yaml","expected":{"decision":"deny","source":"policy_default","reason":"default_deny"},"use_case":"Out-of-scope configuration write","threat":"Capability expansion beyond approved paths","trust_assumption":"Default deny remains fail closed","executes_effect":false}
+    ]},
+    {"id":"source-code","path":".anthesis/demos/source-code","scenarios":[
+      {"id":"source-code-01-allow-source-write","path":".anthesis/demos/source-code/01-allow-source-write.yaml","expected":{"decision":"allow","source":"policy_rule","rule_id":"scoped-docs-and-code-write","reason":"scoped_write"},"use_case":"Bounded source maintenance","threat":"Unbounded code modification","trust_assumption":"Paths are repository-relative","executes_effect":false},
+      {"id":"source-code-02-allow-test-write","path":".anthesis/demos/source-code/02-allow-test-write.yaml","expected":{"decision":"allow","source":"policy_rule","rule_id":"scoped-docs-and-code-write","reason":"scoped_write"},"use_case":"Regression-test creation","threat":"Writes outside test scope","trust_assumption":"The accepted policy controls path matching","executes_effect":false},
+      {"id":"source-code-03-deny-merge","path":".anthesis/demos/source-code/03-deny-merge.yaml","expected":{"decision":"deny","source":"policy_rule","rule_id":"release-deploy-deny","reason":"release_or_deploy_not_allowed"},"use_case":"Direct branch merge request","threat":"Agent bypass of review and release controls","trust_assumption":"A production executor must enforce the decision","executes_effect":false}
+    ]},
+    {"id":"ci-and-release","path":".anthesis/demos/ci-and-release","scenarios":[
+      {"id":"ci-and-release-01-allow-workflow-read","path":".anthesis/demos/ci-and-release/01-allow-workflow-read.yaml","expected":{"decision":"allow","source":"policy_rule","rule_id":"repo-read","reason":"repository_read"},"use_case":"CI metadata inspection","threat":"Unreviewed workflow mutation","trust_assumption":"Read and write capabilities remain distinct","executes_effect":false},
+      {"id":"ci-and-release-02-require-workflow-approval","path":".anthesis/demos/ci-and-release/02-require-workflow-approval.yaml","expected":{"decision":"approval_required","source":"policy_rule","rule_id":"ci-workflow-change","reason":"workflow_change"},"use_case":"CI workflow modification","threat":"Credential or release-path manipulation","trust_assumption":"Approval is external to this lab","executes_effect":false},
+      {"id":"ci-and-release-03-deny-release","path":".anthesis/demos/ci-and-release/03-deny-release.yaml","expected":{"decision":"deny","source":"policy_rule","rule_id":"release-deploy-deny","reason":"release_or_deploy_not_allowed"},"use_case":"Direct release publication","threat":"Unauthorized software release","trust_assumption":"No release credential is present","executes_effect":false}
+    ]},
+    {"id":"dependencies","path":".anthesis/demos/dependencies","scenarios":[
+      {"id":"dependencies-01-allow-manifest-read","path":".anthesis/demos/dependencies/01-allow-manifest-read.yaml","expected":{"decision":"allow","source":"policy_rule","rule_id":"repo-read","reason":"repository_read"},"use_case":"Dependency inventory","threat":"Unapproved dependency mutation","trust_assumption":"Read access does not imply write access","executes_effect":false},
+      {"id":"dependencies-02-require-manifest-approval","path":".anthesis/demos/dependencies/02-require-manifest-approval.yaml","expected":{"decision":"approval_required","source":"policy_rule","rule_id":"dependency-change","reason":"dependency_change"},"use_case":"Dependency manifest update","threat":"Supply-chain change without review","trust_assumption":"Approval is bound by a production integration","executes_effect":false},
+      {"id":"dependencies-03-require-install-approval","path":".anthesis/demos/dependencies/03-require-install-approval.yaml","expected":{"decision":"approval_required","source":"policy_rule","rule_id":"network-access","reason":"network_access"},"use_case":"Networked package installation","threat":"Unreviewed external code acquisition","trust_assumption":"The lab has no network executor","executes_effect":false}
+    ]}
+  ]
+}
