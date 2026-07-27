@@ -1,0 +1,41 @@
+{
+  "version": "anthesis-governance-lab.showcase/v1",
+  "executes_effects": false,
+  "entries": [
+    {
+      "id": "allow",
+      "kind": "scenario",
+      "path": ".anthesis/demos/documentation/01-allow-docs-write.yaml",
+      "expected_decision": "allow",
+      "expected_source": "policy_rule"
+    },
+    {
+      "id": "approval-required",
+      "kind": "scenario",
+      "path": ".anthesis/demos/ci-and-release/02-require-workflow-approval.yaml",
+      "expected_decision": "approval_required",
+      "expected_source": "policy_rule"
+    },
+    {
+      "id": "policy-deny",
+      "kind": "scenario",
+      "path": ".anthesis/demos/source-code/03-deny-merge.yaml",
+      "expected_decision": "deny",
+      "expected_source": "policy_rule"
+    },
+    {
+      "id": "engine-guard-deny",
+      "kind": "scenario",
+      "path": ".anthesis/scenarios/06-fail-unknown-runtime.yaml",
+      "expected_decision": "deny",
+      "expected_source": "engine_guard"
+    },
+    {
+      "id": "expectation-drift",
+      "kind": "validation_exercise",
+      "command": "bash scripts/validate-governance-lab.sh",
+      "expected_exit": 0,
+      "evidence": "Intentional governance drift: detected with exit code 7"
+    }
+  ]
+}
