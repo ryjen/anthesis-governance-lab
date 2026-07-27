@@ -1,0 +1,18 @@
+{
+  "version": "anthesis-governance-lab.inference-integrity-fixtures/v0",
+  "status": "provisional",
+  "canonical_authority": "hackelia-micrantha/anthesis#108",
+  "gateway_dependency": "ryjen/dubnium#379",
+  "live_replay_dependency": "ryjen/dubnium#381",
+  "executable_with_anthesis_lab": false,
+  "contains_real_prompts": false,
+  "contains_real_secrets": false,
+  "fixtures": [
+    {
+      "id": "consistent-fixed-seed-skeleton",
+      "path": "fixtures/inference-integrity/consistent-fixed-seed.json",
+      "purpose": "Demonstrate separation of requested alias, resolved execution, original evidence, verifier evidence, and policy outcome.",
+      "verification_class": "fixed_seed"
+    }
+  ]
+}
