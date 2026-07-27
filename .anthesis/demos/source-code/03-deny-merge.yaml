@@ -6,7 +6,7 @@ policy: local-sdlc
 actor: {role: implementation}
 runtime: {id: ollama-qwen3-14b}
 attempts:
-  - {action: git.merge, branch: feature/example}
+  - {action: git.merge}
 expected:
   decision: deny
   source: policy_rule

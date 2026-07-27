@@ -18,13 +18,13 @@ The runbook is the primary entry point for fresh-clone setup, verified evaluator
 
 ## Supported trial platform
 
-The executable trial currently supports **Linux x86_64**. It uses a statically linked Rust `anthesis-lab` artifact and requires:
+The executable trial currently supports **Linux x86_64**. It uses a statically linked Rust `anthesis-lab` release and requires:
 
 ```text
-bash curl sha256sum unzip tar jq realpath
+bash curl sha256sum tar jq realpath
 ```
 
-The current acquisition path is transitional: it uses a checksum-pinned GitHub Actions artifact that requires `GITHUB_TOKEN`. Issue #4 tracks migration to an anonymously downloadable immutable public release. Do not describe the current path as secretless.
+The evaluator is downloaded anonymously from an immutable release in `hackelia-micrantha/anthesis-community`. `.anthesis/cli-artifact.env` pins the full private Anthesis source commit, public release tag, tarball checksum, packaged binary checksum, CLI version, and supported contract set.
 
 ## Fresh-clone trial
 
@@ -32,13 +32,14 @@ The current acquisition path is transitional: it uses a checksum-pinned GitHub A
 git clone https://github.com/ryjen/anthesis-governance-lab.git
 cd anthesis-governance-lab
 
-export GITHUB_TOKEN=... # required by the current transitional artifact path
 bash scripts/acquire-anthesis-lab.sh
 export PATH="$PWD/.anthesis/bin:$PATH"
 
 anthesis-lab version --format json
 anthesis-lab test --repo . --format json
 ```
+
+No GitHub token or private Anthesis checkout is required.
 
 For the complete canonical and governance-drift validation:
 
@@ -51,6 +52,20 @@ For repository documentation and catalog contract validation:
 ```bash
 bash scripts/validate-docs-and-catalog.sh
 ```
+
+## Immutable release pin
+
+Current release identity:
+
+```text
+source commit: 01540df98e08dc5fa7a01e29c07132a67b5cb59a
+release tag: anthesis-lab-01540df98e08dc5fa7a01e29c07132a67b5cb59a
+tarball SHA-256: 7539a368acf22c2e7293a0edbefddb33236a16d3c1eabab80c20176666ba1e15
+binary SHA-256: 63a213315f1940675700493fcedda6a1854c6792b6f74eebd5c7f7203f34e70a
+CLI version: 0.1.0
+```
+
+Upgrades must change all identity values together in a reviewed pull request. The acquisition script must then verify the release checksum asset, provenance manifest, archive allowlist, packaged binary checksum, explicit binary checksum, CLI version, and exact supported contract set. Never replace this pin with a mutable `latest` URL.
 
 ## Canonical scenarios
 
@@ -100,7 +115,7 @@ Registering Anthesis beside unwrapped effectful tools is insufficient.
 
 ## CI trust boundary
 
-Pull requests run secretless structural validation. Trusted executable validation currently runs only on `main` with the pinned artifact credential. The planned immutable public release will allow executable validation without a private producer token once issue #4 is complete.
+Pull requests and `main` both run the real Rust CLI without secrets. CI downloads only the immutable public release pinned in `.anthesis/cli-artifact.env`, verifies its provenance and checksums before extraction, and fails closed before scenario execution on any identity mismatch.
 
 ## License
 

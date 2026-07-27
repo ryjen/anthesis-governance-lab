@@ -6,7 +6,7 @@ policy: local-sdlc
 actor: {role: implementation}
 runtime: {id: ollama-qwen3-14b}
 attempts:
-  - {action: release.tag, tag: v0.0.0-demo}
+  - {action: release.tag}
 expected:
   decision: deny
   source: policy_rule
