@@ -1,0 +1,14 @@
+version: anthesis.scenario/v1
+id: runtime-and-identity-03-deny-unknown-runtime-write
+title: Deny unknown runtime before scoped write
+goal: Show that an unregistered runtime cannot inherit an otherwise allowed write capability.
+policy: local-sdlc
+actor: {role: implementation}
+runtime: {id: unknown-demo-runtime}
+attempts:
+  - {action: file.write, path: docs/runtime-note.md}
+expected:
+  decision: deny
+  source: engine_guard
+  reason: unknown_runtime
+  evidence: [scenario_id, decision, decision_source, policy_digest, effect]
