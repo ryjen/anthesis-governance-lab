@@ -26,14 +26,14 @@ The runner accepts only an exact cataloged pack ID, confines selection to `.anth
 | `network-and-tools` | allow, approval, default deny | Offline test execution, external-network review, and unrestricted-command failure. |
 | `runtime-and-identity` | allow, engine-guard deny | Registered runtime use and fail-closed unknown runtime identity. |
 | `deployment-and-administration` | policy deny | Deployment, release, and merge administration denial. |
-| `adversarial` | policy deny, default deny | Policy-bypass language, absolute-path scope expansion, and unrestricted command expansion. |
+| `adversarial` | policy deny, default deny | Policy-bypass language, policy-namespace scope expansion, and unrestricted command expansion. |
 
 ## Adversarial showcase
 
 | Scenario | Expected result | Demonstrates |
 |---|---|---|
 | `adversarial-01-deny-policy-bypass-secret-read` | `deny` | Instruction-like language cannot override the secret-protection rule. |
-| `adversarial-02-deny-absolute-path-write` | `deny` from `policy_default` | An absolute host path does not inherit repository-relative write permission. |
+| `adversarial-02-deny-policy-namespace-write` | `deny` from `policy_default` | A scoped write does not inherit permission to overwrite governance policy. |
 | `adversarial-03-deny-capability-expansion-command` | `deny` from `policy_default` | Task rationale cannot manufacture unrestricted shell capability. |
 
 These scenarios intentionally stay within the accepted public contract. Replay binding and changed-payload enforcement require request-binding inputs and a governed executor integration; they are not simulated by inventing unsupported fixture fields.
