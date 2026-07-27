@@ -1,0 +1,39 @@
+{
+  "version": "anthesis-governance-lab.inference-integrity-record/v0",
+  "status": "provisional",
+  "synthetic": true,
+  "case": {"kind": "plano_route_change", "expected_verdict": "suspicious", "expected_outcome": "suspend_route"},
+  "original_execution": {
+    "execution_ref": "execution:synthetic-plano-route-009",
+    "gateway_contract_ref": "dubnium-llm-gateway/v1",
+    "requested_model_alias": "supervisor",
+    "resolved_execution": {
+      "provider_ref": "provider:synthetic-local",
+      "route_ref": "route:synthetic-plano-secondary",
+      "model_artifact_ref": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "tokenizer_ref": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "runtime_build_ref": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+      "runtime_profile_ref": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+      "prompt_profile_ref": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+      "routing_policy_ref": "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+    },
+    "routing": {"planned_route_ref": "route:synthetic-plano-primary", "resolved_route_ref": "route:synthetic-plano-secondary", "change_approved": false},
+    "sampling": {"algorithm": "gumbel-max", "parameters_digest": "sha256:7777777777777777777777777777777777777777777777777777777777777777", "seed_commitment": "sha256:8888888888888888888888888888888888888888888888888888888888888888", "seed_owner": "gateway"},
+    "output": {"response_digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999", "token_ids_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+    "topology": {"parent_execution_ref": null, "role": "supervisor", "subrun_refs": []},
+    "verification_request": {"capability_class": "fixed_seed", "selection_ref": "selection:synthetic-009", "operating_mode": "required_gate"}
+  },
+  "verification_result": {
+    "verification_ref": "verification:synthetic-plano-route-009",
+    "original_execution_ref": "execution:synthetic-plano-route-009",
+    "method": "resolved-route-binding",
+    "method_version": "1",
+    "verifier": {"identity_ref": "workload:synthetic-independent-verifier", "build_ref": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "trusted": true},
+    "observations": {"verified_tokens": 0, "suspicious_tokens": 1, "dangerous_tokens": 0, "estimated_channel_bits": 0, "cumulative_channel_bits": 0},
+    "verdict": "suspicious",
+    "limitations": ["unapproved_route_change"],
+    "authoritative": false
+  },
+  "policy_result": {"decision_ref": "decision:synthetic-plano-route-009", "original_execution_ref": "execution:synthetic-plano-route-009", "verification_ref": "verification:synthetic-plano-route-009", "outcome": "suspend_route", "containment_action": "suspend_route", "authority": "phloem-calyx-policy-plane"},
+  "reverification": null
+}
