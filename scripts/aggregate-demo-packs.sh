@@ -13,8 +13,10 @@ command -v jq >/dev/null || fail "jq is required"
 work_dir="$(mktemp -d "$repo_root/.anthesis/demo-pack-aggregate.XXXXXX")"
 trap 'rm -rf "$work_dir"' EXIT
 
-mapfile -t packs < <(bash "$runner" --list)
+mapfile -t packs < <(bash "$runner" --list | LC_ALL=C sort)
+mapfile -t catalog_packs < <(jq -r '.packs[].id' "$catalog" | LC_ALL=C sort)
 [[ "${#packs[@]}" -gt 0 ]] || fail "demo catalog contains no packs"
+[[ "${packs[*]}" == "${catalog_packs[*]}" ]] || fail "runner pack list differs from catalog"
 
 mismatches=0
 invalid=0
@@ -36,8 +38,12 @@ for pack in "${packs[@]}"; do
   report_json=null
   scenario_count=0
 
-  if jq -e '.version == "anthesis.test-report/v1" and (.total | type == "number")' \
-    "$raw_report" >/dev/null 2>&1; then
+  if jq -e '
+      .version == "anthesis.test-report/v1" and
+      (.total | type == "number" and floor == . and . > 0) and
+      (.failed_count | type == "number" and floor == . and . >= 0)
+    ' "$raw_report" >/dev/null 2>&1 &&
+    ! grep -Fq "$repo_root" "$raw_report"; then
     report_json="$(jq -c . "$raw_report")"
     scenario_count="$(jq -r '.total' "$raw_report")"
   fi
