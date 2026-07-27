@@ -11,13 +11,12 @@ From a fresh clone:
 ```bash
 git clone https://github.com/ryjen/anthesis-governance-lab.git
 cd anthesis-governance-lab
-export GITHUB_TOKEN=...
 bash scripts/acquire-anthesis-lab.sh
 export PATH="$PWD/.anthesis/bin:$PATH"
 anthesis-lab version --format json | jq .
 ```
 
-The current acquisition path uses a checksum-pinned promoted artifact. Issue #4 tracks replacement with an anonymously downloadable immutable public release.
+The evaluator is downloaded anonymously from an immutable public release. The acquisition script verifies the pinned source commit, release tag, provenance, external tarball checksum, archive members, packaged binary checksum, CLI version, and required contracts before execution.
 
 ## 2. Run the canonical contract suite
 
