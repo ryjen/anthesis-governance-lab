@@ -1,0 +1,21 @@
+{
+  "version": "anthesis.inference-integrity-fixtures/v1alpha1",
+  "fixtures": {
+    "accept-consistent-fixed-seed-output": {"resolved_identity": true, "seed_control": "gateway_owned", "commitment_precedes_output": true, "expected_tokens": [11, 22, 33], "observed_tokens": [11, 22, 33]},
+    "reject-missing-resolved-identity": {"resolved_identity": false, "seed_control": "gateway_owned", "expected_tokens": [11], "observed_tokens": [11]},
+    "reject-runtime-selected-seed": {"resolved_identity": true, "seed_control": "runtime_selected", "expected_tokens": [11], "observed_tokens": [11]},
+    "detect-token-substitution": {"resolved_identity": true, "seed_control": "gateway_owned", "commitment_precedes_output": true, "expected_tokens": [11, 22, 33], "observed_tokens": [11, 99, 33]},
+    "detect-seed-evidence-rewrite": {"resolved_identity": true, "seed_control": "gateway_owned", "seed_commitment_original": "sha256:seed-a", "seed_commitment_observed": "sha256:seed-b"},
+    "reject-untrusted-verifier": {"resolved_identity": true, "verifier_independence": "common_root", "observed_tokens": [11]},
+    "budget-low-capacity-discrepancy": {"estimated_channel_bits": 0.25, "window_consumed_bits": 7.75, "window_limit_bits": 8.0},
+    "quarantine-dangerous-token": {"accepted_token_ranks": [1, 1, 2048], "dangerous_tokens": 1, "estimated_channel_bits": 11.0},
+    "aggregate-low-rate-leakage": {"per_execution_bits": [0.5, 0.5, 0.5, 0.5], "window_consumed_bits": 10.0, "window_limit_bits": 8.0, "correlation_detected": true},
+    "detect-plano-route-change": {"declared_route": "route:a", "observed_route": "route:b", "cross_provider": true},
+    "block-fallback-to-unverifiable-route": {"primary_capability": "fixed_seed", "fallback_capability": "unsupported", "fallback_used": true, "verification_required": true},
+    "localize-specialist-tamper": {"role": "specialist", "subrun_ref": "execution:specialist-2", "expected_tokens": [4, 5], "observed_tokens": [4, 9]},
+    "detect-synthesis-tamper": {"role": "synthesis", "consumed_output_refs": ["digest:a", "digest:b"], "declared_consumed_output_refs": ["digest:a", "digest:c"]},
+    "preserve-original-on-reverification": {"original_execution_ref": "execution:1", "original_evidence_digest": "sha256:original", "prior_verification_ref": "verification:1", "new_verification_ref": "verification:2", "original_mutated": false},
+    "downgrade-unsupported-replay": {"resolved_identity": true, "replay_package_available": false, "maximum_capability_class": "unsupported"},
+    "block-direct-runtime-bypass": {"gateway_required": true, "gateway_evidence_present": false, "direct_runtime_used": true}
+  }
+}
