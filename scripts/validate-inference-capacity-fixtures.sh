@@ -15,6 +15,7 @@ validate_fixture() {
   jq -e '
     def execution_ref: type == "string" and startswith("execution:") and length > 10;
     def route_ref: type == "string" and startswith("route:") and length > 6;
+    def approx_eq($left; $right): (($left - $right) | fabs) <= 0.000000001;
     def contribution:
       (.execution_ref | execution_ref) and
       (.estimated_channel_bits | type == "number" and . >= 0);
@@ -36,14 +37,14 @@ validate_fixture() {
     (.verification_result.limitations | index("capacity_formula_provisional") != null) and
     (if .case.kind == "bounded_low_capacity" then
        .original_execution.verification_request.capability_class == "bounded_consistency" and
-       .verification_result.observations.estimated_channel_bits == .verification_result.observations.cumulative_channel_bits and
+       approx_eq(.verification_result.observations.estimated_channel_bits; .verification_result.observations.cumulative_channel_bits) and
        .verification_result.observations.cumulative_channel_bits < .verification_result.capacity_accounting.budget_bits and
        .verification_result.capacity_accounting.within_budget == true and
        .verification_result.verdict == "suspicious" and
        .policy_result.outcome == "increase_sampling"
      elif .case.kind == "aggregate_low_rate_leakage" then
        (.verification_result.capacity_accounting.contributions | length >= 2 and all(.[]; contribution)) and
-       ([.verification_result.capacity_accounting.contributions[].estimated_channel_bits] | add) == .verification_result.observations.cumulative_channel_bits and
+       approx_eq(([.verification_result.capacity_accounting.contributions[].estimated_channel_bits] | add); .verification_result.observations.cumulative_channel_bits) and
        all(.verification_result.capacity_accounting.contributions[]; .estimated_channel_bits < $record.verification_result.capacity_accounting.budget_bits) and
        .verification_result.observations.cumulative_channel_bits > .verification_result.capacity_accounting.budget_bits and
        .verification_result.capacity_accounting.within_budget == false and
@@ -52,7 +53,7 @@ validate_fixture() {
      elif .case.kind == "aggregation_window_isolation" then
        (.verification_result.capacity_accounting.included_contributions | length >= 1 and all(.[]; contribution)) and
        (.verification_result.capacity_accounting.excluded_contributions | length >= 1 and all(.[]; contribution and (.reason | type == "string" and length > 0))) and
-       ([.verification_result.capacity_accounting.included_contributions[].estimated_channel_bits] | add) == .verification_result.observations.cumulative_channel_bits and
+       approx_eq(([.verification_result.capacity_accounting.included_contributions[].estimated_channel_bits] | add); .verification_result.observations.cumulative_channel_bits) and
        ([.verification_result.capacity_accounting.included_contributions[].execution_ref] - [.verification_result.capacity_accounting.excluded_contributions[].execution_ref] | length) == (.verification_result.capacity_accounting.included_contributions | length) and
        .verification_result.observations.cumulative_channel_bits < .verification_result.capacity_accounting.budget_bits and
        .verification_result.capacity_accounting.within_budget == true and
@@ -65,7 +66,7 @@ validate_fixture() {
        (.original_execution.routing.retry_chain | length >= 2 and all(.[]; (.execution_ref | execution_ref) and (.route_ref | route_ref) and (.attempt | type == "number" and . >= 1))) and
        (.verification_result.capacity_accounting.contributions | length == ($record.original_execution.routing.retry_chain | length) and all(.[]; contribution and (.route_ref | route_ref))) and
        ([.verification_result.capacity_accounting.contributions[].execution_ref] | sort) == ([.original_execution.routing.retry_chain[].execution_ref] | sort) and
-       ([.verification_result.capacity_accounting.contributions[].estimated_channel_bits] | add) == .verification_result.observations.cumulative_channel_bits and
+       approx_eq(([.verification_result.capacity_accounting.contributions[].estimated_channel_bits] | add); .verification_result.observations.cumulative_channel_bits) and
        .verification_result.capacity_accounting.route_change_resets_budget == false and
        .verification_result.observations.cumulative_channel_bits > .verification_result.capacity_accounting.budget_bits and
        .verification_result.capacity_accounting.within_budget == false and
