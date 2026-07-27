@@ -12,7 +12,33 @@
       "id": "consistent-fixed-seed-skeleton",
       "path": "fixtures/inference-integrity/consistent-fixed-seed.json",
       "purpose": "Demonstrate separation of requested alias, resolved execution, original evidence, verifier evidence, and policy outcome.",
-      "verification_class": "fixed_seed"
+      "verification_class": "fixed_seed",
+      "expected_verdict": "conformant",
+      "expected_outcome": "allow"
+    },
+    {
+      "id": "runtime-selected-seed",
+      "path": "fixtures/inference-integrity/runtime-selected-seed.json",
+      "purpose": "Demonstrate that a runtime-selected seed cannot support a gateway-owned fixed-seed verification claim.",
+      "verification_class": "fixed_seed",
+      "expected_verdict": "indeterminate",
+      "expected_outcome": "require_human_review"
+    },
+    {
+      "id": "token-substitution",
+      "path": "fixtures/inference-integrity/token-substitution.json",
+      "purpose": "Demonstrate detection and quarantine expectation for a substituted dangerous token.",
+      "verification_class": "fixed_seed",
+      "expected_verdict": "dangerous",
+      "expected_outcome": "quarantine_response"
+    },
+    {
+      "id": "untrusted-verifier",
+      "path": "fixtures/inference-integrity/untrusted-verifier.json",
+      "purpose": "Demonstrate that evidence from an untrusted verifier remains indeterminate and non-authoritative.",
+      "verification_class": "fixed_seed",
+      "expected_verdict": "indeterminate",
+      "expected_outcome": "require_human_review"
     }
   ]
 }
