@@ -6,6 +6,7 @@ This repository consumes the accepted public Governance Lab contract from [`hack
 
 ## Documentation
 
+- [Micrantha architecture context](docs/micrantha-architecture-context.md)
 - [Governance Lab operator runbook](docs/runbooks/governance-lab-demo.md)
 - [Five-minute walkthrough](docs/walkthroughs/five-minute-demo.md)
 - [Stakeholder walkthrough](docs/walkthroughs/stakeholder-demo.md)
