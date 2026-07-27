@@ -48,9 +48,11 @@ while IFS= read -r path; do
 
   jq -e --arg expected_class "$expected_class" --arg expected_verdict "$expected_verdict" --arg expected_outcome "$expected_outcome" '
     def sha256_ref: type == "string" and test("^sha256:[0-9a-f]{64}$");
+    def execution_ref: type == "string" and startswith("execution:") and length > 10;
+    def route_ref: type == "string" and startswith("route:") and length > 6;
     def complete_identity:
       (.provider_ref | type == "string" and startswith("provider:") and length > 9) and
-      (.route_ref | type == "string" and startswith("route:") and length > 6) and
+      (.route_ref | route_ref) and
       (.model_artifact_ref | sha256_ref) and
       (.tokenizer_ref | sha256_ref) and
       (.runtime_build_ref | sha256_ref) and
@@ -60,7 +62,7 @@ while IFS= read -r path; do
     .version == "anthesis-governance-lab.inference-integrity-record/v0" and
     .status == "provisional" and
     .synthetic == true and
-    (.original_execution.execution_ref | type == "string" and startswith("execution:") and length > 10) and
+    (.original_execution.execution_ref | execution_ref) and
     (.original_execution.gateway_contract_ref == "dubnium-llm-gateway/v1") and
     (.original_execution.requested_model_alias | type == "string" and length > 0) and
     ((.original_execution | has("resolved_execution_complete") | not) or (.original_execution.resolved_execution_complete | type == "boolean")) and
@@ -118,6 +120,39 @@ while IFS= read -r path; do
        .original_execution.verification_request.capability_class == "unsupported" and
        (.verification_result.limitations | index("fallback_route_unverifiable") != null) and
        .policy_result.outcome == "suspend_route"
+     elif .case.kind == "plano_route_change" then
+       (.original_execution.routing.planned_route_ref | route_ref) and
+       (.original_execution.routing.resolved_route_ref | route_ref) and
+       .original_execution.routing.planned_route_ref != .original_execution.routing.resolved_route_ref and
+       .original_execution.routing.resolved_route_ref == .original_execution.resolved_execution.route_ref and
+       .original_execution.routing.change_approved == false and
+       (.verification_result.limitations | index("unapproved_route_change") != null) and
+       .policy_result.outcome == "suspend_route"
+     elif .case.kind == "specialist_tamper" then
+       (.original_execution.topology.parent_execution_ref | execution_ref) and
+       .original_execution.topology.role == "specialist" and
+       (.original_execution.topology.specialist_ref | startswith("specialist:")) and
+       (.original_execution.topology.sibling_execution_refs | length > 0 and all(.[]; execution_ref)) and
+       .verification_result.localization.execution_ref == .original_execution.execution_ref and
+       .verification_result.localization.specialist_ref == .original_execution.topology.specialist_ref and
+       .verification_result.localization.parent_conformant == true and
+       .verification_result.localization.siblings_conformant == true and
+       .policy_result.outcome == "isolate_specialist"
+     elif .case.kind == "synthesis_tamper" then
+       .original_execution.topology.role == "supervisor" and
+       (.original_execution.topology.subrun_refs | length >= 2 and all(.[]; execution_ref)) and
+       (.original_execution.topology.synthesis_input_digest | sha256_ref) and
+       .verification_result.localization.specialist_inputs_conformant == true and
+       .verification_result.localization.synthesis_output_conformant == false and
+       .verification_result.localization.localized_role == "supervisor_synthesis" and
+       .policy_result.outcome == "quarantine_response"
+     elif .case.kind == "direct_runtime_bypass" then
+       .original_execution.execution_path.governed_gateway_required == true and
+       .original_execution.execution_path.governed_gateway_observed == false and
+       .original_execution.execution_path.raw_runtime_endpoint_observed == true and
+       .original_execution.verification_request.capability_class == "governance_only" and
+       (.verification_result.limitations | index("governed_gateway_bypassed") != null) and
+       .policy_result.outcome == "isolate_runtime"
      else true end)
   ' "$fixture" >/dev/null || fail "inference-integrity fixture contract is invalid: $path"
 done < <(printf '%s\n' "${manifest_paths[@]}")
