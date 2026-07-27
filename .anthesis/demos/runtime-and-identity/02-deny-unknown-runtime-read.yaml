@@ -1,0 +1,14 @@
+version: anthesis.scenario/v1
+id: runtime-and-identity-02-deny-unknown-runtime-read
+title: Deny unknown runtime before repository read
+goal: Show that an unregistered runtime fails closed before normal policy matching.
+policy: local-sdlc
+actor: {role: implementation}
+runtime: {id: unknown-demo-runtime}
+attempts:
+  - {action: file.read, path: docs/guide.md}
+expected:
+  decision: deny
+  source: engine_guard
+  reason: unknown_runtime
+  evidence: [scenario_id, decision, decision_source, policy_digest, effect]
