@@ -2,7 +2,7 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
-catalog="$repo_root/.anthesis/scenarios/inference-integrity/catalog.json"
+catalog="$repo_root/.anthesis/catalogs/inference-integrity-scenarios.json"
 manifest="$repo_root/fixtures/inference-integrity/manifest.json"
 
 fail() { echo "error: $*" >&2; exit 1; }
