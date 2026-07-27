@@ -4,6 +4,31 @@ These non-canonical scenarios extend the Governance Lab with realistic, syntheti
 
 Machine-readable metadata is in [`demo-catalog.json`](demo-catalog.json).
 
+## Run a pack
+
+List the cataloged packs:
+
+```bash
+bash scripts/run-demo-pack.sh --list
+```
+
+Run one pack through the verified evaluator:
+
+```bash
+bash scripts/run-demo-pack.sh documentation | jq .
+```
+
+The runner:
+
+- accepts only an exact cataloged pack ID;
+- requires the canonical `.anthesis/demos/<pack>` path;
+- rejects unsafe, missing, symlinked, or catalog-divergent fixtures;
+- executes the selected collection through `anthesis-lab test --scenarios`;
+- validates the report schema, scenario count, and scenario IDs;
+- prints the complete JSON report and preserves the evaluator exit code.
+
+Set `ANTHESIS_LAB_BIN` to use another already verified binary. The default is `.anthesis/bin/anthesis-lab`.
+
 ## Documentation
 
 | Scenario | Expected result | Demonstrates |
@@ -40,6 +65,4 @@ Machine-readable metadata is in [`demo-catalog.json`](demo-catalog.json).
 
 The lab evaluates declarations only. It does not write files, invoke package managers, merge branches, publish releases, use network credentials, or persist approvals. A production integration must bind the decision to a separate governed executor and prevent alternate access to effectful tools.
 
-## Execution status
-
-Issue #9 tracks deterministic pack selection and executable validation. Until that runner lands, these fixtures are structurally validated and cataloged but are not advertised as a stable standalone pack-execution interface.
+The pack runner is an evaluator interface, not an executor. A successful `allow` report means the declaration passed policy evaluation; it does not mean the declared effect occurred.

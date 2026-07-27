@@ -88,17 +88,37 @@ required_docs=(
   docs/scenarios/authoring.md
   docs/scenarios/interpretation.md
   scripts/acquire-anthesis-lab.sh
+  scripts/run-demo-pack.sh
   scripts/validate-governance-lab.sh
 )
 for path in "${required_docs[@]}"; do
   [[ -f "$repo_root/$path" && ! -L "$repo_root/$path" ]] || fail "missing documented path: $path"
 done
 
+bash -n "$repo_root/scripts/run-demo-pack.sh"
+mapfile -t listed_packs < <(bash "$repo_root/scripts/run-demo-pack.sh" --list)
+mapfile -t catalog_packs < <(jq -r '.packs[].id' "$demo_catalog")
+[[ "${listed_packs[*]}" == "${catalog_packs[*]}" ]] || fail "demo runner pack list differs from catalog"
+
+set +e
+unknown_output="$(bash "$repo_root/scripts/run-demo-pack.sh" unknown-pack 2>&1)"
+unknown_status=$?
+set -e
+[[ "$unknown_status" -eq 1 ]] || fail "unknown demo pack must fail"
+grep -Fq 'unknown or duplicate demo pack' <<<"$unknown_output" || fail "unknown demo pack failure is not explicit"
+
+set +e
+unsafe_output="$(bash "$repo_root/scripts/run-demo-pack.sh" '../documentation' 2>&1)"
+unsafe_status=$?
+set -e
+[[ "$unsafe_status" -eq 1 ]] || fail "unsafe demo pack name must fail"
+grep -Fq 'invalid pack name' <<<"$unsafe_output" || fail "unsafe demo pack failure is not explicit"
+
 grep -Fq 'docs/runbooks/governance-lab-demo.md' "$repo_root/README.md" || fail "README does not link the operator runbook"
 grep -Fq 'docs/scenarios/demo-packs.md' "$repo_root/README.md" || fail "README does not link demo packs"
 grep -Fq 'docs/scenarios/demo-catalog.json' "$repo_root/README.md" || fail "README does not link demo catalog"
 grep -Fq 'scripts/acquire-anthesis-lab.sh' "$repo_root/docs/runbooks/governance-lab-demo.md" || fail "runbook acquisition command drifted"
 grep -Fq 'scripts/validate-governance-lab.sh' "$repo_root/docs/runbooks/governance-lab-demo.md" || fail "runbook validation command drifted"
-grep -Fiq 'issue #9' "$repo_root/docs/runbooks/governance-lab-demo.md" || fail "runbook must identify pending pack runner"
+grep -Fq 'scripts/run-demo-pack.sh' "$repo_root/docs/runbooks/governance-lab-demo.md" || fail "runbook demo-pack command drifted"
 
-echo "Documentation and scenario catalog validation passed"
+echo "Documentation, scenario catalog, and demo runner validation passed"
