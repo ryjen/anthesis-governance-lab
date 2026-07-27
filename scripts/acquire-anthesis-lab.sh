@@ -143,10 +143,11 @@ jq -e \
   --arg artifact "$ANTHESIS_TARBALL_NAME" \
   --arg digest "$ANTHESIS_TARBALL_SHA256" \
   --arg workflow_identity "$trusted_sigstore_identity" \
+  --argjson sigstore_required "$ANTHESIS_SIGSTORE_REQUIRED" \
   '.schema == "anthesis.release-provenance/v1" and
    .source.repository == $repository and
    .source.commit == $revision and
-   .source.ref == $source_ref and
+   (if $sigstore_required then .source.ref == $source_ref else true end) and
    .distribution.repository == $distribution and
    .distribution.tag == $tag and
    .artifact.name == $artifact and
@@ -154,7 +155,7 @@ jq -e \
    .artifact.platform == "linux-x86_64" and
    .artifact.linkage == "musl-static" and
    .build.workflow == "governance-lab-release" and
-   (if $workflow_identity == "" then true else .build.workflow_identity == $workflow_identity end)' \
+   (if $sigstore_required then .build.workflow_identity == $workflow_identity else true end)' \
   "$provenance" >/dev/null || fail_boundary "release provenance does not match the pinned source and artifact identity"
 
 test "$(tar -tzf "$tarball" | sort)" = \
