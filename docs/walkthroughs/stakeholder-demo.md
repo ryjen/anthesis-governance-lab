@@ -2,7 +2,7 @@
 
 ## Situation
 
-AI-assisted software systems can propose useful changes quickly, but ordinary automation does not reliably distinguish low-risk work from workflow changes, dependency updates, secret access, unrestricted tools, unknown runtimes, merges, deployments, or releases. Teams need a reproducible way to show which actions are allowed, which require approval, and which must be denied.
+AI-assisted software systems can propose useful changes quickly, but ordinary automation does not reliably distinguish low-risk work from workflow changes, dependency updates, secret access, unrestricted tools, unknown runtimes, policy-bypass attempts, merges, deployments, or releases. Teams need a reproducible way to show which actions are allowed, which require approval, and which must be denied.
 
 ## Task
 
@@ -15,7 +15,7 @@ The Governance Lab combines:
 - the promoted Rust `anthesis-lab` evaluator from the Anthesis repository;
 - anonymous immutable release acquisition with provenance and checksum verification;
 - seven canonical conformance scenarios;
-- eight themed packs spanning 24 documentation, source, CI/release, dependency, secret/evidence, network/tool, runtime/identity, and deployment/administration declarations;
+- nine themed packs spanning 27 documentation, source, CI/release, dependency, secret/evidence, network/tool, runtime/identity, deployment/administration, and adversarial declarations;
 - a versioned aggregate report preserving each pack result;
 - a curated five-case showcase spanning allow, approval-required, policy deny, engine-guard deny, and expectation drift.
 
@@ -33,10 +33,11 @@ A successful run demonstrates that the same pinned declarations and governance c
 
 - scoped documentation, source, read, and test declarations can be allowed;
 - CI, dependency, and external-network declarations can be held for external approval;
-- secret access, evidence mutation, unrestricted commands, merge, deployment, and release declarations can be denied;
+- secret access, evidence mutation, unrestricted commands, absolute host paths, merge, deployment, and release declarations can be denied;
+- policy-bypass wording does not alter deterministic rule matching;
 - unknown runtimes fail closed independently of ordinary policy matching;
 - altered expectations do not change the policy decision and are surfaced as exit code `7`;
-- all eight packs and 24 scenarios are reconciled against the catalog.
+- all nine packs and 27 scenarios are reconciled against the catalog.
 
 ## What this proves
 
