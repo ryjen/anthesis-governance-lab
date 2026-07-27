@@ -39,6 +39,38 @@
       "verification_class": "fixed_seed",
       "expected_verdict": "indeterminate",
       "expected_outcome": "require_human_review"
+    },
+    {
+      "id": "missing-resolved-identity",
+      "path": "fixtures/inference-integrity/missing-resolved-identity.json",
+      "purpose": "Demonstrate fail-closed handling when an exact resolved model identity is incomplete.",
+      "verification_class": "fixed_seed",
+      "expected_verdict": "indeterminate",
+      "expected_outcome": "require_human_review"
+    },
+    {
+      "id": "seed-evidence-rewrite",
+      "path": "fixtures/inference-integrity/seed-evidence-rewrite.json",
+      "purpose": "Demonstrate preservation and escalation when later seed evidence disagrees with the original commitment.",
+      "verification_class": "fixed_seed",
+      "expected_verdict": "dangerous",
+      "expected_outcome": "preserve_forensics"
+    },
+    {
+      "id": "unsupported-replay-downgrade",
+      "path": "fixtures/inference-integrity/unsupported-replay-downgrade.json",
+      "purpose": "Demonstrate that a route without deterministic replay support is classified as unsupported rather than fixed-seed equivalent.",
+      "verification_class": "unsupported",
+      "expected_verdict": "indeterminate",
+      "expected_outcome": "require_human_review"
+    },
+    {
+      "id": "unverifiable-fallback",
+      "path": "fixtures/inference-integrity/unverifiable-fallback.json",
+      "purpose": "Demonstrate fail-closed handling when required verification would silently weaken through fallback.",
+      "verification_class": "unsupported",
+      "expected_verdict": "indeterminate",
+      "expected_outcome": "suspend_route"
     }
   ]
 }
