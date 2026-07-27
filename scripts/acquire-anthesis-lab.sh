@@ -126,13 +126,17 @@ jq -e \
 test "$(tar -tzf "$tarball" | sort)" = \
   "$(printf '%s\n' anthesis-lab anthesis-lab.sha256 | sort)" || \
   fail_boundary "release archive contains unexpected members"
+[[ "$(tar -tvzf "$tarball" | awk '{print substr($1,1,1)}' | sort -u)" == '-' ]] || \
+  fail_boundary "release archive members must be regular files"
 mkdir -p "$work_dir/package"
 tar -xzf "$tarball" -C "$work_dir/package" --no-same-owner --no-same-permissions
 
-test "$(find "$work_dir/package" -mindepth 1 -maxdepth 1 -type f | wc -l)" -eq 2 || \
+[[ "$(find "$work_dir/package" -mindepth 1 -maxdepth 1 -type f | wc -l)" -eq 2 ]] || \
   fail_boundary "release package contains unexpected files"
-test -f "$work_dir/package/anthesis-lab"
-test -f "$work_dir/package/anthesis-lab.sha256"
+[[ -f "$work_dir/package/anthesis-lab" && ! -L "$work_dir/package/anthesis-lab" ]] || \
+  fail_boundary "release package binary must be a regular file"
+[[ -f "$work_dir/package/anthesis-lab.sha256" && ! -L "$work_dir/package/anthesis-lab.sha256" ]] || \
+  fail_boundary "release package checksum must be a regular file"
 [[ "$(cat "$work_dir/package/anthesis-lab.sha256")" == "$ANTHESIS_BINARY_SHA256  anthesis-lab" ]] || \
   fail_boundary "packaged binary checksum does not match the immutable pin"
 (
@@ -145,10 +149,11 @@ version_report="$work_dir/version.json"
 "$resolved_install_dir/anthesis-lab" version --format json >"$version_report"
 jq -e \
   --arg version "$ANTHESIS_CLI_VERSION" \
-  '.name == "anthesis-lab" and
+  '. as $report |
+   .name == "anthesis-lab" and
    .version == $version and
-   all(["anthesis.scenario/v1","anthesis.policy/v1","anthesis.lab-profile/v1","anthesis.decision/v1"][] as $contract;
-     .supported_contracts | index($contract)
+   all(["anthesis.scenario/v1","anthesis.policy/v1","anthesis.lab-profile/v1","anthesis.decision/v1"][];
+     . as $contract | $report.supported_contracts | index($contract)
    )' "$version_report" >/dev/null || fail_boundary "installed CLI identity or contracts do not match the immutable pin"
 
 printf 'Verified binary SHA-256: '
