@@ -49,6 +49,7 @@ while IFS= read -r path; do
   jq -e --arg expected_class "$expected_class" --arg expected_verdict "$expected_verdict" --arg expected_outcome "$expected_outcome" '
     def sha256_ref: type == "string" and test("^sha256:[0-9a-f]{64}$");
     def execution_ref: type == "string" and startswith("execution:") and length > 10;
+    def verification_ref: type == "string" and startswith("verification:") and length > 13;
     def route_ref: type == "string" and startswith("route:") and length > 6;
     def complete_identity:
       (.provider_ref | type == "string" and startswith("provider:") and length > 9) and
@@ -153,6 +154,32 @@ while IFS= read -r path; do
        .original_execution.verification_request.capability_class == "governance_only" and
        (.verification_result.limitations | index("governed_gateway_bypassed") != null) and
        .policy_result.outcome == "isolate_runtime"
+     elif .case.kind == "linked_reverification" then
+       (.original_execution.evidence_digest | sha256_ref) and
+       (.reverification.verification_ref | verification_ref) and
+       .reverification.prior_verification_ref == .verification_result.verification_ref and
+       .reverification.original_execution_ref == .original_execution.execution_ref and
+       .reverification.original_evidence_digest == .original_execution.evidence_digest and
+       .reverification.observed_original_evidence_digest == .original_execution.evidence_digest and
+       .reverification.append_only == true and
+       (.reverification.verifier.build_ref | sha256_ref) and
+       .reverification.verdict == "conformant" and
+       .reverification.authoritative == false
+     elif .case.kind == "reverification_mutation_attempt" then
+       (.original_execution.evidence_digest | sha256_ref) and
+       (.reverification.verification_ref | verification_ref) and
+       .reverification.prior_verification_ref == .verification_result.verification_ref and
+       .reverification.original_execution_ref == .original_execution.execution_ref and
+       .reverification.original_evidence_digest == .original_execution.evidence_digest and
+       (.reverification.submitted_evidence_digest | sha256_ref) and
+       .reverification.submitted_evidence_digest != .original_execution.evidence_digest and
+       .reverification.immutable_original_preserved == true and
+       .reverification.mutation_attempted == true and
+       .reverification.append_only == true and
+       .reverification.verdict == "dangerous" and
+       .reverification.authoritative == false and
+       (.verification_result.limitations | index("original_evidence_mutation_attempted") != null) and
+       .policy_result.outcome == "preserve_forensics"
      else true end)
   ' "$fixture" >/dev/null || fail "inference-integrity fixture contract is invalid: $path"
 done < <(printf '%s\n' "${manifest_paths[@]}")
