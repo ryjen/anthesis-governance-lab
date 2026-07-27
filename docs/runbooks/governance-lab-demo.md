@@ -2,68 +2,45 @@
 
 ## Purpose
 
-This runbook demonstrates deterministic policy evaluation for declared AI-assisted SDLC actions using the public `anthesis-lab` CLI and repository-local synthetic fixtures.
+Demonstrate deterministic policy evaluation for declared AI-assisted SDLC actions using the public `anthesis-lab` CLI and repository-local synthetic fixtures.
 
-The Governance Lab evaluates declarations. It does not execute file writes, network requests, deployments, merges, releases, or repository-administration operations, and it does not persist approvals.
-
-## Audience
-
-- developers evaluating policy-as-code for agentic workflows;
-- security and governance reviewers;
-- platform engineers designing governed execution boundaries;
-- stakeholders evaluating Anthesis and related integrations.
+The Governance Lab evaluates declarations. It does not execute file writes, commands, network requests, deployments, merges, releases, or repository-administration operations, and it does not persist approvals.
 
 ## Supported platform
 
-The current executable trial supports Linux x86_64.
-
-Required tools:
+Linux x86_64 with:
 
 ```text
-bash curl sha256sum unzip tar jq realpath
+bash curl sha256sum tar jq realpath
 ```
 
-## 1. Clone the repository
+## 1. Clone and acquire the evaluator
 
 ```bash
 git clone https://github.com/ryjen/anthesis-governance-lab.git
 cd anthesis-governance-lab
-```
-
-## 2. Acquire the verified evaluator
-
-### Current transitional path
-
-The current `main` branch uses a checksum-pinned GitHub Actions artifact from the private Anthesis producer. It requires a token with permission to download that exact artifact:
-
-```bash
-export GITHUB_TOKEN=...
 bash scripts/acquire-anthesis-lab.sh
 export PATH="$PWD/.anthesis/bin:$PATH"
 ```
 
-The script verifies the outer archive checksum, allowlists archive members, verifies the packaged binary checksum, confines installation to the repository workspace, and fails closed on metadata or identity mismatch.
+Acquisition is anonymous and pinned to an immutable release in `hackelia-micrantha/anthesis-community`. The script validates the public distribution repository, source-bound tag, external tarball digest, published checksum, provenance manifest, archive members, packaged binary digest, CLI identity, version, and required contracts before installation.
 
-### Target durable path
+Current immutable identity values are recorded together in `.anthesis/cli-artifact.env`. No private Anthesis checkout or repository secret is required.
 
-Issue #4 tracks migration to an anonymously downloadable immutable release in `hackelia-micrantha/anthesis-community`. Do not claim secretless acquisition until that release, its provenance, and both archive and binary hashes have been independently verified and recorded.
-
-## 3. Verify CLI identity and contracts
+## 2. Verify CLI identity and contracts
 
 ```bash
 anthesis-lab version --format json | jq .
 ```
 
-The report must identify `anthesis-lab` and support:
+The report must identify `anthesis-lab`, match the pinned version, and support at least:
 
 - `anthesis.policy/v1`;
 - `anthesis.lab-profile/v1`;
 - `anthesis.scenario/v1`;
 - `anthesis.decision/v1`.
 
-## 4. Run the canonical conformance suite
-
-Preserve the evaluator exit code when formatting JSON:
+## 3. Run the canonical conformance suite
 
 ```bash
 set -o pipefail
@@ -82,28 +59,13 @@ Expected summary:
 }
 ```
 
-The canonical fixtures under `.anthesis/scenarios` are synchronized public-contract examples and must not be repurposed as the expanding demo catalog.
+The canonical fixtures under `.anthesis/scenarios` are synchronized public-contract examples and remain separate from the expanding demo catalog.
 
-## 5. Interpret decisions
-
-| Decision | Meaning |
-|---|---|
-| `allow` | The declared attempt matched an allow rule. No effect is executed by this repository. |
-| `approval_required` | Policy requires an external approval before a separate governed executor may act. The lab does not collect or persist that approval. |
-| `deny` from `policy_rule` | A policy rule explicitly blocks the declaration. |
-| `deny` from `engine_guard` | The evaluator rejects the declaration independently of normal rule matching, such as an unregistered runtime. |
-
-For each scenario inspect the actual decision, source, rule ID, stable reason, expected result, and mismatch details.
-
-Expected fixture data is an assertion about the decision. Changing an expected result must not change the actual policy decision.
-
-## 6. Run the complete validation exercise
+## 4. Run the complete governance validation
 
 ```bash
 bash scripts/validate-governance-lab.sh
 ```
-
-This validates the CLI contract, the seven canonical scenarios, and an isolated expectation-drift exercise.
 
 Expected final output:
 
@@ -112,34 +74,52 @@ Canonical suite: 7 passed, 0 failed
 Intentional governance drift: detected with exit code 7
 ```
 
-## 7. Validate documentation and catalog integrity
+The drift exercise changes only a copied fixture expectation. The policy decision remains unchanged, the mismatch is reported, and the evaluator returns status `7`.
+
+## 5. Run demo packs
+
+```bash
+bash scripts/run-demo-pack.sh --list
+set -o pipefail
+bash scripts/run-demo-pack.sh documentation | jq .
+bash scripts/validate-demo-packs.sh
+bash scripts/aggregate-demo-packs.sh | jq .
+```
+
+Available packs:
+
+- `documentation`;
+- `source-code`;
+- `ci-and-release`;
+- `dependencies`.
+
+The runner accepts only exact cataloged IDs, rejects unsafe or divergent paths, preserves evaluator exit codes, and executes no declared effects.
+
+## 6. Validate repository contracts
 
 ```bash
 bash scripts/validate-docs-and-catalog.sh
+bash scripts/validate-walkthroughs.sh
 ```
 
-This checks:
+These checks validate canonical and demo catalog coverage, unique IDs and paths, documentation references, pack selection, the curated five-case showcase, and explicit evaluator-versus-executor limitations.
 
-- the machine-readable catalog contract;
-- one-to-one coverage of all seven canonical fixtures;
-- unique scenario IDs and paths;
-- required documentation and script paths;
-- README links to the runbook and scenario guides;
-- runbook command references;
-- explicit separation of canonical and demo collections;
-- demo-pack runner syntax, catalog parity, and fail-closed selection behavior.
+## 7. Interpret decisions
 
-## 8. Understand expectation drift
+| Decision | Meaning |
+|---|---|
+| `allow` | The declaration matched an allow rule. No effect is executed by this repository. |
+| `approval_required` | A separate governed integration must obtain and bind approval before execution. |
+| `deny` from `policy_rule` | A named policy rule explicitly blocks the declaration. |
+| `deny` from `engine_guard` | The evaluator fails closed independently of ordinary policy matching. |
 
-The validation script copies the canonical fixtures into a repository-contained temporary directory and changes only scenario 01's expected decision from `allow` to `deny`.
+Changing an expected result must not change the actual policy decision. Exit `7` means evaluation completed but at least one fixture expectation did not match.
 
-The policy still returns `allow`. The test report detects the mismatch and exits with status `7`. This proves that fixture expectations do not alter evaluator behavior.
+## 8. Evaluator versus executor boundary
 
-## 9. Evaluator versus executor boundary
+The lab proves that a pinned evaluator deterministically decides pinned declarations against pinned policy and runtime contracts. It does not prove that an agent cannot bypass evaluation.
 
-The Governance Lab proves that a pinned evaluator can deterministically decide declared attempts against pinned policy and runtime contracts.
-
-It does not prove that an agent cannot bypass the evaluator. A production integration must ensure the agent can reach effectful tools only through a governed wrapper, gateway, broker, supervisor dispatch boundary, sandbox, or equivalent enforcement point.
+Production enforcement requires effectful tools to be reachable only through a governed wrapper, gateway, broker, supervisor dispatch boundary, sandbox, or equivalent control:
 
 ```text
 agent -> governed boundary -> Anthesis decision -> approval check -> bounded executor
@@ -147,57 +127,11 @@ agent -> governed boundary -> Anthesis decision -> approval check -> bounded exe
 
 Registering Anthesis beside unwrapped effectful tools is insufficient.
 
-## 10. Safe scenario authoring
+## 9. Troubleshooting
 
-Before adding a scenario:
+### Release acquisition fails
 
-1. use synthetic paths, identities, tokens, and payloads;
-2. declare only capabilities represented by the accepted public contract;
-3. state the expected decision, source, rule, and reason;
-4. state the threat or control being demonstrated;
-5. state explicitly that no real effect executes;
-6. keep paths repository-relative and portable;
-7. place non-canonical scenarios in the separate demo collection;
-8. run structural and executable validation.
-
-See:
-
-- `docs/scenarios/authoring.md`;
-- `docs/scenarios/catalog.md`;
-- `docs/scenarios/catalog.json`;
-- `docs/scenarios/interpretation.md`.
-
-## 11. Run a demo pack
-
-List the exact cataloged pack IDs:
-
-```bash
-bash scripts/run-demo-pack.sh --list
-```
-
-Run one pack through the verified evaluator while preserving the evaluator exit code:
-
-```bash
-set -o pipefail
-bash scripts/run-demo-pack.sh documentation | jq .
-```
-
-The runner accepts only an exact cataloged pack ID, requires the canonical `.anthesis/demos/<pack>` directory, rejects missing, symlinked, escaping, or catalog-divergent scenarios, and verifies the report schema, scenario count, and exact scenario IDs.
-
-Available baseline packs are:
-
-- `documentation`;
-- `source-code`;
-- `ci-and-release`;
-- `dependencies`.
-
-The runner evaluates declarations only. It does not execute their effects or persist approval decisions. Issue #9 continues to track immutable-release CI integration and bounded report aggregation.
-
-## 12. Troubleshooting
-
-### Artifact acquisition fails
-
-Confirm the exact pinned metadata, token permission for the transitional artifact, artifact expiry, TLS availability, archive checksum, and packaged checksum. Never substitute a mutable `latest` asset or skip verification.
+Confirm that all identity values in `.anthesis/cli-artifact.env` were changed together in a reviewed upgrade. Check HTTPS access, the exact immutable tag, all three release assets, provenance fields, tarball checksum, archive members, packaged binary checksum, and CLI identity. Never substitute `latest` or disable verification.
 
 ### Unsupported contract
 
@@ -207,34 +141,26 @@ anthesis-lab version --format json | jq .supported_contracts
 
 Repin deliberately if the CLI and fixtures are incompatible. Do not weaken assertions.
 
-### Scenario input is rejected
-
-Use repository-relative, non-symlinked paths. The CLI rejects absolute paths, home-relative paths, repository escapes, and unsafe scenario collections.
-
-### Demo pack is rejected
-
-Run `bash scripts/run-demo-pack.sh --list` and use one exact cataloged ID. Do not pass paths, glob patterns, or ad hoc scenario directories through the pack interface.
-
 ### Test exits 7
 
-Exit status `7` means at least one actual decision did not match its fixture expectation. Inspect the `mismatches` entries. It is not a successful canonical or demo-pack run.
+Inspect report `mismatches`. Status `7` is expected only for the isolated drift exercise, not for canonical or demo-pack validation.
 
-## 13. Cleanup
+## 10. Deliberate upgrade procedure
 
-The validation and pack-runner scripts clean their repository-contained temporary directories automatically. Remove a locally acquired evaluator with:
+1. Confirm the new public release is anonymously downloadable.
+2. Confirm its provenance source commit and source ref.
+3. Independently compute the tarball and packaged binary SHA-256 values.
+4. Update every field in `.anthesis/cli-artifact.env` together.
+5. Review archive members, CLI identity, supported contracts, platform, linkage, workflow, and toolchain assertions.
+6. Run all structural and executable validations on the pull request.
+7. Reject mutable tags, partial pin updates, or verification bypasses.
+
+## 11. Cleanup
+
+Temporary directories are repository-contained and removed automatically. Remove a locally installed evaluator with:
 
 ```bash
 rm -rf .anthesis/bin
 ```
 
-Do not remove the canonical policy, runtime profile, or scenario fixtures.
-
-## Five-minute walkthrough
-
-1. Show the pinned CLI identity with `anthesis-lab version --format json`.
-2. Run the canonical suite and show seven passes.
-3. Run `scripts/run-demo-pack.sh documentation` and compare the bounded allow with the out-of-scope default deny.
-4. Run the CI/release pack and explain approval-required versus explicit release denial.
-5. Show the secret-access policy denial and unknown-runtime engine-guard denial from the canonical suite.
-6. Run the intentional drift exercise and explain exit code `7`.
-7. Close by distinguishing deterministic evaluation from bypass-resistant effect enforcement.
+Do not remove the canonical policy, runtime profile, release pin, or scenario fixtures.
