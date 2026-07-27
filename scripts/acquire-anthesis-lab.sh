@@ -5,6 +5,11 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 artifact_env="$repo_root/.anthesis/cli-artifact.env"
 install_dir="${1:-$repo_root/.anthesis/bin}"
 
+trusted_source_repository='hackelia-micrantha/anthesis'
+trusted_source_ref='refs/heads/integration/governance-lab'
+trusted_sigstore_identity='https://github.com/hackelia-micrantha/anthesis/.github/workflows/governance-lab-release.yml@refs/heads/integration/governance-lab'
+trusted_sigstore_issuer='https://token.actions.githubusercontent.com'
+
 fail_boundary() {
   echo "$1" >&2
   exit 3
@@ -14,7 +19,7 @@ fail_boundary() {
   fail_boundary "artifact metadata must be a regular, non-symlink file"
 
 declare -A metadata=()
-allowed_keys=' ANTHESIS_REVISION ANTHESIS_RELEASE_REPOSITORY ANTHESIS_RELEASE_TAG ANTHESIS_TARBALL_NAME ANTHESIS_TARBALL_SHA256 ANTHESIS_BINARY_SHA256 ANTHESIS_CLI_VERSION '
+allowed_keys=' ANTHESIS_REVISION ANTHESIS_RELEASE_REPOSITORY ANTHESIS_RELEASE_TAG ANTHESIS_TARBALL_NAME ANTHESIS_TARBALL_SHA256 ANTHESIS_BINARY_SHA256 ANTHESIS_CLI_VERSION ANTHESIS_SIGSTORE_REQUIRED '
 while IFS= read -r line || [[ -n "$line" ]]; do
   [[ -n "$line" && "$line" != *$'\r'* && "$line" == *=* ]] || \
     fail_boundary "artifact metadata contains a malformed line"
@@ -34,7 +39,8 @@ for key in \
   ANTHESIS_TARBALL_NAME \
   ANTHESIS_TARBALL_SHA256 \
   ANTHESIS_BINARY_SHA256 \
-  ANTHESIS_CLI_VERSION
+  ANTHESIS_CLI_VERSION \
+  ANTHESIS_SIGSTORE_REQUIRED
 do
   [[ -n "${metadata[$key]:-}" ]] || fail_boundary "artifact metadata is missing $key"
 done
@@ -46,6 +52,7 @@ ANTHESIS_TARBALL_NAME=${metadata[ANTHESIS_TARBALL_NAME]}
 ANTHESIS_TARBALL_SHA256=${metadata[ANTHESIS_TARBALL_SHA256]}
 ANTHESIS_BINARY_SHA256=${metadata[ANTHESIS_BINARY_SHA256]}
 ANTHESIS_CLI_VERSION=${metadata[ANTHESIS_CLI_VERSION]}
+ANTHESIS_SIGSTORE_REQUIRED=${metadata[ANTHESIS_SIGSTORE_REQUIRED]}
 
 [[ "$ANTHESIS_REVISION" =~ ^[0-9a-f]{40}$ ]] || fail_boundary "Anthesis revision must be a full commit SHA"
 [[ "$ANTHESIS_RELEASE_REPOSITORY" == 'hackelia-micrantha/anthesis-community' ]] || \
@@ -60,6 +67,8 @@ ANTHESIS_CLI_VERSION=${metadata[ANTHESIS_CLI_VERSION]}
   fail_boundary "binary SHA-256 is malformed"
 [[ "$ANTHESIS_CLI_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || \
   fail_boundary "CLI version is malformed"
+[[ "$ANTHESIS_SIGSTORE_REQUIRED" == 'true' || "$ANTHESIS_SIGSTORE_REQUIRED" == 'false' ]] || \
+  fail_boundary "Sigstore requirement must be true or false"
 
 [[ ! -L "$repo_root/.anthesis" ]] || fail_boundary ".anthesis must not be a symlink"
 command -v realpath >/dev/null || fail_boundary "realpath is required to validate the install path"
@@ -82,10 +91,43 @@ provenance="$work_dir/anthesis-lab-provenance.json"
 printf 'Anthesis revision: %s\n' "$ANTHESIS_REVISION"
 printf 'Public release: %s/%s\n' "$ANTHESIS_RELEASE_REPOSITORY" "$ANTHESIS_RELEASE_TAG"
 
-for asset in "$ANTHESIS_TARBALL_NAME" "${ANTHESIS_TARBALL_NAME}.sha256" anthesis-lab-provenance.json; do
+assets=(
+  "$ANTHESIS_TARBALL_NAME"
+  "${ANTHESIS_TARBALL_NAME}.sha256"
+  anthesis-lab-provenance.json
+)
+if [[ "$ANTHESIS_SIGSTORE_REQUIRED" == 'true' ]]; then
+  command -v cosign >/dev/null || fail_boundary "cosign is required for the pinned signed release"
+  assets+=(
+    "${ANTHESIS_TARBALL_NAME}.sigstore.json"
+    "${ANTHESIS_TARBALL_NAME}.sha256.sigstore.json"
+    anthesis-lab-provenance.json.sigstore.json
+  )
+fi
+
+for asset in "${assets[@]}"; do
   curl --fail --location --proto '=https' --tlsv1.2 \
     "$base_url/$asset" --output "$work_dir/$asset"
 done
+
+verify_sigstore_bundle() {
+  local blob="$1"
+  local bundle="$2"
+  cosign verify-blob \
+    --bundle "$bundle" \
+    --certificate-identity "$trusted_sigstore_identity" \
+    --certificate-oidc-issuer "$trusted_sigstore_issuer" \
+    --certificate-github-workflow-repository "$trusted_source_repository" \
+    --certificate-github-workflow-ref "$trusted_source_ref" \
+    --certificate-github-workflow-sha "$ANTHESIS_REVISION" \
+    "$blob" >/dev/null || fail_boundary "Sigstore verification failed for $(basename "$blob")"
+}
+
+if [[ "$ANTHESIS_SIGSTORE_REQUIRED" == 'true' ]]; then
+  verify_sigstore_bundle "$tarball" "${tarball}.sigstore.json"
+  verify_sigstore_bundle "$checksum" "${checksum}.sigstore.json"
+  verify_sigstore_bundle "$provenance" "${provenance}.sigstore.json"
+fi
 
 printf '%s  %s\n' "$ANTHESIS_TARBALL_SHA256" "$tarball" | sha256sum --check --strict
 expected_checksum_line="$ANTHESIS_TARBALL_SHA256  $ANTHESIS_TARBALL_NAME"
@@ -93,22 +135,26 @@ expected_checksum_line="$ANTHESIS_TARBALL_SHA256  $ANTHESIS_TARBALL_NAME"
   fail_boundary "release checksum asset does not match the pinned tarball identity"
 
 jq -e \
-  --arg repository 'hackelia-micrantha/anthesis' \
+  --arg repository "$trusted_source_repository" \
   --arg revision "$ANTHESIS_REVISION" \
+  --arg source_ref "$trusted_source_ref" \
   --arg distribution "$ANTHESIS_RELEASE_REPOSITORY" \
   --arg tag "$ANTHESIS_RELEASE_TAG" \
   --arg artifact "$ANTHESIS_TARBALL_NAME" \
   --arg digest "$ANTHESIS_TARBALL_SHA256" \
+  --arg workflow_identity "$trusted_sigstore_identity" \
   '.schema == "anthesis.release-provenance/v1" and
    .source.repository == $repository and
    .source.commit == $revision and
+   .source.ref == $source_ref and
    .distribution.repository == $distribution and
    .distribution.tag == $tag and
    .artifact.name == $artifact and
    .artifact.sha256 == $digest and
    .artifact.platform == "linux-x86_64" and
    .artifact.linkage == "musl-static" and
-   .build.workflow == "governance-lab-release"' \
+   .build.workflow == "governance-lab-release" and
+   (if $workflow_identity == "" then true else .build.workflow_identity == $workflow_identity end)' \
   "$provenance" >/dev/null || fail_boundary "release provenance does not match the pinned source and artifact identity"
 
 test "$(tar -tzf "$tarball" | sort)" = \
