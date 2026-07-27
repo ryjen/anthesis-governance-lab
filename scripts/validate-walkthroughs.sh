@@ -22,9 +22,17 @@ jq -e '
   .executes_effects == false and
   (.entries | length == 5) and
   ([.entries[].id] | unique | length == 5) and
-  ([.entries[].id] == ["allow","approval-required","policy-deny","engine-guard-deny","expectation-drift"])
+  ([.entries[].id] == ["allow","approval-required","policy-deny","engine-guard-deny","expectation-drift"]) and
+  ([.entries[].kind] == ["scenario","scenario","scenario","scenario","validation_exercise"]) and
+  ([.entries[] | select(.kind == "scenario")] | length == 4) and
+  all(.entries[] | select(.kind == "scenario");
+    (.path | type == "string") and
+    (.expected_decision | type == "string") and
+    (.expected_source | type == "string")
+  )
 ' "$showcase" >/dev/null || fail "showcase contract is invalid"
 
+validated_scenarios=0
 while IFS=$'\t' read -r id path decision source; do
   [[ -f "$repo_root/$path" && ! -L "$repo_root/$path" ]] || fail "showcase scenario is missing or unsafe: $path"
   if [[ "$path" == .anthesis/demos/* ]]; then
@@ -38,7 +46,9 @@ while IFS=$'\t' read -r id path decision source; do
   else
     fail "showcase scenario escaped approved collections: $path"
   fi
+  validated_scenarios=$((validated_scenarios + 1))
 done < <(jq -r '.entries[] | select(.kind == "scenario") | [.id,.path,.expected_decision,.expected_source] | @tsv' "$showcase")
+[[ "$validated_scenarios" -eq 4 ]] || fail "showcase must contain exactly four cataloged scenarios"
 
 jq -e '
   any(.entries[];
