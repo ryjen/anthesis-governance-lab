@@ -2,42 +2,49 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
-runner="$repo_root/scripts/run-demo-pack.sh"
+aggregator="$repo_root/scripts/aggregate-demo-packs.sh"
 catalog="$repo_root/docs/scenarios/demo-catalog.json"
 
 fail() { echo "error: $*" >&2; exit 1; }
 command -v jq >/dev/null || fail "jq is required"
-[[ -f "$runner" && ! -L "$runner" ]] || fail "demo-pack runner must be a regular file"
+[[ -f "$aggregator" && ! -L "$aggregator" ]] || fail "demo-pack aggregator must be a regular file"
 [[ -f "$catalog" && ! -L "$catalog" ]] || fail "demo catalog must be a regular file"
 
 work_dir="$(mktemp -d "$repo_root/.anthesis/demo-pack-validation.XXXXXX")"
 trap 'rm -rf "$work_dir"' EXIT
+report="$work_dir/demo-packs.json"
 
-mapfile -t packs < <(bash "$runner" --list)
-[[ "${#packs[@]}" -gt 0 ]] || fail "demo catalog contains no packs"
-
-passed_packs=0
-total_scenarios=0
-for pack in "${packs[@]}"; do
-  report="$work_dir/$pack.json"
-  set +e
-  bash "$runner" "$pack" >"$report"
-  status=$?
-  set -e
-
-  [[ "$status" -eq 0 ]] || fail "demo pack $pack exited $status"
-  jq -e '.version == "anthesis.test-report/v1" and .passed == true and .failed_count == 0' \
-    "$report" >/dev/null || fail "demo pack $pack did not produce a passing report"
-
-  count="$(jq -er '.total' "$report")"
-  [[ "$count" =~ ^[0-9]+$ && "$count" -gt 0 ]] || fail "demo pack $pack has invalid scenario count"
-  total_scenarios=$((total_scenarios + count))
-  passed_packs=$((passed_packs + 1))
-done
+set +e
+bash "$aggregator" >"$report"
+status=$?
+set -e
+[[ "$status" -eq 0 ]] || fail "demo-pack aggregate exited $status"
 
 expected_packs="$(jq -er '.packs | length' "$catalog")"
 expected_scenarios="$(jq -er '[.packs[].scenarios[]] | length' "$catalog")"
-[[ "$passed_packs" -eq "$expected_packs" ]] || fail "validated pack count differs from catalog"
-[[ "$total_scenarios" -eq "$expected_scenarios" ]] || fail "validated scenario count differs from catalog"
 
-echo "Demo packs: $passed_packs passed, $total_scenarios scenarios passed"
+jq -e \
+  --argjson expected_packs "$expected_packs" \
+  --argjson expected_scenarios "$expected_scenarios" \
+  '.version == "anthesis.demo-pack-report/v1" and
+   .classification == "passed" and
+   .exit_code == 0 and
+   .pack_count == $expected_packs and
+   .passed_packs == $expected_packs and
+   .mismatched_packs == 0 and
+   .invalid_packs == 0 and
+   .total_scenarios == $expected_scenarios and
+   (.packs | length == $expected_packs) and
+   all(.packs[];
+     .exit_code == 0 and
+     .classification == "passed" and
+     .report.version == "anthesis.test-report/v1" and
+     .report.passed == true and
+     .report.failed_count == 0
+   )' "$report" >/dev/null || fail "aggregate demo-pack report is invalid or incomplete"
+
+if grep -Fq "$repo_root" "$report"; then
+  fail "aggregate demo-pack report contains an absolute repository path"
+fi
+
+echo "Demo packs: $expected_packs passed, $expected_scenarios scenarios passed"
