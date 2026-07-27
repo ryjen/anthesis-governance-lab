@@ -36,7 +36,12 @@ set +e
 "$binary" test --repo "$repo_root" --format json >"$test_report"
 test_status=$?
 set -e
-[[ "$test_status" -eq 0 ]] || fail "canonical suite exited $test_status"
+if [[ "$test_status" -ne 0 ]]; then
+  if [[ -s "$test_report" ]]; then
+    jq . "$test_report" >&2 || cat "$test_report" >&2
+  fi
+  fail "canonical suite exited $test_status"
+fi
 require_json_value "$test_report" '.version' 'anthesis.test-report/v1'
 require_json_value "$test_report" '.passed' 'true'
 require_json_value "$test_report" '.total' '7'
@@ -59,7 +64,12 @@ set +e
 "$binary" test --repo "$fixture" --format json >"$mismatch_report"
 mismatch_status=$?
 set -e
-[[ "$mismatch_status" -eq 7 ]] || fail "intentional mismatch exited $mismatch_status, expected 7"
+if [[ "$mismatch_status" -ne 7 ]]; then
+  if [[ -s "$mismatch_report" ]]; then
+    jq . "$mismatch_report" >&2 || cat "$mismatch_report" >&2
+  fi
+  fail "intentional mismatch exited $mismatch_status, expected 7"
+fi
 require_json_value "$mismatch_report" '.version' 'anthesis.test-report/v1'
 require_json_value "$mismatch_report" '.passed' 'false'
 require_json_value "$mismatch_report" '.total' '7'
