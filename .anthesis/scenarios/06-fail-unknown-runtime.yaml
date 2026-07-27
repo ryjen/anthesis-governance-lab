@@ -11,4 +11,4 @@ expected:
   decision: deny
   source: engine_guard
   reason: unknown_runtime
-  evidence: [scenario_id, decision, decision_source, policy_digest, configured_runtime]
+  evidence: [scenario_id, decision, decision_source, policy_digest, effect]
