@@ -29,6 +29,7 @@ validate_fixture() {
       (.scope.tenant_ref | type == "string" and startswith("tenant:")) and
       (.scope.session_ref | type == "string" and startswith("session:"));
 
+    . as $record |
     (.verification_result.capacity_accounting | accounting) and
     (.verification_result.observations.estimated_channel_bits | type == "number" and . >= 0) and
     (.verification_result.observations.cumulative_channel_bits | type == "number" and . >= 0) and
@@ -43,7 +44,7 @@ validate_fixture() {
      elif .case.kind == "aggregate_low_rate_leakage" then
        (.verification_result.capacity_accounting.contributions | length >= 2 and all(.[]; contribution)) and
        ([.verification_result.capacity_accounting.contributions[].estimated_channel_bits] | add) == .verification_result.observations.cumulative_channel_bits and
-       all(.verification_result.capacity_accounting.contributions[]; .estimated_channel_bits < $.verification_result.capacity_accounting.budget_bits) and
+       all(.verification_result.capacity_accounting.contributions[]; .estimated_channel_bits < $record.verification_result.capacity_accounting.budget_bits) and
        .verification_result.observations.cumulative_channel_bits > .verification_result.capacity_accounting.budget_bits and
        .verification_result.capacity_accounting.within_budget == false and
        .verification_result.verdict == "dangerous" and
@@ -62,7 +63,7 @@ validate_fixture() {
        .original_execution.routing.initial_route_ref != .original_execution.routing.fallback_route_ref and
        .original_execution.routing.fallback_route_ref == .original_execution.resolved_execution.route_ref and
        (.original_execution.routing.retry_chain | length >= 2 and all(.[]; (.execution_ref | execution_ref) and (.route_ref | route_ref) and (.attempt | type == "number" and . >= 1))) and
-       (.verification_result.capacity_accounting.contributions | length == (.original_execution.routing.retry_chain | length) and all(.[]; contribution and (.route_ref | route_ref))) and
+       (.verification_result.capacity_accounting.contributions | length == ($record.original_execution.routing.retry_chain | length) and all(.[]; contribution and (.route_ref | route_ref))) and
        ([.verification_result.capacity_accounting.contributions[].execution_ref] | sort) == ([.original_execution.routing.retry_chain[].execution_ref] | sort) and
        ([.verification_result.capacity_accounting.contributions[].estimated_channel_bits] | add) == .verification_result.observations.cumulative_channel_bits and
        .verification_result.capacity_accounting.route_change_resets_budget == false and
