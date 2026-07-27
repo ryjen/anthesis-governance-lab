@@ -40,9 +40,9 @@ Expected result:
 ```json
 {
   "classification": "passed",
-  "pack_count": 8,
-  "passed_packs": 8,
-  "total_scenarios": 24
+  "pack_count": 9,
+  "passed_packs": 9,
+  "total_scenarios": 27
 }
 ```
 
@@ -65,7 +65,10 @@ For a security-focused extension, run:
 ```bash
 bash scripts/run-demo-pack.sh secrets-and-evidence | jq .
 bash scripts/run-demo-pack.sh runtime-and-identity | jq .
+bash scripts/run-demo-pack.sh adversarial | jq .
 ```
+
+The adversarial pack shows that policy-bypass wording, absolute host paths, and unrestricted command requests do not expand capability.
 
 ## 5. State the enforcement boundary
 

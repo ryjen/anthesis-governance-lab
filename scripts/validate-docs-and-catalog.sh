@@ -34,10 +34,10 @@ jq -e '
 jq -e '
   .version == "anthesis-governance-lab.demo-catalog/v1" and
   .executes_effects == false and
-  (.packs | length == 8) and
+  (.packs | length == 9) and
   ([.packs[].id] | length == (unique | length)) and
   ([.packs[].path] | length == (unique | length)) and
-  ([.packs[].scenarios[]] | length == 24) and
+  ([.packs[].scenarios[]] | length == 27) and
   ([.packs[].scenarios[].id] | length == (unique | length)) and
   ([.packs[].scenarios[].path] | length == (unique | length)) and
   all(.packs[];
@@ -58,6 +58,7 @@ jq -e '
       .executes_effect == false
     )
   ) and
+  ([.packs[].id] | index("adversarial") != null) and
   (any(.packs[].scenarios[].expected; .decision == "allow")) and
   (any(.packs[].scenarios[].expected; .decision == "approval_required")) and
   (any(.packs[].scenarios[].expected; .decision == "deny" and .source == "policy_rule")) and
@@ -71,7 +72,7 @@ mapfile -t fixture_paths < <(cd "$repo_root" && find .anthesis/scenarios -maxdep
 
 mapfile -t demo_catalog_paths < <(jq -r '.packs[].scenarios[].path' "$demo_catalog" | sort)
 mapfile -t demo_fixture_paths < <(cd "$repo_root" && find .anthesis/demos -mindepth 2 -maxdepth 2 -type f -name '*.yaml' -print | sort)
-[[ "${#demo_catalog_paths[@]}" -eq 24 ]] || fail "demo catalog must contain twenty-four scenarios"
+[[ "${#demo_catalog_paths[@]}" -eq 27 ]] || fail "demo catalog must contain twenty-seven scenarios"
 [[ "${demo_catalog_paths[*]}" == "${demo_fixture_paths[*]}" ]] || fail "demo catalog and fixture paths differ"
 
 for path in "${catalog_paths[@]}" "${demo_catalog_paths[@]}"; do

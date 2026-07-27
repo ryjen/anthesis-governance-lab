@@ -70,7 +70,7 @@ Upgrades must change all identity values together in a reviewed pull request. Ne
 
 ## Demo catalog
 
-Eight non-canonical packs under `.anthesis/demos` contain 24 synthetic declarations:
+Nine non-canonical packs under `.anthesis/demos` contain 27 synthetic declarations:
 
 - documentation;
 - source code;
@@ -79,13 +79,14 @@ Eight non-canonical packs under `.anthesis/demos` contain 24 synthetic declarati
 - secrets and evidence;
 - network and tools;
 - runtime and identity;
-- deployment and administration.
+- deployment and administration;
+- adversarial policy-bypass and capability-expansion attempts.
 
 The catalog covers `allow`, `approval_required`, policy-rule `deny`, policy-default `deny`, and engine-guard `deny`. It never executes declared effects.
 
 ```bash
 bash scripts/run-demo-pack.sh --list
-bash scripts/run-demo-pack.sh secrets-and-evidence | jq .
+bash scripts/run-demo-pack.sh adversarial | jq .
 bash scripts/aggregate-demo-packs.sh | jq .
 ```
 
