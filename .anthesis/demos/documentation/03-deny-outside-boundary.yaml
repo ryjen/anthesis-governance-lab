@@ -10,5 +10,6 @@ attempts:
 expected:
   decision: deny
   source: policy_default
+  rule_id: default
   reason: default_deny
   evidence: [scenario_id, decision, decision_source, policy_digest]
