@@ -7,7 +7,9 @@ binary="${ANTHESIS_LAB_BIN:-$repo_root/.anthesis/bin/anthesis-lab}"
 fail() { echo "error: $*" >&2; exit 1; }
 require_json_value() {
   local file=$1 filter=$2 expected=$3 actual
-  actual="$(jq -er "$filter" "$file")" || fail "missing JSON field: $filter"
+  actual="$(jq -r "if ($filter) == null then \"__ANTHESIS_MISSING__\" else ($filter | tostring) end" "$file")" || \
+    fail "invalid JSON report: $file"
+  [[ "$actual" != '__ANTHESIS_MISSING__' ]] || fail "missing JSON field: $filter"
   [[ "$actual" == "$expected" ]] || fail "$filter expected $expected, got $actual"
 }
 
