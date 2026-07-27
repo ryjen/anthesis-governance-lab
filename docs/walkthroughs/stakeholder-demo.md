@@ -2,7 +2,7 @@
 
 ## Situation
 
-AI-assisted software systems can propose useful changes quickly, but ordinary automation does not reliably distinguish low-risk work from workflow changes, dependency updates, secret access, merges, or releases. Teams need a reproducible way to show which actions are allowed, which require approval, and which must be denied.
+AI-assisted software systems can propose useful changes quickly, but ordinary automation does not reliably distinguish low-risk work from workflow changes, dependency updates, secret access, unrestricted tools, unknown runtimes, merges, deployments, or releases. Teams need a reproducible way to show which actions are allowed, which require approval, and which must be denied.
 
 ## Task
 
@@ -13,10 +13,10 @@ Demonstrate a bounded governance layer using public Anthesis contracts and synth
 The Governance Lab combines:
 
 - the promoted Rust `anthesis-lab` evaluator from the Anthesis repository;
-- checksum-pinned acquisition and public contract verification;
+- anonymous immutable release acquisition with provenance and checksum verification;
 - seven canonical conformance scenarios;
-- four themed packs covering documentation, source code, CI and release, and dependencies;
-- a versioned aggregate report containing all 12 demo outcomes;
+- eight themed packs spanning 24 documentation, source, CI/release, dependency, secret/evidence, network/tool, runtime/identity, and deployment/administration declarations;
+- a versioned aggregate report preserving each pack result;
 - a curated five-case showcase spanning allow, approval-required, policy deny, engine-guard deny, and expectation drift.
 
 Run the evidence:
@@ -31,16 +31,16 @@ bash scripts/aggregate-demo-packs.sh | jq .
 
 A successful run demonstrates that the same pinned declarations and governance contracts produce stable decisions and evidence:
 
-- scoped documentation and source changes can be allowed;
-- CI and dependency changes can be held for external approval;
-- merge and release actions can be denied;
-- unknown runtimes can fail closed independently of ordinary policy matching;
+- scoped documentation, source, read, and test declarations can be allowed;
+- CI, dependency, and external-network declarations can be held for external approval;
+- secret access, evidence mutation, unrestricted commands, merge, deployment, and release declarations can be denied;
+- unknown runtimes fail closed independently of ordinary policy matching;
 - altered expectations do not change the policy decision and are surfaced as exit code `7`;
-- all four packs and 12 scenarios are reconciled against the catalog.
+- all eight packs and 24 scenarios are reconciled against the catalog.
 
 ## What this proves
 
-The lab demonstrates deterministic policy evaluation, bounded scenario selection, fail-closed catalog validation, explicit decision provenance, and reproducible reporting suitable for engineering and governance review.
+The lab demonstrates deterministic policy evaluation, bounded scenario selection, fail-closed catalog validation, explicit decision provenance, immutable public evaluator acquisition, and reproducible reporting suitable for engineering and governance review.
 
 ## What this does not prove
 
@@ -49,6 +49,6 @@ The lab does not execute declared actions, persist approvals, sign production ev
 ## Project relationships
 
 - **Anthesis:** policy, runtime, decision, scenario, and report contracts plus the Rust evaluator.
-- **Anthesis Governance Lab:** reproducible public demonstration fixtures, validation, and walkthroughs.
+- **Anthesis Governance Lab:** reproducible public demonstration fixtures, validation, reports, and walkthroughs.
 - **Dubnium:** a potential governed-agent and execution environment where Anthesis decisions can be integrated with bounded tool access.
-- **Anthesis community release work:** issue #4 tracks migration from the current authenticated artifact to an immutable anonymous public release.
+- **Anthesis community releases:** immutable public distribution of the reviewed evaluator used by this demo.
