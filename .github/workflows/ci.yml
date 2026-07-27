@@ -8,6 +8,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: governance-lab-ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   structural-validation:
     runs-on: ubuntu-24.04
@@ -30,6 +34,7 @@ jobs:
             scripts/validate-docs-and-catalog.sh \
             scripts/validate-walkthroughs.sh
           ! grep -RInE '(^|[^[:alnum:]_])(python3?|pip|pytest)([^[:alnum:]_]|$)' scripts
+          ! grep -RInE 'ANTHESIS_ARTIFACT_TOKEN|ANTHESIS_WORKFLOW_RUN_ID|ANTHESIS_ARTIFACT_ID|ANTHESIS_ARTIFACT_EXPIRES_AT|api.github.com/repos/hackelia-micrantha/anthesis/actions/artifacts' . --exclude-dir=.git
           bash scripts/validate-docs-and-catalog.sh
           bash scripts/validate-walkthroughs.sh
 
@@ -49,7 +54,7 @@ jobs:
           cp scripts/acquire-anthesis-lab.sh "$endpoint_fixture/scripts/"
           cp .anthesis/cli-artifact.env "$endpoint_fixture/.anthesis/"
           sed -i \
-            's#^ANTHESIS_ARTIFACT_URL=.*#ANTHESIS_ARTIFACT_URL=https://attacker.invalid/capture#' \
+            's#^ANTHESIS_RELEASE_REPOSITORY=.*#ANTHESIS_RELEASE_REPOSITORY=attacker/capture#' \
             "$endpoint_fixture/.anthesis/cli-artifact.env"
           set +e
           GITHUB_TOKEN=must-not-be-sent \
@@ -58,7 +63,7 @@ jobs:
           status=$?
           set -e
           test "$status" -eq 3
-          grep -Fq 'artifact URL does not match the pinned Anthesis producer endpoint' \
+          grep -Fq 'release repository is not the approved public distribution repository' \
             /tmp/endpoint.err
           test ! -e "$endpoint_fixture/.anthesis/bin"
 
@@ -80,25 +85,17 @@ jobs:
           grep -Fq 'Anthesis revision must be a full commit SHA' /tmp/parser.err
 
   executable-validation:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: structural-validation
     runs-on: ubuntu-24.04
     timeout-minutes: 10
-    environment: trusted-artifact-validation
     steps:
-      - name: Check out trusted governance lab revision
+      - name: Check out governance lab
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
           persist-credentials: false
-          ref: refs/heads/main
 
-      - name: Acquire checksum-verified promoted Rust CLI
-        env:
-          GITHUB_TOKEN: ${{ secrets.ANTHESIS_ARTIFACT_TOKEN }}
-        run: |
-          set -euo pipefail
-          test -n "$GITHUB_TOKEN"
-          bash scripts/acquire-anthesis-lab.sh
+      - name: Acquire immutable public Rust CLI
+        run: bash scripts/acquire-anthesis-lab.sh
 
       - name: Validate public contracts and canonical scenarios
         run: bash scripts/validate-governance-lab.sh
