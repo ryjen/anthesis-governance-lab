@@ -23,6 +23,7 @@ jobs:
           set -euo pipefail
           bash -n \
             scripts/acquire-anthesis-lab.sh \
+            scripts/aggregate-demo-packs.sh \
             scripts/run-demo-pack.sh \
             scripts/validate-demo-packs.sh \
             scripts/validate-governance-lab.sh \
