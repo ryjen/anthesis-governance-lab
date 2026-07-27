@@ -7,24 +7,24 @@ This repository consumes the accepted public Governance Lab contract from [`hack
 ## Documentation
 
 - [Governance Lab operator runbook](docs/runbooks/governance-lab-demo.md)
+- [Five-minute walkthrough](docs/walkthroughs/five-minute-demo.md)
+- [Stakeholder walkthrough](docs/walkthroughs/stakeholder-demo.md)
 - [Scenario catalog](docs/scenarios/catalog.md)
 - [Machine-readable canonical catalog](docs/scenarios/catalog.json)
-- [Baseline SDLC demo packs](docs/scenarios/demo-packs.md)
+- [Demo packs](docs/scenarios/demo-packs.md)
 - [Machine-readable demo catalog](docs/scenarios/demo-catalog.json)
 - [Scenario authoring guide](docs/scenarios/authoring.md)
 - [Decision and report interpretation](docs/scenarios/interpretation.md)
 
-The runbook is the primary entry point for fresh-clone setup, verified evaluator acquisition, canonical execution, troubleshooting, and the five-minute walkthrough.
-
 ## Supported trial platform
 
-The executable trial currently supports **Linux x86_64**. It uses a statically linked Rust `anthesis-lab` release and requires:
+The executable trial supports **Linux x86_64**. It uses a statically linked Rust `anthesis-lab` release and requires:
 
 ```text
 bash curl sha256sum tar jq realpath
 ```
 
-The evaluator is downloaded anonymously from an immutable release in `hackelia-micrantha/anthesis-community`. `.anthesis/cli-artifact.env` pins the full private Anthesis source commit, public release tag, tarball checksum, packaged binary checksum, CLI version, and supported contract set.
+The evaluator is downloaded anonymously from an immutable release in `hackelia-micrantha/anthesis-community`. `.anthesis/cli-artifact.env` pins the full Anthesis source commit, public release tag, tarball checksum, packaged binary checksum, CLI version, and supported contract set.
 
 ## Fresh-clone trial
 
@@ -41,16 +41,13 @@ anthesis-lab test --repo . --format json
 
 No GitHub token or private Anthesis checkout is required.
 
-For the complete canonical and governance-drift validation:
+Run the complete validation:
 
 ```bash
 bash scripts/validate-governance-lab.sh
-```
-
-For repository documentation and catalog contract validation:
-
-```bash
+bash scripts/validate-demo-packs.sh
 bash scripts/validate-docs-and-catalog.sh
+bash scripts/validate-walkthroughs.sh
 ```
 
 ## Immutable release pin
@@ -65,53 +62,42 @@ binary SHA-256: 63a213315f1940675700493fcedda6a1854c6792b6f74eebd5c7f7203f34e70a
 CLI version: 0.1.0
 ```
 
-Upgrades must change all identity values together in a reviewed pull request. The acquisition script must then verify the release checksum asset, provenance manifest, archive allowlist, packaged binary checksum, explicit binary checksum, CLI version, and exact supported contract set. Never replace this pin with a mutable `latest` URL.
+Upgrades must change all identity values together in a reviewed pull request. Never replace this pin with a mutable `latest` URL or skip a verification layer.
 
 ## Canonical scenarios
 
-`anthesis-lab test --repo . --format json` discovers `.anthesis/scenarios` and evaluates seven fixtures in deterministic lexical order:
+`anthesis-lab test --repo . --format json` evaluates seven public-contract fixtures in deterministic lexical order. A passing report uses `anthesis.test-report/v1`, reports seven total and seven passed scenarios, and contains zero failures.
 
-| Scenario | Expected result | What it demonstrates |
-|---|---|---|
-| `01-allowed-docs-edit` | `allow` | Scoped documentation write. |
-| `02-block-ci-change` | `approval_required` | CI workflow mutation requires approval. |
-| `03-require-network-approval` | `approval_required` | External network access requires approval. |
-| `04-block-secret-access` | `deny` | Secret-like path protection takes precedence. |
-| `05-require-dependency-approval` | `approval_required` | Dependency changes require approval. |
-| `06-fail-unknown-runtime` | `deny` from `engine_guard` | Unregistered runtime fails closed. |
-| `07-block-evidence-tamper` | `deny` | Evidence mutation is blocked. |
+## Demo catalog
 
-The canonical suite must report:
+Eight non-canonical packs under `.anthesis/demos` contain 24 synthetic declarations:
 
-```json
-{
-  "version": "anthesis.test-report/v1",
-  "passed": true,
-  "total": 7,
-  "passed_count": 7,
-  "failed_count": 0
-}
+- documentation;
+- source code;
+- CI and release;
+- dependencies;
+- secrets and evidence;
+- network and tools;
+- runtime and identity;
+- deployment and administration.
+
+The catalog covers `allow`, `approval_required`, policy-rule `deny`, policy-default `deny`, and engine-guard `deny`. It never executes declared effects.
+
+```bash
+bash scripts/run-demo-pack.sh --list
+bash scripts/run-demo-pack.sh secrets-and-evidence | jq .
+bash scripts/aggregate-demo-packs.sh | jq .
 ```
-
-## Baseline SDLC demo packs
-
-Four non-canonical packs under `.anthesis/demos` add 12 synthetic declarations for documentation, source-code, CI/release, and dependency workflows. They cover `allow`, `approval_required`, policy-rule `deny`, and default `deny` outcomes without changing the accepted policy.
-
-These fixtures are cataloged and structurally validated. Issue #9 tracks the stable pack runner and real executable pack selection. No declared effect is executed by this repository.
-
-The evaluator parses and decides declared attempts. It does **not** execute file, command, network, merge, deployment, release, or repository-administration effects, and it does not persist approvals.
 
 ## Integration boundary
 
-This repository proves evaluator compatibility and deterministic policy decisions. It does not by itself prove bypass-resistant effect enforcement.
+This repository proves evaluator compatibility and deterministic policy decisions. It does not execute file, command, network, merge, deployment, release, or repository-administration effects, persist approvals, or prevent bypass through ungoverned tools.
 
 A production integration must ensure effectful tools are reachable only through a governed wrapper, gateway, broker, supervisor dispatch boundary, sandbox, or equivalent enforcement point:
 
 ```text
 agent -> governed boundary -> Anthesis decision -> approval check -> bounded executor
 ```
-
-Registering Anthesis beside unwrapped effectful tools is insufficient.
 
 ## CI trust boundary
 
