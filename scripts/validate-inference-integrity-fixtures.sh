@@ -26,7 +26,9 @@ jq -e '
     (.path | startswith("fixtures/inference-integrity/") and endswith(".json") and (contains("..") | not)) and
     (.path != "fixtures/inference-integrity/manifest.json") and
     (.purpose | type == "string" and length > 0) and
-    (.verification_class | IN("fixed_seed", "bounded_consistency", "semantic_only", "governance_only", "unsupported"))
+    (.verification_class | IN("fixed_seed", "bounded_consistency", "semantic_only", "governance_only", "unsupported")) and
+    (.expected_verdict | IN("conformant", "suspicious", "dangerous", "indeterminate")) and
+    (.expected_outcome | IN("allow", "allow_with_signal", "increase_sampling", "quarantine_response", "suspend_route", "isolate_runtime", "isolate_specialist", "suspend_model_alias", "require_human_review", "preserve_forensics", "enter_dormancy"))
   )
 ' "$manifest" >/dev/null || fail "inference-integrity manifest contract is invalid"
 
@@ -40,7 +42,10 @@ mapfile -t fixture_paths < <(
 while IFS= read -r path; do
   fixture="$repo_root/$path"
   [[ -f "$fixture" && ! -L "$fixture" ]] || fail "unsafe or missing fixture: $path"
-  jq -e '
+  expected_verdict="$(jq -er --arg path "$path" '.fixtures[] | select(.path == $path) | .expected_verdict' "$manifest")"
+  expected_outcome="$(jq -er --arg path "$path" '.fixtures[] | select(.path == $path) | .expected_outcome' "$manifest")"
+
+  jq -e --arg expected_verdict "$expected_verdict" --arg expected_outcome "$expected_outcome" '
     def sha256_ref: type == "string" and test("^sha256:[0-9a-f]{64}$");
     .version == "anthesis-governance-lab.inference-integrity-record/v0" and
     .status == "provisional" and
@@ -58,19 +63,31 @@ while IFS= read -r path; do
     (.original_execution.resolved_execution.routing_policy_ref | sha256_ref) and
     (.original_execution.sampling.parameters_digest | sha256_ref) and
     (.original_execution.sampling.seed_commitment | sha256_ref) and
-    (.original_execution.sampling.seed_owner == "gateway") and
+    (.original_execution.sampling.seed_owner | IN("gateway", "runtime")) and
     (.original_execution.output.response_digest | sha256_ref) and
     (.original_execution.output.token_ids_digest | sha256_ref) and
     (.original_execution.verification_request.capability_class | IN("fixed_seed", "bounded_consistency", "semantic_only", "governance_only", "unsupported")) and
     (.original_execution.verification_request.operating_mode | IN("observe", "selective_gate", "required_gate")) and
     (.verification_result.original_execution_ref == .original_execution.execution_ref) and
     (.verification_result.verifier.build_ref | sha256_ref) and
-    (.verification_result.verdict | IN("conformant", "suspicious", "dangerous", "indeterminate")) and
+    ((.verification_result.verifier.trusted // true) | type == "boolean") and
+    (.verification_result.verdict == $expected_verdict) and
     .verification_result.authoritative == false and
     (.policy_result.original_execution_ref == .original_execution.execution_ref) and
     (.policy_result.verification_ref == .verification_result.verification_ref) and
-    (.policy_result.outcome | IN("allow", "allow_with_signal", "increase_sampling", "quarantine_response", "suspend_route", "isolate_runtime", "isolate_specialist", "suspend_model_alias", "require_human_review", "preserve_forensics", "enter_dormancy")) and
-    .policy_result.authority == "phloem-calyx-policy-plane"
+    (.policy_result.outcome == $expected_outcome) and
+    .policy_result.authority == "phloem-calyx-policy-plane" and
+    (if .case.kind == "runtime_selected_seed" then
+       .original_execution.sampling.seed_owner == "runtime" and
+       .verification_result.verdict == "indeterminate"
+     elif .case.kind == "token_substitution" then
+       .verification_result.observations.suspicious_tokens > 0 and
+       .verification_result.observations.dangerous_tokens > 0 and
+       .policy_result.outcome == "quarantine_response"
+     elif .case.kind == "untrusted_verifier" then
+       .verification_result.verifier.trusted == false and
+       .verification_result.verdict == "indeterminate"
+     else true end)
   ' "$fixture" >/dev/null || fail "inference-integrity fixture contract is invalid: $path"
 done < <(printf '%s\n' "${manifest_paths[@]}")
 

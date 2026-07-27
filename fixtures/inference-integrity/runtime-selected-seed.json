@@ -1,0 +1,53 @@
+{
+  "version": "anthesis-governance-lab.inference-integrity-record/v0",
+  "status": "provisional",
+  "synthetic": true,
+  "case": {"kind": "runtime_selected_seed", "expected_verdict": "indeterminate", "expected_outcome": "require_human_review"},
+  "original_execution": {
+    "execution_ref": "execution:synthetic-runtime-seed-002",
+    "gateway_contract_ref": "dubnium-llm-gateway/v1",
+    "requested_model_alias": "supervisor",
+    "resolved_execution": {
+      "provider_ref": "provider:synthetic-local",
+      "route_ref": "route:synthetic-supervisor",
+      "model_artifact_ref": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "tokenizer_ref": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "runtime_build_ref": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+      "runtime_profile_ref": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+      "prompt_profile_ref": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+      "routing_policy_ref": "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+    },
+    "sampling": {
+      "algorithm": "gumbel-max",
+      "parameters_digest": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+      "seed_commitment": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
+      "seed_owner": "runtime"
+    },
+    "output": {
+      "response_digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+      "token_ids_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "topology": {"parent_execution_ref": null, "role": "supervisor", "subrun_refs": []},
+    "verification_request": {"capability_class": "fixed_seed", "selection_ref": "selection:synthetic-002", "operating_mode": "required_gate"}
+  },
+  "verification_result": {
+    "verification_ref": "verification:synthetic-runtime-seed-002",
+    "original_execution_ref": "execution:synthetic-runtime-seed-002",
+    "method": "fixed-seed-token-consistency",
+    "method_version": "1",
+    "verifier": {"identity_ref": "workload:synthetic-independent-verifier", "build_ref": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "trusted": true},
+    "observations": {"verified_tokens": 0, "suspicious_tokens": 0, "dangerous_tokens": 0, "estimated_channel_bits": 0, "cumulative_channel_bits": 0},
+    "verdict": "indeterminate",
+    "limitations": ["seed_not_gateway_owned"],
+    "authoritative": false
+  },
+  "policy_result": {
+    "decision_ref": "decision:synthetic-runtime-seed-002",
+    "original_execution_ref": "execution:synthetic-runtime-seed-002",
+    "verification_ref": "verification:synthetic-runtime-seed-002",
+    "outcome": "require_human_review",
+    "containment_action": "preserve_forensics",
+    "authority": "phloem-calyx-policy-plane"
+  },
+  "reverification": null
+}
