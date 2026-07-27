@@ -1,0 +1,39 @@
+{
+  "version": "anthesis-governance-lab.inference-integrity-record/v0",
+  "status": "provisional",
+  "synthetic": true,
+  "case": {"kind": "synthesis_tamper", "expected_verdict": "dangerous", "expected_outcome": "quarantine_response"},
+  "original_execution": {
+    "execution_ref": "execution:synthetic-synthesis-011",
+    "gateway_contract_ref": "dubnium-llm-gateway/v1",
+    "requested_model_alias": "supervisor",
+    "resolved_execution": {
+      "provider_ref": "provider:synthetic-local",
+      "route_ref": "route:synthetic-supervisor",
+      "model_artifact_ref": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "tokenizer_ref": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "runtime_build_ref": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+      "runtime_profile_ref": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+      "prompt_profile_ref": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+      "routing_policy_ref": "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+    },
+    "sampling": {"algorithm": "gumbel-max", "parameters_digest": "sha256:7777777777777777777777777777777777777777777777777777777777777777", "seed_commitment": "sha256:8888888888888888888888888888888888888888888888888888888888888888", "seed_owner": "gateway"},
+    "output": {"response_digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999", "token_ids_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+    "topology": {"parent_execution_ref": null, "role": "supervisor", "subrun_refs": ["execution:synthetic-specialist-a-011", "execution:synthetic-specialist-b-011"], "synthesis_input_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"},
+    "verification_request": {"capability_class": "fixed_seed", "selection_ref": "selection:synthetic-011", "operating_mode": "selective_gate"}
+  },
+  "verification_result": {
+    "verification_ref": "verification:synthetic-synthesis-011",
+    "original_execution_ref": "execution:synthetic-synthesis-011",
+    "method": "synthesis-boundary-consistency",
+    "method_version": "1",
+    "verifier": {"identity_ref": "workload:synthetic-independent-verifier", "build_ref": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "trusted": true},
+    "localization": {"specialist_inputs_conformant": true, "synthesis_output_conformant": false, "localized_role": "supervisor_synthesis"},
+    "observations": {"verified_tokens": 40, "suspicious_tokens": 1, "dangerous_tokens": 1, "estimated_channel_bits": 1, "cumulative_channel_bits": 1},
+    "verdict": "dangerous",
+    "limitations": [],
+    "authoritative": false
+  },
+  "policy_result": {"decision_ref": "decision:synthetic-synthesis-011", "original_execution_ref": "execution:synthetic-synthesis-011", "verification_ref": "verification:synthetic-synthesis-011", "outcome": "quarantine_response", "containment_action": "preserve_forensics", "authority": "phloem-calyx-policy-plane"},
+  "reverification": null
+}

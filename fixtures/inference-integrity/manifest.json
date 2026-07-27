@@ -8,69 +8,17 @@
   "contains_real_prompts": false,
   "contains_real_secrets": false,
   "fixtures": [
-    {
-      "id": "consistent-fixed-seed-skeleton",
-      "path": "fixtures/inference-integrity/consistent-fixed-seed.json",
-      "purpose": "Demonstrate separation of requested alias, resolved execution, original evidence, verifier evidence, and policy outcome.",
-      "verification_class": "fixed_seed",
-      "expected_verdict": "conformant",
-      "expected_outcome": "allow"
-    },
-    {
-      "id": "runtime-selected-seed",
-      "path": "fixtures/inference-integrity/runtime-selected-seed.json",
-      "purpose": "Demonstrate that a runtime-selected seed cannot support a gateway-owned fixed-seed verification claim.",
-      "verification_class": "fixed_seed",
-      "expected_verdict": "indeterminate",
-      "expected_outcome": "require_human_review"
-    },
-    {
-      "id": "token-substitution",
-      "path": "fixtures/inference-integrity/token-substitution.json",
-      "purpose": "Demonstrate detection and quarantine expectation for a substituted dangerous token.",
-      "verification_class": "fixed_seed",
-      "expected_verdict": "dangerous",
-      "expected_outcome": "quarantine_response"
-    },
-    {
-      "id": "untrusted-verifier",
-      "path": "fixtures/inference-integrity/untrusted-verifier.json",
-      "purpose": "Demonstrate that evidence from an untrusted verifier remains indeterminate and non-authoritative.",
-      "verification_class": "fixed_seed",
-      "expected_verdict": "indeterminate",
-      "expected_outcome": "require_human_review"
-    },
-    {
-      "id": "missing-resolved-identity",
-      "path": "fixtures/inference-integrity/missing-resolved-identity.json",
-      "purpose": "Demonstrate fail-closed handling when an exact resolved model identity is incomplete.",
-      "verification_class": "fixed_seed",
-      "expected_verdict": "indeterminate",
-      "expected_outcome": "require_human_review"
-    },
-    {
-      "id": "seed-evidence-rewrite",
-      "path": "fixtures/inference-integrity/seed-evidence-rewrite.json",
-      "purpose": "Demonstrate preservation and escalation when later seed evidence disagrees with the original commitment.",
-      "verification_class": "fixed_seed",
-      "expected_verdict": "dangerous",
-      "expected_outcome": "preserve_forensics"
-    },
-    {
-      "id": "unsupported-replay-downgrade",
-      "path": "fixtures/inference-integrity/unsupported-replay-downgrade.json",
-      "purpose": "Demonstrate that a route without deterministic replay support is classified as unsupported rather than fixed-seed equivalent.",
-      "verification_class": "unsupported",
-      "expected_verdict": "indeterminate",
-      "expected_outcome": "require_human_review"
-    },
-    {
-      "id": "unverifiable-fallback",
-      "path": "fixtures/inference-integrity/unverifiable-fallback.json",
-      "purpose": "Demonstrate fail-closed handling when required verification would silently weaken through fallback.",
-      "verification_class": "unsupported",
-      "expected_verdict": "indeterminate",
-      "expected_outcome": "suspend_route"
-    }
+    {"id":"consistent-fixed-seed-skeleton","path":"fixtures/inference-integrity/consistent-fixed-seed.json","purpose":"Demonstrate separation of requested alias, resolved execution, original evidence, verifier evidence, and policy outcome.","verification_class":"fixed_seed","expected_verdict":"conformant","expected_outcome":"allow"},
+    {"id":"runtime-selected-seed","path":"fixtures/inference-integrity/runtime-selected-seed.json","purpose":"Demonstrate that a runtime-selected seed cannot support a gateway-owned fixed-seed verification claim.","verification_class":"fixed_seed","expected_verdict":"indeterminate","expected_outcome":"require_human_review"},
+    {"id":"token-substitution","path":"fixtures/inference-integrity/token-substitution.json","purpose":"Demonstrate detection and quarantine expectation for a substituted dangerous token.","verification_class":"fixed_seed","expected_verdict":"dangerous","expected_outcome":"quarantine_response"},
+    {"id":"untrusted-verifier","path":"fixtures/inference-integrity/untrusted-verifier.json","purpose":"Demonstrate that evidence from an untrusted verifier remains indeterminate and non-authoritative.","verification_class":"fixed_seed","expected_verdict":"indeterminate","expected_outcome":"require_human_review"},
+    {"id":"missing-resolved-identity","path":"fixtures/inference-integrity/missing-resolved-identity.json","purpose":"Demonstrate fail-closed handling when an exact resolved model identity is incomplete.","verification_class":"fixed_seed","expected_verdict":"indeterminate","expected_outcome":"require_human_review"},
+    {"id":"seed-evidence-rewrite","path":"fixtures/inference-integrity/seed-evidence-rewrite.json","purpose":"Demonstrate preservation and escalation when later seed evidence disagrees with the original commitment.","verification_class":"fixed_seed","expected_verdict":"dangerous","expected_outcome":"preserve_forensics"},
+    {"id":"unsupported-replay-downgrade","path":"fixtures/inference-integrity/unsupported-replay-downgrade.json","purpose":"Demonstrate that a route without deterministic replay support is classified as unsupported rather than fixed-seed equivalent.","verification_class":"unsupported","expected_verdict":"indeterminate","expected_outcome":"require_human_review"},
+    {"id":"unverifiable-fallback","path":"fixtures/inference-integrity/unverifiable-fallback.json","purpose":"Demonstrate fail-closed handling when required verification would silently weaken through fallback.","verification_class":"unsupported","expected_verdict":"indeterminate","expected_outcome":"suspend_route"},
+    {"id":"plano-route-change","path":"fixtures/inference-integrity/plano-route-change.json","purpose":"Demonstrate detection of an unapproved change between the planned and resolved Plano route.","verification_class":"fixed_seed","expected_verdict":"suspicious","expected_outcome":"suspend_route"},
+    {"id":"specialist-tamper","path":"fixtures/inference-integrity/specialist-tamper.json","purpose":"Demonstrate localization of dangerous evidence to one specialist while preserving parent and sibling attribution.","verification_class":"fixed_seed","expected_verdict":"dangerous","expected_outcome":"isolate_specialist"},
+    {"id":"synthesis-tamper","path":"fixtures/inference-integrity/synthesis-tamper.json","purpose":"Demonstrate localization of tampering to supervisor synthesis when specialist inputs remain conformant.","verification_class":"fixed_seed","expected_verdict":"dangerous","expected_outcome":"quarantine_response"},
+    {"id":"direct-runtime-bypass","path":"fixtures/inference-integrity/direct-runtime-bypass.json","purpose":"Demonstrate fail-closed handling when execution bypasses the governed gateway and reaches a raw runtime.","verification_class":"governance_only","expected_verdict":"dangerous","expected_outcome":"isolate_runtime"}
   ]
 }

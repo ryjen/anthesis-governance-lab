@@ -1,0 +1,39 @@
+{
+  "version": "anthesis-governance-lab.inference-integrity-record/v0",
+  "status": "provisional",
+  "synthetic": true,
+  "case": {"kind": "direct_runtime_bypass", "expected_verdict": "dangerous", "expected_outcome": "isolate_runtime"},
+  "original_execution": {
+    "execution_ref": "execution:synthetic-runtime-bypass-012",
+    "gateway_contract_ref": "dubnium-llm-gateway/v1",
+    "requested_model_alias": "supervisor",
+    "resolved_execution": {
+      "provider_ref": "provider:synthetic-local",
+      "route_ref": "route:synthetic-direct-runtime",
+      "model_artifact_ref": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "tokenizer_ref": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "runtime_build_ref": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+      "runtime_profile_ref": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+      "prompt_profile_ref": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+      "routing_policy_ref": "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+    },
+    "execution_path": {"governed_gateway_required": true, "governed_gateway_observed": false, "raw_runtime_endpoint_observed": true},
+    "sampling": {"algorithm": "gumbel-max", "parameters_digest": "sha256:7777777777777777777777777777777777777777777777777777777777777777", "seed_commitment": "sha256:8888888888888888888888888888888888888888888888888888888888888888", "seed_owner": "runtime"},
+    "output": {"response_digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999", "token_ids_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+    "topology": {"parent_execution_ref": null, "role": "direct", "subrun_refs": []},
+    "verification_request": {"capability_class": "governance_only", "selection_ref": "selection:synthetic-012", "operating_mode": "required_gate"}
+  },
+  "verification_result": {
+    "verification_ref": "verification:synthetic-runtime-bypass-012",
+    "original_execution_ref": "execution:synthetic-runtime-bypass-012",
+    "method": "governed-path-attestation",
+    "method_version": "1",
+    "verifier": {"identity_ref": "workload:synthetic-independent-verifier", "build_ref": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "trusted": true},
+    "observations": {"verified_tokens": 0, "suspicious_tokens": 1, "dangerous_tokens": 1, "estimated_channel_bits": 0, "cumulative_channel_bits": 0},
+    "verdict": "dangerous",
+    "limitations": ["governed_gateway_bypassed"],
+    "authoritative": false
+  },
+  "policy_result": {"decision_ref": "decision:synthetic-runtime-bypass-012", "original_execution_ref": "execution:synthetic-runtime-bypass-012", "verification_ref": "verification:synthetic-runtime-bypass-012", "outcome": "isolate_runtime", "containment_action": "isolate_runtime", "authority": "phloem-calyx-policy-plane"},
+  "reverification": null
+}
