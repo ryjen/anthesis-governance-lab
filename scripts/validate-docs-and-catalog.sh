@@ -34,10 +34,10 @@ jq -e '
 jq -e '
   .version == "anthesis-governance-lab.demo-catalog/v1" and
   .executes_effects == false and
-  (.packs | length == 4) and
+  (.packs | length == 8) and
   ([.packs[].id] | length == (unique | length)) and
   ([.packs[].path] | length == (unique | length)) and
-  ([.packs[].scenarios[]] | length == 12) and
+  ([.packs[].scenarios[]] | length == 24) and
   ([.packs[].scenarios[].id] | length == (unique | length)) and
   ([.packs[].scenarios[].path] | length == (unique | length)) and
   all(.packs[];
@@ -48,15 +48,20 @@ jq -e '
       (.id | type == "string" and length > 0) and
       (.path | type == "string" and startswith(".anthesis/demos/") and endswith(".yaml") and (contains("..") | not)) and
       (.expected.decision | IN("allow", "approval_required", "deny")) and
-      (.expected.source | IN("policy_rule", "policy_default")) and
+      (.expected.source | IN("policy_rule", "policy_default", "engine_guard")) and
       (.expected.reason | type == "string" and length > 0) and
       ((.expected.source != "policy_rule") or (.expected.rule_id | type == "string" and length > 0)) and
+      ((.expected.source != "policy_default") or (.expected.rule_id == "default")) and
       (.use_case | type == "string" and length > 0) and
       (.threat | type == "string" and length > 0) and
       (.trust_assumption | type == "string" and length > 0) and
       .executes_effect == false
     )
-  )
+  ) and
+  (any(.packs[].scenarios[].expected; .decision == "allow")) and
+  (any(.packs[].scenarios[].expected; .decision == "approval_required")) and
+  (any(.packs[].scenarios[].expected; .decision == "deny" and .source == "policy_rule")) and
+  (any(.packs[].scenarios[].expected; .decision == "deny" and .source == "engine_guard"))
 ' "$demo_catalog" >/dev/null || fail "demo catalog contract is invalid"
 
 mapfile -t catalog_paths < <(jq -r '.collections.canonical.scenarios[].path' "$catalog" | sort)
@@ -66,14 +71,15 @@ mapfile -t fixture_paths < <(cd "$repo_root" && find .anthesis/scenarios -maxdep
 
 mapfile -t demo_catalog_paths < <(jq -r '.packs[].scenarios[].path' "$demo_catalog" | sort)
 mapfile -t demo_fixture_paths < <(cd "$repo_root" && find .anthesis/demos -mindepth 2 -maxdepth 2 -type f -name '*.yaml' -print | sort)
-[[ "${#demo_catalog_paths[@]}" -eq 12 ]] || fail "demo catalog must contain twelve scenarios"
+[[ "${#demo_catalog_paths[@]}" -eq 24 ]] || fail "demo catalog must contain twenty-four scenarios"
 [[ "${demo_catalog_paths[*]}" == "${demo_fixture_paths[*]}" ]] || fail "demo catalog and fixture paths differ"
 
 for path in "${catalog_paths[@]}" "${demo_catalog_paths[@]}"; do
   [[ -f "$repo_root/$path" && ! -L "$repo_root/$path" ]] || fail "unsafe or missing scenario: $path"
 done
 
-for pack in documentation source-code ci-and-release dependencies; do
+mapfile -t catalog_pack_ids < <(jq -r '.packs[].id' "$demo_catalog")
+for pack in "${catalog_pack_ids[@]}"; do
   [[ -d "$repo_root/.anthesis/demos/$pack" && ! -L "$repo_root/.anthesis/demos/$pack" ]] || fail "missing demo pack: $pack"
   [[ "$(find "$repo_root/.anthesis/demos/$pack" -maxdepth 1 -type f -name '*.yaml' | wc -l)" -eq 3 ]] || fail "demo pack must contain three scenarios: $pack"
 done
