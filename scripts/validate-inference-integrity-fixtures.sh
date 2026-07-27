@@ -63,8 +63,10 @@ while IFS= read -r path; do
     (.original_execution.execution_ref | type == "string" and startswith("execution:") and length > 10) and
     (.original_execution.gateway_contract_ref == "dubnium-llm-gateway/v1") and
     (.original_execution.requested_model_alias | type == "string" and length > 0) and
-    (.original_execution.resolved_execution_complete | type == "boolean") and
-    ((.original_execution.resolved_execution_complete == false) or (.original_execution.resolved_execution | complete_identity)) and
+    ((.original_execution | has("resolved_execution_complete") | not) or (.original_execution.resolved_execution_complete | type == "boolean")) and
+    (((.original_execution | has("resolved_execution_complete")) and .original_execution.resolved_execution_complete == false) or
+      (((.original_execution | has("resolved_execution_complete") | not) or .original_execution.resolved_execution_complete == true) and
+       (.original_execution.resolved_execution | complete_identity))) and
     (.original_execution.sampling.parameters_digest | sha256_ref) and
     (.original_execution.sampling.seed_commitment | sha256_ref) and
     (.original_execution.sampling.seed_owner | IN("gateway", "runtime")) and
