@@ -1,0 +1,61 @@
+{
+  "version": "anthesis-governance-lab.inference-integrity-record/v0",
+  "status": "provisional",
+  "synthetic": true,
+  "case": {"kind": "retry_fallback_aggregation", "expected_verdict": "dangerous", "expected_outcome": "suspend_route"},
+  "original_execution": {
+    "execution_ref": "execution:synthetic-retry-fallback-018",
+    "gateway_contract_ref": "dubnium-llm-gateway/v1",
+    "requested_model_alias": "supervisor",
+    "resolved_execution": {
+      "provider_ref": "provider:synthetic-local",
+      "route_ref": "route:synthetic-fallback",
+      "model_artifact_ref": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "tokenizer_ref": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "runtime_build_ref": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+      "runtime_profile_ref": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+      "prompt_profile_ref": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+      "routing_policy_ref": "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+    },
+    "routing": {
+      "initial_route_ref": "route:synthetic-primary",
+      "fallback_route_ref": "route:synthetic-fallback",
+      "retry_chain": [
+        {"execution_ref": "execution:synthetic-retry-fallback-018-a", "route_ref": "route:synthetic-primary", "attempt": 1},
+        {"execution_ref": "execution:synthetic-retry-fallback-018-b", "route_ref": "route:synthetic-primary", "attempt": 2},
+        {"execution_ref": "execution:synthetic-retry-fallback-018", "route_ref": "route:synthetic-fallback", "attempt": 3}
+      ]
+    },
+    "sampling": {"algorithm": "gumbel-max", "parameters_digest": "sha256:7777777777777777777777777777777777777777777777777777777777777777", "seed_commitment": "sha256:8888888888888888888888888888888888888888888888888888888888888888", "seed_owner": "gateway"},
+    "output": {"response_digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999", "token_ids_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+    "topology": {"parent_execution_ref": null, "role": "supervisor", "subrun_refs": []},
+    "verification_request": {"capability_class": "bounded_consistency", "selection_ref": "selection:synthetic-018", "operating_mode": "selective_gate"}
+  },
+  "verification_result": {
+    "verification_ref": "verification:synthetic-retry-fallback-018",
+    "original_execution_ref": "execution:synthetic-retry-fallback-018",
+    "method": "provisional-channel-capacity-accounting",
+    "method_version": "0",
+    "verifier": {"identity_ref": "workload:synthetic-independent-verifier", "build_ref": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "trusted": true},
+    "observations": {"verified_tokens": 384, "suspicious_tokens": 3, "dangerous_tokens": 0, "estimated_channel_bits": 0.4, "cumulative_channel_bits": 1.2},
+    "capacity_accounting": {
+      "provisional": true,
+      "formula_ref": "provisional:anthesis-108-pending",
+      "budget_bits": 1.0,
+      "within_budget": false,
+      "window_ref": "window:synthetic-tenant-a-session-a-15m",
+      "scope": {"alias": "supervisor", "role": "supervisor", "tenant_ref": "tenant:synthetic-a", "session_ref": "session:synthetic-a"},
+      "route_change_resets_budget": false,
+      "contributions": [
+        {"execution_ref": "execution:synthetic-retry-fallback-018-a", "route_ref": "route:synthetic-primary", "estimated_channel_bits": 0.4},
+        {"execution_ref": "execution:synthetic-retry-fallback-018-b", "route_ref": "route:synthetic-primary", "estimated_channel_bits": 0.4},
+        {"execution_ref": "execution:synthetic-retry-fallback-018", "route_ref": "route:synthetic-fallback", "estimated_channel_bits": 0.4}
+      ]
+    },
+    "verdict": "dangerous",
+    "limitations": ["capacity_formula_provisional"],
+    "authoritative": false
+  },
+  "policy_result": {"decision_ref": "decision:synthetic-retry-fallback-018", "original_execution_ref": "execution:synthetic-retry-fallback-018", "verification_ref": "verification:synthetic-retry-fallback-018", "outcome": "suspend_route", "containment_action": "suspend_route", "authority": "phloem-calyx-policy-plane"},
+  "reverification": null
+}
