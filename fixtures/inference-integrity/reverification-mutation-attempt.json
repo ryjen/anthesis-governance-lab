@@ -1,0 +1,51 @@
+{
+  "version": "anthesis-governance-lab.inference-integrity-record/v0",
+  "status": "provisional",
+  "synthetic": true,
+  "case": {"kind": "reverification_mutation_attempt", "expected_verdict": "dangerous", "expected_outcome": "preserve_forensics"},
+  "original_execution": {
+    "execution_ref": "execution:synthetic-reverification-mutation-014",
+    "gateway_contract_ref": "dubnium-llm-gateway/v1",
+    "requested_model_alias": "supervisor",
+    "resolved_execution": {
+      "provider_ref": "provider:synthetic-local",
+      "route_ref": "route:synthetic-supervisor",
+      "model_artifact_ref": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "tokenizer_ref": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "runtime_build_ref": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+      "runtime_profile_ref": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+      "prompt_profile_ref": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+      "routing_policy_ref": "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+    },
+    "evidence_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "sampling": {"algorithm": "gumbel-max", "parameters_digest": "sha256:7777777777777777777777777777777777777777777777777777777777777777", "seed_commitment": "sha256:8888888888888888888888888888888888888888888888888888888888888888", "seed_owner": "gateway"},
+    "output": {"response_digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999", "token_ids_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+    "topology": {"parent_execution_ref": null, "role": "supervisor", "subrun_refs": []},
+    "verification_request": {"capability_class": "fixed_seed", "selection_ref": "selection:synthetic-014", "operating_mode": "required_gate"}
+  },
+  "verification_result": {
+    "verification_ref": "verification:synthetic-initial-014",
+    "original_execution_ref": "execution:synthetic-reverification-mutation-014",
+    "method": "evidence-immutability-check",
+    "method_version": "1",
+    "verifier": {"identity_ref": "workload:synthetic-independent-verifier", "build_ref": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "trusted": true},
+    "observations": {"verified_tokens": 0, "suspicious_tokens": 1, "dangerous_tokens": 1, "estimated_channel_bits": 0, "cumulative_channel_bits": 0},
+    "verdict": "dangerous",
+    "limitations": ["original_evidence_mutation_attempted"],
+    "authoritative": false
+  },
+  "policy_result": {"decision_ref": "decision:synthetic-reverification-mutation-014", "original_execution_ref": "execution:synthetic-reverification-mutation-014", "verification_ref": "verification:synthetic-initial-014", "outcome": "preserve_forensics", "containment_action": "preserve_forensics", "authority": "phloem-calyx-policy-plane"},
+  "reverification": {
+    "verification_ref": "verification:synthetic-reverification-014",
+    "prior_verification_ref": "verification:synthetic-initial-014",
+    "original_execution_ref": "execution:synthetic-reverification-mutation-014",
+    "original_evidence_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "submitted_evidence_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "immutable_original_preserved": true,
+    "mutation_attempted": true,
+    "append_only": true,
+    "verifier": {"identity_ref": "workload:synthetic-second-verifier", "build_ref": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "trusted": true},
+    "verdict": "dangerous",
+    "authoritative": false
+  }
+}
