@@ -35,9 +35,12 @@ jq -e '
 mapfile -t manifest_paths < <(jq -r '.fixtures[].path' "$manifest" | sort)
 mapfile -t fixture_paths < <(
   cd "$repo_root"
-  find fixtures/inference-integrity -maxdepth 1 -type f -name '*.json' ! -name manifest.json -print | sort
+  find fixtures/inference-integrity -maxdepth 1 -type f -name '*.json' \
+    ! -name manifest.json \
+    ! -name fixtures-v1alpha1.json \
+    -print | sort
 )
-[[ "${manifest_paths[*]}" == "${fixture_paths[*]}" ]] || fail "fixture manifest and JSON fixture paths differ"
+[[ "${manifest_paths[*]}" == "${fixture_paths[*]}" ]] || fail "fixture manifest and provisional JSON fixture paths differ"
 
 while IFS= read -r path; do
   fixture="$repo_root/$path"
