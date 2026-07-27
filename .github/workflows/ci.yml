@@ -33,10 +33,12 @@ jobs:
             scripts/validate-governance-lab.sh \
             scripts/validate-docs-and-catalog.sh \
             scripts/validate-inference-integrity-fixtures.sh \
+            scripts/validate-inference-capacity-fixtures.sh \
             scripts/validate-walkthroughs.sh
           ! grep -RInE '(^|[^[:alnum:]_])(python3?|pip|pytest)([^[:alnum:]_]|$)' scripts
           bash scripts/validate-docs-and-catalog.sh
           bash scripts/validate-inference-integrity-fixtures.sh
+          bash scripts/validate-inference-capacity-fixtures.sh
           bash scripts/validate-walkthroughs.sh
 
           outside="$RUNNER_TEMP/anthesis-governance-lab-rejected-install"
