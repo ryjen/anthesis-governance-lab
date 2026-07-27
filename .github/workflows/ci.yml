@@ -36,6 +36,7 @@ jobs:
             scripts/validate-inference-capacity-fixtures.sh \
             scripts/validate-inference-final-catalog.sh \
             scripts/validate-inference-scenario-catalog.sh \
+            scripts/validate-executable-inference-integrity.sh \
             scripts/validate-walkthroughs.sh
           ! grep -RInE '(^|[^[:alnum:]_])(python3?|pip|pytest)([^[:alnum:]_]|$)' scripts
           bash scripts/validate-docs-and-catalog.sh
@@ -106,6 +107,9 @@ jobs:
 
       - name: Validate public contracts and canonical scenarios
         run: bash scripts/validate-governance-lab.sh
+
+      - name: Validate executable inference-integrity suite
+        run: bash scripts/validate-executable-inference-integrity.sh
 
       - name: Validate all cataloged demo packs
         run: bash scripts/validate-demo-packs.sh

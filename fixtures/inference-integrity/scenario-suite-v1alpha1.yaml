@@ -1,0 +1,60 @@
+version: anthesis.inference-integrity-scenario-suite/v1alpha1
+profile_ref: docs/drafts/rfc_00xx_inference_integrity_verification_profile.md
+schemas:
+  evidence: specs/inference-integrity/inference-integrity-evidence-v1alpha1.schema.json
+  verification_result: specs/inference-integrity/verification-result-v1alpha1.schema.json
+  risk_window: specs/inference-integrity/channel-risk-window-v1alpha1.schema.json
+fixture_catalog: fixtures/inference-integrity/fixtures-v1alpha1.json
+execution:
+  mode: fixture_only
+  gpu_required: false
+  network_required: false
+scenarios:
+  - id: accept-consistent-fixed-seed-output
+    fixture_key: accept-consistent-fixed-seed-output
+    expected: {verdict: conformant, capability_class: fixed_seed, policy_posture: allow}
+  - id: reject-missing-resolved-identity
+    fixture_key: reject-missing-resolved-identity
+    expected: {verdict: indeterminate, capability_class: unsupported, policy_posture: fail_closed}
+  - id: reject-runtime-selected-seed
+    fixture_key: reject-runtime-selected-seed
+    expected: {verdict: indeterminate, capability_class: bounded_consistency, policy_posture: fail_closed}
+  - id: detect-token-substitution
+    fixture_key: detect-token-substitution
+    expected: {verdict: suspicious, capability_class: fixed_seed, policy_posture: quarantine_response}
+  - id: detect-seed-evidence-rewrite
+    fixture_key: detect-seed-evidence-rewrite
+    expected: {verdict: dangerous, capability_class: unsupported, policy_posture: preserve_forensics}
+  - id: reject-untrusted-verifier
+    fixture_key: reject-untrusted-verifier
+    expected: {verdict: indeterminate, capability_class: unsupported, policy_posture: fail_closed}
+  - id: budget-low-capacity-discrepancy
+    fixture_key: budget-low-capacity-discrepancy
+    expected: {verdict: suspicious, capability_class: bounded_consistency, policy_posture: increase_sampling}
+  - id: quarantine-dangerous-token
+    fixture_key: quarantine-dangerous-token
+    expected: {verdict: dangerous, capability_class: bounded_consistency, policy_posture: quarantine_response}
+  - id: aggregate-low-rate-leakage
+    fixture_key: aggregate-low-rate-leakage
+    expected: {verdict: dangerous, capability_class: bounded_consistency, policy_posture: suspend_route}
+  - id: detect-plano-route-change
+    fixture_key: detect-plano-route-change
+    expected: {verdict: suspicious, capability_class: governance_only, policy_posture: increase_sampling}
+  - id: block-fallback-to-unverifiable-route
+    fixture_key: block-fallback-to-unverifiable-route
+    expected: {verdict: indeterminate, capability_class: unsupported, policy_posture: fail_closed}
+  - id: localize-specialist-tamper
+    fixture_key: localize-specialist-tamper
+    expected: {verdict: dangerous, capability_class: fixed_seed, policy_posture: isolate_specialist}
+  - id: detect-synthesis-tamper
+    fixture_key: detect-synthesis-tamper
+    expected: {verdict: dangerous, capability_class: fixed_seed, policy_posture: quarantine_response}
+  - id: preserve-original-on-reverification
+    fixture_key: preserve-original-on-reverification
+    expected: {verdict: conformant, capability_class: governance_only, policy_posture: allow_with_signal}
+  - id: downgrade-unsupported-replay
+    fixture_key: downgrade-unsupported-replay
+    expected: {verdict: indeterminate, capability_class: unsupported, policy_posture: fail_closed}
+  - id: block-direct-runtime-bypass
+    fixture_key: block-direct-runtime-bypass
+    expected: {verdict: dangerous, capability_class: governance_only, policy_posture: suspend_model_alias}
