@@ -126,7 +126,8 @@ This checks:
 - required documentation and script paths;
 - README links to the runbook and scenario guides;
 - runbook command references;
-- explicit separation of canonical and planned demo collections.
+- explicit separation of canonical and demo collections;
+- demo-pack runner syntax, catalog parity, and fail-closed selection behavior.
 
 ## 8. Understand expectation drift
 
@@ -166,18 +167,33 @@ See:
 - `docs/scenarios/catalog.json`;
 - `docs/scenarios/interpretation.md`.
 
-## Pending demo-pack tooling
+## 11. Run a demo pack
 
-The canonical suite can be run today. Commands for selecting one additional demo scenario or a themed demo pack are intentionally not documented as available yet.
+List the exact cataloged pack IDs:
 
-They are tracked by:
+```bash
+bash scripts/run-demo-pack.sh --list
+```
 
-- issue #8 for the use-case scenario packs;
-- issue #9 for `scripts/run-demo-pack.sh` and catalog validation.
+Run one pack through the verified evaluator while preserving the evaluator exit code:
 
-Until those issues land, do not copy canonical fixtures into ad hoc directories or treat planned `.anthesis/demos` paths as executable interfaces.
+```bash
+set -o pipefail
+bash scripts/run-demo-pack.sh documentation | jq .
+```
 
-## 11. Troubleshooting
+The runner accepts only an exact cataloged pack ID, requires the canonical `.anthesis/demos/<pack>` directory, rejects missing, symlinked, escaping, or catalog-divergent scenarios, and verifies the report schema, scenario count, and exact scenario IDs.
+
+Available baseline packs are:
+
+- `documentation`;
+- `source-code`;
+- `ci-and-release`;
+- `dependencies`.
+
+The runner evaluates declarations only. It does not execute their effects or persist approval decisions. Issue #9 continues to track immutable-release CI integration and bounded report aggregation.
+
+## 12. Troubleshooting
 
 ### Artifact acquisition fails
 
@@ -195,13 +211,17 @@ Repin deliberately if the CLI and fixtures are incompatible. Do not weaken asser
 
 Use repository-relative, non-symlinked paths. The CLI rejects absolute paths, home-relative paths, repository escapes, and unsafe scenario collections.
 
+### Demo pack is rejected
+
+Run `bash scripts/run-demo-pack.sh --list` and use one exact cataloged ID. Do not pass paths, glob patterns, or ad hoc scenario directories through the pack interface.
+
 ### Test exits 7
 
-Exit status `7` means at least one actual decision did not match its fixture expectation. Inspect the `mismatches` entries. It is not a successful canonical run.
+Exit status `7` means at least one actual decision did not match its fixture expectation. Inspect the `mismatches` entries. It is not a successful canonical or demo-pack run.
 
-## 12. Cleanup
+## 13. Cleanup
 
-The validation script cleans its repository-contained temporary fixture automatically. Remove a locally acquired evaluator with:
+The validation and pack-runner scripts clean their repository-contained temporary directories automatically. Remove a locally acquired evaluator with:
 
 ```bash
 rm -rf .anthesis/bin
@@ -213,7 +233,8 @@ Do not remove the canonical policy, runtime profile, or scenario fixtures.
 
 1. Show the pinned CLI identity with `anthesis-lab version --format json`.
 2. Run the canonical suite and show seven passes.
-3. Compare one allowed documentation declaration with one approval-gated CI change.
-4. Show the secret-access policy denial and unknown-runtime engine-guard denial.
-5. Run the intentional drift exercise and explain exit code `7`.
-6. Close by distinguishing deterministic evaluation from bypass-resistant effect enforcement.
+3. Run `scripts/run-demo-pack.sh documentation` and compare the bounded allow with the out-of-scope default deny.
+4. Run the CI/release pack and explain approval-required versus explicit release denial.
+5. Show the secret-access policy denial and unknown-runtime engine-guard denial from the canonical suite.
+6. Run the intentional drift exercise and explain exit code `7`.
+7. Close by distinguishing deterministic evaluation from bypass-resistant effect enforcement.
