@@ -12,8 +12,8 @@ Demonstrate a bounded governance layer using public Anthesis contracts and synth
 
 The Governance Lab combines:
 
-- the promoted Rust `anthesis-lab` evaluator from the Anthesis repository;
-- checksum-pinned acquisition and public contract verification;
+- an immutable, anonymously downloadable Rust `anthesis-lab` release built from a reviewed Anthesis source commit;
+- external and packaged SHA-256 verification plus machine-readable source and build provenance;
 - seven canonical conformance scenarios;
 - four themed packs covering documentation, source code, CI and release, and dependencies;
 - a versioned aggregate report containing all 12 demo outcomes;
@@ -22,6 +22,8 @@ The Governance Lab combines:
 Run the evidence:
 
 ```bash
+bash scripts/acquire-anthesis-lab.sh
+export PATH="$PWD/.anthesis/bin:$PATH"
 bash scripts/validate-governance-lab.sh
 bash scripts/validate-demo-packs.sh
 bash scripts/aggregate-demo-packs.sh | jq .
@@ -29,18 +31,19 @@ bash scripts/aggregate-demo-packs.sh | jq .
 
 ## Result
 
-A successful run demonstrates that the same pinned declarations and governance contracts produce stable decisions and evidence:
+A successful run demonstrates that the same pinned evaluator, declarations, and governance contracts produce stable decisions and evidence:
 
 - scoped documentation and source changes can be allowed;
 - CI and dependency changes can be held for external approval;
 - merge and release actions can be denied;
 - unknown runtimes can fail closed independently of ordinary policy matching;
 - altered expectations do not change the policy decision and are surfaced as exit code `7`;
-- all four packs and 12 scenarios are reconciled against the catalog.
+- all four packs and 12 scenarios are reconciled against the catalog;
+- external reviewers and pull requests can reproduce the real-binary validation without a private producer credential.
 
 ## What this proves
 
-The lab demonstrates deterministic policy evaluation, bounded scenario selection, fail-closed catalog validation, explicit decision provenance, and reproducible reporting suitable for engineering and governance review.
+The lab demonstrates immutable evaluator acquisition, deterministic policy evaluation, bounded scenario selection, fail-closed catalog validation, explicit decision provenance, and reproducible reporting suitable for engineering and governance review.
 
 ## What this does not prove
 
@@ -48,7 +51,7 @@ The lab does not execute declared actions, persist approvals, sign production ev
 
 ## Project relationships
 
-- **Anthesis:** policy, runtime, decision, scenario, and report contracts plus the Rust evaluator.
+- **Anthesis:** private evaluator implementation and trusted release producer.
+- **Anthesis community:** public contracts and immutable binary distribution surface.
 - **Anthesis Governance Lab:** reproducible public demonstration fixtures, validation, and walkthroughs.
 - **Dubnium:** a potential governed-agent and execution environment where Anthesis decisions can be integrated with bounded tool access.
-- **Anthesis community release work:** issue #4 tracks migration from the current authenticated artifact to an immutable anonymous public release.
