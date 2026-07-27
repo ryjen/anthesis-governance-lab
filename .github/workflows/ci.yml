@@ -46,6 +46,11 @@ jobs:
           bash scripts/validate-inference-scenario-catalog.sh
           bash scripts/validate-walkthroughs.sh
 
+          grep -Fq 'ANTHESIS_SIGSTORE_REQUIRED' scripts/acquire-anthesis-lab.sh
+          grep -Fq 'cosign verify-blob' scripts/acquire-anthesis-lab.sh
+          grep -Fq -- '--certificate-github-workflow-sha' scripts/acquire-anthesis-lab.sh
+          grep -Fq 'ANTHESIS_SIGSTORE_REQUIRED=false' .anthesis/cli-artifact.env
+
           outside="$RUNNER_TEMP/anthesis-governance-lab-rejected-install"
           rm -rf "$outside"
           set +e
@@ -92,6 +97,21 @@ jobs:
           test ! -e "$marker"
           grep -Fq 'Anthesis revision must be a full commit SHA' /tmp/parser.err
 
+          signature_fixture="$(mktemp -d "$RUNNER_TEMP/anthesis-signature.XXXXXX")"
+          mkdir -p "$signature_fixture/scripts" "$signature_fixture/.anthesis"
+          cp scripts/acquire-anthesis-lab.sh "$signature_fixture/scripts/"
+          cp .anthesis/cli-artifact.env "$signature_fixture/.anthesis/"
+          sed -i \
+            's#^ANTHESIS_SIGSTORE_REQUIRED=.*#ANTHESIS_SIGSTORE_REQUIRED=true#' \
+            "$signature_fixture/.anthesis/cli-artifact.env"
+          set +e
+          PATH=/usr/bin:/bin bash "$signature_fixture/scripts/acquire-anthesis-lab.sh" \
+            > /tmp/signature.out 2> /tmp/signature.err
+          status=$?
+          set -e
+          test "$status" -eq 3
+          grep -Fq 'cosign is required for the pinned signed release' /tmp/signature.err
+
   executable-validation:
     needs: structural-validation
     runs-on: ubuntu-24.04
@@ -102,7 +122,10 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Acquire checksum-verified public Rust CLI
+      - name: Install pinned Cosign verifier
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6
+
+      - name: Acquire verified public Rust CLI
         run: bash scripts/acquire-anthesis-lab.sh
 
       - name: Validate public contracts and canonical scenarios
