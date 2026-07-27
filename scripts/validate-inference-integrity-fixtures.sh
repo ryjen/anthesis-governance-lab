@@ -42,30 +42,37 @@ mapfile -t fixture_paths < <(
 while IFS= read -r path; do
   fixture="$repo_root/$path"
   [[ -f "$fixture" && ! -L "$fixture" ]] || fail "unsafe or missing fixture: $path"
+  expected_class="$(jq -er --arg path "$path" '.fixtures[] | select(.path == $path) | .verification_class' "$manifest")"
   expected_verdict="$(jq -er --arg path "$path" '.fixtures[] | select(.path == $path) | .expected_verdict' "$manifest")"
   expected_outcome="$(jq -er --arg path "$path" '.fixtures[] | select(.path == $path) | .expected_outcome' "$manifest")"
 
-  jq -e --arg expected_verdict "$expected_verdict" --arg expected_outcome "$expected_outcome" '
+  jq -e --arg expected_class "$expected_class" --arg expected_verdict "$expected_verdict" --arg expected_outcome "$expected_outcome" '
     def sha256_ref: type == "string" and test("^sha256:[0-9a-f]{64}$");
+    def complete_identity:
+      (.provider_ref | type == "string" and startswith("provider:") and length > 9) and
+      (.route_ref | type == "string" and startswith("route:") and length > 6) and
+      (.model_artifact_ref | sha256_ref) and
+      (.tokenizer_ref | sha256_ref) and
+      (.runtime_build_ref | sha256_ref) and
+      (.runtime_profile_ref | sha256_ref) and
+      (.prompt_profile_ref | sha256_ref) and
+      (.routing_policy_ref | sha256_ref);
     .version == "anthesis-governance-lab.inference-integrity-record/v0" and
     .status == "provisional" and
     .synthetic == true and
     (.original_execution.execution_ref | type == "string" and startswith("execution:") and length > 10) and
     (.original_execution.gateway_contract_ref == "dubnium-llm-gateway/v1") and
     (.original_execution.requested_model_alias | type == "string" and length > 0) and
-    (.original_execution.resolved_execution.provider_ref | type == "string" and startswith("provider:") and length > 9) and
-    (.original_execution.resolved_execution.route_ref | type == "string" and startswith("route:") and length > 6) and
-    (.original_execution.resolved_execution.model_artifact_ref | sha256_ref) and
-    (.original_execution.resolved_execution.tokenizer_ref | sha256_ref) and
-    (.original_execution.resolved_execution.runtime_build_ref | sha256_ref) and
-    (.original_execution.resolved_execution.runtime_profile_ref | sha256_ref) and
-    (.original_execution.resolved_execution.prompt_profile_ref | sha256_ref) and
-    (.original_execution.resolved_execution.routing_policy_ref | sha256_ref) and
+    ((.original_execution | has("resolved_execution_complete") | not) or (.original_execution.resolved_execution_complete | type == "boolean")) and
+    (((.original_execution | has("resolved_execution_complete")) and .original_execution.resolved_execution_complete == false) or
+      (((.original_execution | has("resolved_execution_complete") | not) or .original_execution.resolved_execution_complete == true) and
+       (.original_execution.resolved_execution | complete_identity))) and
     (.original_execution.sampling.parameters_digest | sha256_ref) and
     (.original_execution.sampling.seed_commitment | sha256_ref) and
     (.original_execution.sampling.seed_owner | IN("gateway", "runtime")) and
     (.original_execution.output.response_digest | sha256_ref) and
     (.original_execution.output.token_ids_digest | sha256_ref) and
+    (.original_execution.verification_request.capability_class == $expected_class) and
     (.original_execution.verification_request.capability_class | IN("fixed_seed", "bounded_consistency", "semantic_only", "governance_only", "unsupported")) and
     (.original_execution.verification_request.operating_mode | IN("observe", "selective_gate", "required_gate")) and
     (.verification_result.original_execution_ref == .original_execution.execution_ref) and
@@ -87,6 +94,30 @@ while IFS= read -r path; do
      elif .case.kind == "untrusted_verifier" then
        .verification_result.verifier.trusted == false and
        .verification_result.verdict == "indeterminate"
+     elif .case.kind == "missing_resolved_identity" then
+       .original_execution.resolved_execution_complete == false and
+       ([.original_execution.resolved_execution.model_artifact_ref,
+         .original_execution.resolved_execution.tokenizer_ref,
+         .original_execution.resolved_execution.runtime_build_ref] | any(. == null)) and
+       .verification_result.verdict == "indeterminate"
+     elif .case.kind == "seed_evidence_rewrite" then
+       (.verification_result.observed_seed_commitment | sha256_ref) and
+       .verification_result.observed_seed_commitment != .original_execution.sampling.seed_commitment and
+       (.verification_result.limitations | index("seed_commitment_mismatch") != null) and
+       .policy_result.outcome == "preserve_forensics"
+     elif .case.kind == "unsupported_replay_downgrade" then
+       .original_execution.verification_request.requested_capability_class == "fixed_seed" and
+       .original_execution.verification_request.capability_class == "unsupported" and
+       (.verification_result.limitations | index("deterministic_replay_unsupported") != null) and
+       .verification_result.verdict == "indeterminate"
+     elif .case.kind == "unverifiable_fallback" then
+       .original_execution.routing.verification_required == true and
+       .original_execution.routing.initial_route_ref != .original_execution.routing.fallback_route_ref and
+       .original_execution.routing.fallback_route_ref == .original_execution.resolved_execution.route_ref and
+       .original_execution.routing.fallback_verification_class == "unsupported" and
+       .original_execution.verification_request.capability_class == "unsupported" and
+       (.verification_result.limitations | index("fallback_route_unverifiable") != null) and
+       .policy_result.outcome == "suspend_route"
      else true end)
   ' "$fixture" >/dev/null || fail "inference-integrity fixture contract is invalid: $path"
 done < <(printf '%s\n' "${manifest_paths[@]}")
