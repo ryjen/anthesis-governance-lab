@@ -27,9 +27,11 @@ jobs:
             scripts/run-demo-pack.sh \
             scripts/validate-demo-packs.sh \
             scripts/validate-governance-lab.sh \
-            scripts/validate-docs-and-catalog.sh
+            scripts/validate-docs-and-catalog.sh \
+            scripts/validate-walkthroughs.sh
           ! grep -RInE '(^|[^[:alnum:]_])(python3?|pip|pytest)([^[:alnum:]_]|$)' scripts
           bash scripts/validate-docs-and-catalog.sh
+          bash scripts/validate-walkthroughs.sh
 
           outside="$RUNNER_TEMP/anthesis-governance-lab-rejected-install"
           rm -rf "$outside"
