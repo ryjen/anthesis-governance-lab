@@ -2,11 +2,13 @@
 
 A deliberately small, executable trial repository for deterministic governance of AI-assisted SDLC workflows.
 
-This repository consumes the accepted public Governance Lab contract from [`hackelia-micrantha/anthesis-community`](https://github.com/hackelia-micrantha/anthesis-community/tree/main/specs/governance-lab). It does not contain private Anthesis source. The policy, runtime profile, and seven canonical scenarios are pinned public-contract fixtures under `.anthesis/`.
+This repository consumes the accepted public Governance Lab contract and immutable CLI releases from [`hackelia-micrantha/anthesis-community`](https://github.com/hackelia-micrantha/anthesis-community). It contains no private Anthesis source. The policy, runtime profile, canonical scenarios, release identity, and checksums are pinned under `.anthesis/`.
 
 ## Documentation
 
 - [Governance Lab operator runbook](docs/runbooks/governance-lab-demo.md)
+- [Five-minute walkthrough](docs/walkthroughs/five-minute-demo.md)
+- [Stakeholder walkthrough](docs/walkthroughs/stakeholder-demo.md)
 - [Scenario catalog](docs/scenarios/catalog.md)
 - [Machine-readable canonical catalog](docs/scenarios/catalog.json)
 - [Baseline SDLC demo packs](docs/scenarios/demo-packs.md)
@@ -14,25 +16,22 @@ This repository consumes the accepted public Governance Lab contract from [`hack
 - [Scenario authoring guide](docs/scenarios/authoring.md)
 - [Decision and report interpretation](docs/scenarios/interpretation.md)
 
-The runbook is the primary entry point for fresh-clone setup, verified evaluator acquisition, canonical execution, troubleshooting, and the five-minute walkthrough.
-
 ## Supported trial platform
 
-The executable trial currently supports **Linux x86_64**. It uses a statically linked Rust `anthesis-lab` artifact and requires:
+The executable trial supports **Linux x86_64** with a statically linked Rust `anthesis-lab` binary. Required tools:
 
 ```text
-bash curl sha256sum unzip tar jq realpath
+bash curl sha256sum tar jq realpath
 ```
 
-The current acquisition path is transitional: it uses a checksum-pinned GitHub Actions artifact that requires `GITHUB_TOKEN`. Issue #4 tracks migration to an anonymously downloadable immutable public release. Do not describe the current path as secretless.
-
 ## Fresh-clone trial
+
+No repository secret or private source checkout is required:
 
 ```bash
 git clone https://github.com/ryjen/anthesis-governance-lab.git
 cd anthesis-governance-lab
 
-export GITHUB_TOKEN=... # required by the current transitional artifact path
 bash scripts/acquire-anthesis-lab.sh
 export PATH="$PWD/.anthesis/bin:$PATH"
 
@@ -40,33 +39,26 @@ anthesis-lab version --format json
 anthesis-lab test --repo . --format json
 ```
 
-For the complete canonical and governance-drift validation:
+The acquisition script downloads the exact tag recorded in `.anthesis/cli-artifact.env` from the public distribution repository. Before execution it verifies:
+
+- the approved repository and source-bound release tag;
+- the externally pinned tarball SHA-256;
+- the published checksum file;
+- the provenance schema, private source commit, source ref, distribution identity, build workflow, toolchain, platform, and linkage;
+- the complete archive-member allowlist;
+- the packaged and externally pinned binary SHA-256;
+- the CLI name, version, and required public contracts.
+
+## Validation
 
 ```bash
 bash scripts/validate-governance-lab.sh
-```
-
-For repository documentation and catalog contract validation:
-
-```bash
+bash scripts/validate-demo-packs.sh
 bash scripts/validate-docs-and-catalog.sh
+bash scripts/validate-walkthroughs.sh
 ```
 
-## Canonical scenarios
-
-`anthesis-lab test --repo . --format json` discovers `.anthesis/scenarios` and evaluates seven fixtures in deterministic lexical order:
-
-| Scenario | Expected result | What it demonstrates |
-|---|---|---|
-| `01-allowed-docs-edit` | `allow` | Scoped documentation write. |
-| `02-block-ci-change` | `approval_required` | CI workflow mutation requires approval. |
-| `03-require-network-approval` | `approval_required` | External network access requires approval. |
-| `04-block-secret-access` | `deny` | Secret-like path protection takes precedence. |
-| `05-require-dependency-approval` | `approval_required` | Dependency changes require approval. |
-| `06-fail-unknown-runtime` | `deny` from `engine_guard` | Unregistered runtime fails closed. |
-| `07-block-evidence-tamper` | `deny` | Evidence mutation is blocked. |
-
-The canonical suite must report:
+The canonical suite evaluates seven fixtures in deterministic lexical order and must report:
 
 ```json
 {
@@ -78,17 +70,21 @@ The canonical suite must report:
 }
 ```
 
-## Baseline SDLC demo packs
+The intentional expectation-drift exercise must complete evaluation and return exit code `7`.
 
-Four non-canonical packs under `.anthesis/demos` add 12 synthetic declarations for documentation, source-code, CI/release, and dependency workflows. They cover `allow`, `approval_required`, policy-rule `deny`, and default `deny` outcomes without changing the accepted policy.
+## Demo packs
 
-These fixtures are cataloged and structurally validated. Issue #9 tracks the stable pack runner and real executable pack selection. No declared effect is executed by this repository.
+Four non-canonical packs under `.anthesis/demos` contain 12 synthetic declarations covering documentation, source code, CI/release, and dependency workflows. They exercise `allow`, `approval_required`, policy-rule `deny`, engine-guard `deny`, and default-deny behavior without executing declared effects.
 
-The evaluator parses and decides declared attempts. It does **not** execute file, command, network, merge, deployment, release, or repository-administration effects, and it does not persist approvals.
+```bash
+bash scripts/run-demo-pack.sh --list
+bash scripts/run-demo-pack.sh documentation | jq .
+bash scripts/aggregate-demo-packs.sh | jq .
+```
 
 ## Integration boundary
 
-This repository proves evaluator compatibility and deterministic policy decisions. It does not by itself prove bypass-resistant effect enforcement.
+This repository proves evaluator compatibility and deterministic policy decisions. It does not execute file, command, network, merge, deployment, release, or repository-administration effects, persist approvals, or prevent bypass through ungoverned tools.
 
 A production integration must ensure effectful tools are reachable only through a governed wrapper, gateway, broker, supervisor dispatch boundary, sandbox, or equivalent enforcement point:
 
@@ -96,11 +92,13 @@ A production integration must ensure effectful tools are reachable only through 
 agent -> governed boundary -> Anthesis decision -> approval check -> bounded executor
 ```
 
-Registering Anthesis beside unwrapped effectful tools is insufficient.
-
 ## CI trust boundary
 
-Pull requests run secretless structural validation. Trusted executable validation currently runs only on `main` with the pinned artifact credential. The planned immutable public release will allow executable validation without a private producer token once issue #4 is complete.
+Pull requests and `main` both acquire the real Rust CLI anonymously from the immutable public release and run executable validation with read-only workflow permissions. No private producer credential or protected acquisition environment is required.
+
+## Upgrade policy
+
+Upgrades are explicit pull requests. Change the source revision, tag, release asset SHA-256, binary SHA-256, provenance schema, and CLI version together. Run the complete canonical, mismatch, demo-pack, aggregate, and documentation validation. Never replace the immutable tag with `latest` or skip a verification layer.
 
 ## License
 
