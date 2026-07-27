@@ -1,4 +1,4 @@
-# Baseline SDLC Demo Packs
+# Governance Lab Demo Packs
 
 These non-canonical scenarios extend the Governance Lab with realistic, synthetic SDLC declarations. They remain separate from `.anthesis/scenarios`, do not modify the accepted policy, and never execute declared effects.
 
@@ -6,63 +6,61 @@ Machine-readable metadata is in [`demo-catalog.json`](demo-catalog.json).
 
 ## Run a pack
 
-List the cataloged packs:
-
 ```bash
 bash scripts/run-demo-pack.sh --list
+bash scripts/run-demo-pack.sh secrets-and-evidence | jq .
+bash scripts/aggregate-demo-packs.sh | jq .
 ```
 
-Run one pack through the verified evaluator:
+The runner accepts only an exact cataloged pack ID, confines selection to `.anthesis/demos/<pack>`, rejects unsafe or divergent fixtures, validates report identity, and preserves the evaluator exit code.
 
-```bash
-bash scripts/run-demo-pack.sh documentation | jq .
-```
+## Pack summary
 
-The runner:
+| Pack | Outcomes | Demonstrates |
+|---|---|---|
+| `documentation` | allow, default deny | Scoped documentation reads/writes and out-of-boundary failure. |
+| `source-code` | allow, policy deny | Bounded source/test changes and direct merge denial. |
+| `ci-and-release` | allow, approval, deny | Workflow inspection, workflow-change approval, and release denial. |
+| `dependencies` | allow, approval | Inventory reads, manifest review, and networked installation review. |
+| `secrets-and-evidence` | policy deny | Secret-path precedence and evidence-integrity protection. |
+| `network-and-tools` | allow, approval, default deny | Offline test execution, external-network review, and unrestricted-command failure. |
+| `runtime-and-identity` | allow, engine-guard deny | Registered runtime use and fail-closed unknown runtime identity. |
+| `deployment-and-administration` | policy deny | Deployment, release, and merge administration denial. |
 
-- accepts only an exact cataloged pack ID;
-- requires the canonical `.anthesis/demos/<pack>` path;
-- rejects unsafe, missing, symlinked, or catalog-divergent fixtures;
-- executes the selected collection through `anthesis-lab test --scenarios`;
-- validates the report schema, scenario count, and scenario IDs;
-- prints the complete JSON report and preserves the evaluator exit code.
+## Security and identity showcase
 
-Set `ANTHESIS_LAB_BIN` to use another already verified binary. The default is `.anthesis/bin/anthesis-lab`.
-
-## Documentation
+### Secrets and evidence
 
 | Scenario | Expected result | Demonstrates |
 |---|---|---|
-| `documentation-01-allow-docs-write` | `allow` | A repository-relative documentation write within the scoped boundary. |
-| `documentation-02-allow-docs-read` | `allow` | Read-only documentation inspection. |
-| `documentation-03-deny-outside-boundary` | `deny` from `policy_default` | A root configuration write fails closed because no allow rule matches. |
+| `secrets-and-evidence-01-deny-env-read` | `deny` | Secret-like files remain protected from broad repository reads. |
+| `secrets-and-evidence-02-deny-evidence-write` | `deny` | Audit evidence cannot be mutated by the evaluated actor. |
+| `secrets-and-evidence-03-deny-secret-write` | `deny` | Protective secret rules override write intent. |
 
-## Source code
-
-| Scenario | Expected result | Demonstrates |
-|---|---|---|
-| `source-code-01-allow-source-write` | `allow` | A bounded source edit under `src/**`. |
-| `source-code-02-allow-test-write` | `allow` | A bounded regression-test edit under `tests/**`. |
-| `source-code-03-deny-merge` | `deny` | Direct merge effects are blocked by policy. |
-
-## CI and release
+### Network and tools
 
 | Scenario | Expected result | Demonstrates |
 |---|---|---|
-| `ci-and-release-01-allow-workflow-read` | `allow` | Workflow metadata may be inspected without mutation. |
-| `ci-and-release-02-require-workflow-approval` | `approval_required` | Workflow changes cross a review boundary. |
-| `ci-and-release-03-deny-release` | `deny` | Direct release publication is prohibited. |
+| `network-and-tools-01-allow-test-command` | `allow` | An explicitly allowlisted offline test command. |
+| `network-and-tools-02-require-network-approval` | `approval_required` | External network capability crosses an approval boundary. |
+| `network-and-tools-03-deny-unrestricted-command` | `deny` from `policy_default` | An unrestricted shell command fails closed. |
 
-## Dependencies
+### Runtime and identity
 
 | Scenario | Expected result | Demonstrates |
 |---|---|---|
-| `dependencies-01-allow-manifest-read` | `allow` | Dependency inventory is read-only. |
-| `dependencies-02-require-manifest-approval` | `approval_required` | Manifest changes require review. |
-| `dependencies-03-require-install-approval` | `approval_required` | Networked package installation requires review. |
+| `runtime-and-identity-01-allow-registered-runtime` | `allow` | A registered bounded runtime reaches normal policy evaluation. |
+| `runtime-and-identity-02-deny-unknown-runtime-read` | `deny` from `engine_guard` | Unknown runtime identity blocks an otherwise allowed read. |
+| `runtime-and-identity-03-deny-unknown-runtime-write` | `deny` from `engine_guard` | Unknown runtime identity blocks an otherwise allowed scoped write. |
+
+### Deployment and administration
+
+| Scenario | Expected result | Demonstrates |
+|---|---|---|
+| `deployment-and-administration-01-deny-deploy` | `deny` | Deployment effects are outside the lab boundary. |
+| `deployment-and-administration-02-deny-release` | `deny` | Direct release publication is prohibited. |
+| `deployment-and-administration-03-deny-merge` | `deny` | Direct repository merge administration is prohibited. |
 
 ## Enforcement boundary
 
-The lab evaluates declarations only. It does not write files, invoke package managers, merge branches, publish releases, use network credentials, or persist approvals. A production integration must bind the decision to a separate governed executor and prevent alternate access to effectful tools.
-
-The pack runner is an evaluator interface, not an executor. A successful `allow` report means the declaration passed policy evaluation; it does not mean the declared effect occurred.
+The lab evaluates declarations only. It does not write files, invoke commands, use network credentials, merge branches, deploy software, publish releases, or persist approvals. A production integration must bind decisions to a separate governed executor and prevent alternate access to effectful tools.
