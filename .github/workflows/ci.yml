@@ -49,7 +49,7 @@ jobs:
           grep -Fq 'ANTHESIS_SIGSTORE_REQUIRED' scripts/acquire-anthesis-lab.sh
           grep -Fq 'cosign verify-blob' scripts/acquire-anthesis-lab.sh
           grep -Fq -- '--certificate-github-workflow-sha' scripts/acquire-anthesis-lab.sh
-          grep -Fq 'ANTHESIS_SIGSTORE_REQUIRED=false' .anthesis/cli-artifact.env
+          grep -Fq 'ANTHESIS_SIGSTORE_REQUIRED=true' .anthesis/cli-artifact.env
 
           outside="$RUNNER_TEMP/anthesis-governance-lab-rejected-install"
           rm -rf "$outside"
@@ -101,9 +101,6 @@ jobs:
           mkdir -p "$signature_fixture/scripts" "$signature_fixture/.anthesis"
           cp scripts/acquire-anthesis-lab.sh "$signature_fixture/scripts/"
           cp .anthesis/cli-artifact.env "$signature_fixture/.anthesis/"
-          sed -i \
-            's#^ANTHESIS_SIGSTORE_REQUIRED=.*#ANTHESIS_SIGSTORE_REQUIRED=true#' \
-            "$signature_fixture/.anthesis/cli-artifact.env"
           set +e
           PATH=/usr/bin:/bin bash "$signature_fixture/scripts/acquire-anthesis-lab.sh" \
             > /tmp/signature.out 2> /tmp/signature.err
