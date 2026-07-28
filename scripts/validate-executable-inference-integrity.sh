@@ -22,10 +22,10 @@ cmp -s "$json_a" "$json_b" || fail "JSON report is not deterministic"
 jq -e '
   .version == "anthesis.inference-integrity-report/v1alpha1" and
   .passed == true and
-  .total == 16 and
-  .passed_count == 16 and
+  .total == 24 and
+  .passed_count == 24 and
   .failed_count == 0 and
-  (.scenarios | length == 16 and all(.[]; .passed == true))
+  (.scenarios | length == 24 and all(.[]; .passed == true))
 ' "$json_a" >/dev/null || fail "canonical inference-integrity report is invalid"
 
 "$binary" inference-integrity --repo "$repo_root" --format yaml >"$yaml_report"
@@ -50,4 +50,4 @@ set -e
 jq -e '.passed == false and .failed_count == 1' "$work_dir/mismatch.json" >/dev/null || \
   fail "expectation mismatch report is invalid"
 
-echo "Inference-integrity executable suite: 16 passed; mismatch exit 7 verified"
+echo "Inference-integrity executable suite: 24 passed; mismatch exit 7 verified"

@@ -1,50 +1,94 @@
-# Inference-Integrity Fixture Skeleton
+# Inference-Integrity Fixtures and Executable Contract
 
-This directory contains **provisional, synthetic fixture records** for the inference-integrity work tracked by `ryjen/anthesis-governance-lab#13`.
+This repository contains two related but intentionally distinct inference-integrity surfaces.
 
 Canonical semantics remain owned by `hackelia-micrantha/anthesis#108`. Gateway identity and runtime metadata remain owned by `ryjen/dubnium#379`; live replay and verifier integration remain owned by `ryjen/dubnium#381`.
 
-## Why these fixtures are separate
+## Executable 24-case contract
 
-The released `anthesis-lab` scenario contract does not yet include the inference-integrity evidence and policy fields described by Anthesis #108. These files therefore remain under `fixtures/inference-integrity/` rather than `.anthesis/scenarios/` or `.anthesis/demos/`.
+The signed public `anthesis-lab` release evaluates the provider-neutral fixture contract:
 
-They are structural examples only. They are not executable scenarios, canonical schemas, a policy engine, a verifier, or evidence of live inference protection.
+```text
+fixtures/inference-integrity/scenario-suite-v1alpha1.yaml
+fixtures/inference-integrity/fixtures-v1alpha1.json
+```
+
+The executable suite contains 24 canonical synthetic cases and emits:
+
+```text
+anthesis.inference-integrity-report/v1alpha1
+```
+
+It runs without a GPU, live model, provider credential, or Dubnium service. The evaluator computes verdicts, verification capability classes, and normalized policy postures from recorded evidence. Expected outcomes are assertions rather than evaluator inputs.
+
+Run it with:
+
+```bash
+bash scripts/acquire-anthesis-lab.sh
+bash scripts/validate-executable-inference-integrity.sh
+```
+
+The validation requires:
+
+- 24 passing scenarios and zero failures;
+- deterministic byte-identical JSON reports;
+- a passing YAML report;
+- controlled expectation drift returning exit code `7` with exactly one failed scenario;
+- repository-contained execution;
+- signed release verification before checksum, provenance, extraction, or execution.
+
+## Rich demonstration records
+
+The individual JSON records and `fixtures/inference-integrity/manifest.json` predate the canonical compact evaluator contract. They preserve richer examples for presentation and future live-runtime integration, including detailed execution identity, verifier attribution, policy authority, topology, risk-window, and recovery fields.
+
+These richer records remain **synthetic and provisional as live integration records**. They are structurally validated but are not individually parsed by the current Rust evaluator.
+
+This separation avoids two failure modes:
+
+1. reimplementing Anthesis evaluator semantics in Governance Lab;
+2. claiming that a fixture-only evaluator proves live provider evidence, replay, containment, or non-bypassability.
 
 ## Record boundaries
 
-Each record separates:
+The rich records separate:
 
 1. **Original execution evidence** — requested alias, exact resolved provider/route/model/tokenizer/runtime identity, sampling commitment, output digest, and topology.
 2. **Verifier evidence** — attributable observations and a non-authoritative verdict.
 3. **Policy result** — the authoritative governance outcome and any containment authorization.
-4. **Re-verification linkage** — a future linked record that must not mutate the original evidence.
+4. **Re-verification linkage** — a linked append-only record that must not mutate original evidence.
 
-The verifier is explicitly marked non-authoritative. It cannot release, quarantine, suspend, isolate, or enter dormancy without policy-plane mediation.
+The verifier is explicitly non-authoritative. It cannot release, quarantine, suspend, isolate, increase sampling, recover a route, or enter dormancy without policy-plane mediation.
 
-## Validation
+## Structural validation
 
 ```bash
 bash scripts/validate-inference-integrity-fixtures.sh
+bash scripts/validate-inference-capacity-fixtures.sh
+bash scripts/validate-inference-final-catalog.sh
+bash scripts/validate-inference-scenario-catalog.sh
 ```
 
-Validation requires:
+Structural validation requires:
 
 - synthetic-only records;
 - no real prompts or secrets;
 - requested alias distinct from resolved execution identity;
-- gateway-owned seed evidence;
+- gateway-owned seed evidence where a fixed-seed claim is represented;
 - explicit verification class and operating mode;
 - original execution linkage across verifier and policy records;
 - verifier non-authority;
-- normalized policy outcomes from Anthesis #108.
+- normalized policy outcomes coordinated with Anthesis #108;
+- exact parity between the executable catalog, canonical suite, and canonical compact fixture keys.
 
-## Promotion gate
+## Live integration gate
 
-These fixtures may move into executable Governance Lab scenarios only after all of the following exist in a reviewed public release:
+The fixture-only contract is executable now. A live profile still requires reviewed Dubnium runtime support for:
 
-- canonical Anthesis schema or accepted evidence semantics;
-- provider-neutral evaluator support;
-- a released `anthesis-lab` contract capable of parsing and evaluating the records;
-- stable Dubnium resolved-execution fields for any live profile.
+- exact resolved execution identity and lineage;
+- gateway-owned seed and sampling evidence;
+- protected replay material;
+- independently controlled verifier execution;
+- policy-mediated containment and recovery;
+- proof that governed traffic cannot reach raw runtime paths.
 
-Until then, the `v0` identifiers are intentionally provisional and must not be presented as canonical Anthesis contracts.
+Until those surfaces exist, the suite must be presented as deterministic evaluation of recorded provider-neutral evidence, not complete live inference protection.

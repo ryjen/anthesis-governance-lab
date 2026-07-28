@@ -2,18 +2,21 @@
 
 A deliberately small, executable trial repository for deterministic governance of AI-assisted SDLC workflows.
 
-This repository consumes the accepted public Governance Lab contract from [`hackelia-micrantha/anthesis-community`](https://github.com/hackelia-micrantha/anthesis-community/tree/main/specs/governance-lab). It does not contain private Anthesis source. The policy, runtime profile, and seven canonical scenarios are pinned public-contract fixtures under `.anthesis/`.
+This repository is an independent public consumer of the accepted Anthesis Governance Lab contract and signed `anthesis-lab` release. It does not contain private Anthesis source and is not part of the runtime execution path.
 
 ## Documentation
 
 - [Micrantha architecture context](docs/micrantha-architecture-context.md)
 - [Governance Lab operator runbook](docs/runbooks/governance-lab-demo.md)
+- [Inference-integrity runbook](docs/runbooks/inference-integrity-demo.md)
 - [Five-minute walkthrough](docs/walkthroughs/five-minute-demo.md)
 - [Stakeholder walkthrough](docs/walkthroughs/stakeholder-demo.md)
-- [Scenario catalog](docs/scenarios/catalog.md)
+- [Inference-integrity presentation tracks](docs/walkthroughs/inference-integrity-presentation-tracks.md)
+- [Canonical scenario catalog](docs/scenarios/catalog.md)
 - [Machine-readable canonical catalog](docs/scenarios/catalog.json)
 - [Demo packs](docs/scenarios/demo-packs.md)
 - [Machine-readable demo catalog](docs/scenarios/demo-catalog.json)
+- [Inference-integrity fixtures and executable contract](docs/scenarios/inference-integrity-fixtures.md)
 - [Scenario authoring guide](docs/scenarios/authoring.md)
 - [Decision and report interpretation](docs/scenarios/interpretation.md)
 
@@ -22,10 +25,10 @@ This repository consumes the accepted public Governance Lab contract from [`hack
 The executable trial supports **Linux x86_64**. It uses a statically linked Rust `anthesis-lab` release and requires:
 
 ```text
-bash curl sha256sum tar jq realpath
+bash curl cosign sha256sum tar jq realpath
 ```
 
-The evaluator is downloaded anonymously from an immutable release in `hackelia-micrantha/anthesis-community`. `.anthesis/cli-artifact.env` pins the full Anthesis source commit, public release tag, tarball checksum, packaged binary checksum, CLI version, and supported contract set.
+No GitHub token, private Anthesis checkout, GPU, live model, or hosted service is required.
 
 ## Fresh-clone trial
 
@@ -38,38 +41,48 @@ export PATH="$PWD/.anthesis/bin:$PATH"
 
 anthesis-lab version --format json
 anthesis-lab test --repo . --format json
+anthesis-lab inference-integrity --repo . --format json
 ```
-
-No GitHub token or private Anthesis checkout is required.
 
 Run the complete validation:
 
 ```bash
 bash scripts/validate-governance-lab.sh
 bash scripts/validate-demo-packs.sh
+bash scripts/validate-executable-inference-integrity.sh
 bash scripts/validate-docs-and-catalog.sh
 bash scripts/validate-walkthroughs.sh
 ```
 
-## Immutable release pin
+## Signed immutable release pin
 
-Current release identity:
+`.anthesis/cli-artifact.env` is the machine-readable source of truth for the complete release identity:
 
-```text
-source commit: 01540df98e08dc5fa7a01e29c07132a67b5cb59a
-release tag: anthesis-lab-01540df98e08dc5fa7a01e29c07132a67b5cb59a
-tarball SHA-256: 7539a368acf22c2e7293a0edbefddb33236a16d3c1eabab80c20176666ba1e15
-binary SHA-256: 63a213315f1940675700493fcedda6a1854c6792b6f74eebd5c7f7203f34e70a
-CLI version: 0.1.0
+```bash
+cat .anthesis/cli-artifact.env
 ```
 
-Upgrades must change all identity values together in a reviewed pull request. Never replace this pin with a mutable `latest` URL or skip a verification layer.
+It pins one reviewed transaction containing:
 
-## Canonical scenarios
+- the full private Anthesis source commit;
+- the source-bound public release tag;
+- archive and packaged-binary SHA-256 digests;
+- CLI version and supported contracts;
+- mandatory Sigstore verification.
 
-`anthesis-lab test --repo . --format json` evaluates seven public-contract fixtures in deterministic lexical order. A passing report uses `anthesis.test-report/v1`, reports seven total and seven passed scenarios, and contains zero failures.
+Acquisition downloads the archive, checksum, provenance, and their Sigstore bundles from `hackelia-micrantha/anthesis-community`. It verifies the exact producer repository, protected source ref, release workflow identity, source commit, and GitHub Actions OIDC issuer **before** trusting checksum or provenance content, extracting the archive, or executing the binary.
 
-## Demo catalog
+Upgrades must change all identity values together in a reviewed pull request. Never use a mutable `latest` URL, mix values from two releases, or skip a verification layer.
+
+## Proof surfaces and counts
+
+The repository intentionally keeps three scenario surfaces separate.
+
+### Canonical Governance Lab contract — 7 scenarios
+
+`anthesis-lab test --repo . --format json` evaluates seven pinned public-contract fixtures in deterministic lexical order. They cover allow, approval-required, policy denial, engine-guard denial, and expectation drift.
+
+### General demonstration catalog — 9 packs / 27 scenarios
 
 Nine non-canonical packs under `.anthesis/demos` contain 27 synthetic declarations:
 
@@ -83,27 +96,62 @@ Nine non-canonical packs under `.anthesis/demos` contain 27 synthetic declaratio
 - deployment and administration;
 - adversarial policy-bypass and capability-expansion attempts.
 
-The catalog covers `allow`, `approval_required`, policy-rule `deny`, policy-default `deny`, and engine-guard `deny`. It never executes declared effects.
-
 ```bash
 bash scripts/run-demo-pack.sh --list
 bash scripts/run-demo-pack.sh adversarial | jq .
 bash scripts/aggregate-demo-packs.sh | jq .
 ```
 
+These scenarios evaluate declared effects but never execute them.
+
+### Inference-integrity contract — 24 scenarios
+
+`anthesis-lab inference-integrity --repo . --format json` evaluates 24 provider-neutral synthetic cases covering:
+
+- execution identity and evidence binding;
+- seed and token integrity;
+- verifier trust and verification classes;
+- covert-channel capacity accounting;
+- routing, fallback, and gateway enforcement;
+- supervisor, specialist, and synthesis localization;
+- immutable re-verification and mutation rejection;
+- cross-provider semantic verification;
+- observe, selective-gate, and required-gate behavior;
+- policy-authorized sampling escalation and recovery.
+
+```bash
+bash scripts/validate-executable-inference-integrity.sh
+bash scripts/generate-inference-integrity-evidence.sh
+```
+
+The generated evidence bundle records 24 passing results, a controlled mismatch with exit code `7`, release identity, report contract, source revisions, and file checksums.
+
 ## Integration boundary
 
-This repository proves evaluator compatibility and deterministic policy decisions. It does not execute file, command, network, merge, deployment, release, or repository-administration effects, persist approvals, or prevent bypass through ungoverned tools.
+Governance Lab proves public evaluator compatibility and deterministic policy outcomes over synthetic declarations and recorded evidence. It does not:
 
-A production integration must ensure effectful tools are reachable only through a governed wrapper, gateway, broker, supervisor dispatch boundary, sandbox, or equivalent enforcement point:
+- execute file, command, network, merge, deployment, release, or repository-administration effects;
+- persist approvals;
+- invoke an LLM or provider;
+- perform independent live replay;
+- execute containment or recovery actions;
+- prove that an external runtime cannot bypass Anthesis through ungoverned tools, credentials, network paths, or processes.
+
+A production integration must ensure effectful paths are reachable only through an enforced governance boundary:
 
 ```text
-agent -> governed boundary -> Anthesis decision -> approval check -> bounded executor
+agent request
+  -> Anthesis decision and capability boundary
+  -> exact approval when required
+  -> bounded executor or runtime enforcement
+  -> attributable evidence and outcome
 ```
+
+Dubnium provides the bounded reference execution environment; Anthesis remains the policy authority; Governance Lab independently validates the public evaluator contract.
 
 ## CI trust boundary
 
-Pull requests and `main` both run the real Rust CLI without secrets. CI downloads only the immutable public release pinned in `.anthesis/cli-artifact.env`, verifies its provenance and checksums before extraction, and fails closed before scenario execution on any identity mismatch.
+Pull requests and `main` run the real Rust CLI without repository secrets. CI verifies Sigstore identity, provenance, checksums, archive members, binary identity, and supported contracts before scenario execution. Any identity mismatch, unavailable verifier, malformed metadata, repository escape, or unsupported contract fails closed.
 
 ## License
 
