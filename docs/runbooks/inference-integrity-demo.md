@@ -2,9 +2,9 @@
 
 ## Purpose
 
-This runbook demonstrates how Anthesis evaluates synthetic inference evidence for seed integrity, token substitution, route and fallback governance, verifier trust, covert-channel capacity, supervisor/specialist localization, and immutable re-verification.
+This runbook demonstrates how Anthesis evaluates synthetic inference evidence for seed integrity, token substitution, route and fallback governance, verifier trust, covert-channel capacity, supervisor/specialist localization, immutable re-verification, verification-class honesty, operating modes, sampling escalation, and authorized recovery.
 
-The default demonstration is provider-neutral and does not require a GPU, network access, a live model, or Dubnium services.
+The default demonstration is provider-neutral and does not require a GPU, network access after acquisition, a live model, or Dubnium services.
 
 ## Responsibility boundary
 
@@ -14,7 +14,7 @@ The default demonstration is provider-neutral and does not require a GPU, networ
 | Governance Lab | Portable fixtures, execution packaging, reproducible evidence bundles, and presentation guidance |
 | Dubnium | Live gateway metadata, seed and sampling evidence, replay production, verifier execution, and platform actions |
 
-Verifier output is evidence. It does not directly authorize release, quarantine, suspension, isolation, or recovery.
+Verifier output is evidence. It does not directly authorize release, quarantine, suspension, isolation, sampling changes, or recovery.
 
 ## Prerequisites
 
@@ -24,15 +24,17 @@ Verifier output is evidence. It does not directly authorize release, quarantine,
 - `sha256sum`
 - network access only when initially acquiring the published CLI
 
-Acquire the checksum-verified public CLI:
+Acquire the signed, checksum-verified public CLI:
 
 ```bash
 bash scripts/acquire-anthesis-lab.sh
 ```
 
+Acquisition verifies the Sigstore identity of the archive, checksum, and provenance assets before trusting their contents, then validates the pinned checksums, provenance fields, archive-member allowlist, packaged binary, and CLI contract.
+
 ## Quick start
 
-Run the complete canonical 16-case suite:
+Run the complete canonical 24-case suite:
 
 ```bash
 .anthesis/bin/anthesis-lab inference-integrity \
@@ -43,8 +45,8 @@ Run the complete canonical 16-case suite:
 Expected result:
 
 - report version: `anthesis.inference-integrity-report/v1alpha1`
-- total scenarios: `16`
-- passed scenarios: `16`
+- total scenarios: `24`
+- passed scenarios: `24`
 - exit code: `0`
 
 Generate the complete reproducible evidence bundle:
@@ -63,6 +65,15 @@ The default output is:
 ├── mismatch-report.json
 └── SHA256SUMS
 ```
+
+The manifest binds the reports to:
+
+- the 24-case report contract;
+- the Anthesis source revision;
+- the immutable public release tag;
+- archive and binary digests;
+- mandatory Sigstore verification;
+- the Governance Lab revision that generated the bundle.
 
 Verify the bundle:
 
@@ -106,7 +117,7 @@ Each scenario reports:
 | `governance_only` | Route, role, evidence, authority, or lifecycle assertions only |
 | `unsupported` | Evidence cannot support a stronger verification claim |
 
-A weaker class must never be presented as deterministic token equivalence.
+A weaker class must never be presented as deterministic token equivalence. Cross-provider comparison is semantic or governance verification, not fixed-seed equivalence.
 
 ### Verdicts
 
@@ -149,15 +160,16 @@ Inspect `reject-untrusted-verifier`.
 
 Key point: a verifier sharing a common compromise root cannot establish independent assurance. The result becomes `indeterminate` and follows fail-closed policy.
 
-### Capacity accounting
+### Capacity accounting and sampling
 
 Inspect:
 
 - `budget-low-capacity-discrepancy`
 - `quarantine-dangerous-token`
 - `aggregate-low-rate-leakage`
+- `escalate-sampling-after-suspicious-evidence`
 
-Key point: individually small discrepancies may remain below a per-execution threshold while cumulative correlated observations exceed the governed window.
+Key point: individually small discrepancies may remain below a per-execution threshold while cumulative correlated observations exceed the governed window. Sampling changes require policy authority rather than verifier self-escalation.
 
 ### Route and fallback enforcement
 
@@ -183,9 +195,30 @@ Key point: Anthesis can distinguish a suspicious specialist sub-run from synthes
 Inspect:
 
 - `preserve-original-on-reverification`
+- `reject-reverification-mutation`
 - `downgrade-unsupported-replay`
 
-Key point: re-verification appends a linked result without rewriting original evidence, and unsupported replay explicitly downgrades the verification claim.
+Key point: re-verification appends a linked result without rewriting original evidence. Mutation attempts preserve the original for forensics, and unsupported replay explicitly downgrades the verification claim.
+
+### Cross-provider verification honesty
+
+Inspect:
+
+- `reject-cross-provider-fixed-seed-claim`
+- `accept-semantic-only-provider-check`
+
+Key point: heterogeneous-provider comparison may support a semantic claim but cannot truthfully claim deterministic token equivalence.
+
+### Operating modes and recovery
+
+Inspect:
+
+- `observe-mode-releases-before-verification`
+- `selective-gate-holds-high-risk-response`
+- `required-gate-fails-closed-on-verifier-outage`
+- `recover-route-after-approved-reverification`
+
+Key point: observe, selective-gate, and required-gate modes have distinct release behavior. Recovery after suspension requires conformant re-verification, policy authorization, and operator approval.
 
 ## Controlled failure demonstration
 
@@ -221,6 +254,6 @@ bash scripts/generate-inference-integrity-evidence.sh
 
 ## Current limitations
 
-The released v1alpha1 evaluator executes 16 canonical scenarios. The broader Governance Lab catalog contains 24 provisional records. Observe/selective/required gate transitions, semantic-only cross-provider acceptance, explicit recovery authorization, and several extended aggregation cases remain pending a canonical Anthesis evaluator extension.
+The released v1alpha1 evaluator processes 24 canonical synthetic scenarios over recorded provider-neutral evidence. It does not invoke providers, generate seeds, capture live token streams, perform independent replay, execute containment, or prove that arbitrary traffic cannot bypass an ungoverned runtime path.
 
-The optional live Dubnium profile remains pending stabilization of runtime evidence and replay support in `ryjen/dubnium#381`.
+The optional live Dubnium profile remains pending runtime evidence, replay, verifier, containment, and recovery work in `ryjen/dubnium#381`.
