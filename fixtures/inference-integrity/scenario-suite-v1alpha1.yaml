@@ -58,3 +58,27 @@ scenarios:
   - id: block-direct-runtime-bypass
     fixture_key: block-direct-runtime-bypass
     expected: {verdict: dangerous, capability_class: governance_only, policy_posture: suspend_model_alias}
+  - id: reject-reverification-mutation
+    fixture_key: reject-reverification-mutation
+    expected: {verdict: dangerous, capability_class: governance_only, policy_posture: preserve_forensics}
+  - id: escalate-sampling-after-suspicious-evidence
+    fixture_key: escalate-sampling-after-suspicious-evidence
+    expected: {verdict: suspicious, capability_class: bounded_consistency, policy_posture: increase_sampling}
+  - id: reject-cross-provider-fixed-seed-claim
+    fixture_key: reject-cross-provider-fixed-seed-claim
+    expected: {verdict: suspicious, capability_class: semantic_only, policy_posture: allow_with_signal}
+  - id: accept-semantic-only-provider-check
+    fixture_key: accept-semantic-only-provider-check
+    expected: {verdict: conformant, capability_class: semantic_only, policy_posture: allow}
+  - id: observe-mode-releases-before-verification
+    fixture_key: observe-mode-releases-before-verification
+    expected: {verdict: suspicious, capability_class: governance_only, policy_posture: allow_with_signal}
+  - id: selective-gate-holds-high-risk-response
+    fixture_key: selective-gate-holds-high-risk-response
+    expected: {verdict: conformant, capability_class: governance_only, policy_posture: allow}
+  - id: required-gate-fails-closed-on-verifier-outage
+    fixture_key: required-gate-fails-closed-on-verifier-outage
+    expected: {verdict: indeterminate, capability_class: unsupported, policy_posture: fail_closed}
+  - id: recover-route-after-approved-reverification
+    fixture_key: recover-route-after-approved-reverification
+    expected: {verdict: conformant, capability_class: governance_only, policy_posture: allow}
