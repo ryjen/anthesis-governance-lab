@@ -135,11 +135,17 @@ jobs:
       - name: Generate and verify reproducible evidence bundle
         run: |
           set -euo pipefail
-          output="$RUNNER_TEMP/inference-integrity-evidence"
           bash scripts/generate-inference-integrity-evidence.sh "$GITHUB_WORKSPACE/.anthesis/evidence/ci"
           cd .anthesis/evidence/ci
           sha256sum --check SHA256SUMS
-          jq -e '.synthetic == true and .reports.controlled_mismatch_json.exit_code == 7' manifest.json >/dev/null
+          jq -e '
+            .synthetic == true and
+            .scenario_count == 24 and
+            .report_version == "anthesis.inference-integrity-report/v1alpha1" and
+            .release.sigstore_required == true and
+            (.release.tag == ("anthesis-lab-" + .anthesis_revision)) and
+            .reports.controlled_mismatch_json.exit_code == 7
+          ' manifest.json >/dev/null
 
       - name: Validate all cataloged demo packs
         run: bash scripts/validate-demo-packs.sh
