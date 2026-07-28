@@ -28,6 +28,7 @@ jobs:
           bash -n \
             scripts/acquire-anthesis-lab.sh \
             scripts/aggregate-demo-packs.sh \
+            scripts/generate-inference-integrity-evidence.sh \
             scripts/run-demo-pack.sh \
             scripts/validate-demo-packs.sh \
             scripts/validate-governance-lab.sh \
@@ -110,6 +111,15 @@ jobs:
 
       - name: Validate executable inference-integrity suite
         run: bash scripts/validate-executable-inference-integrity.sh
+
+      - name: Generate and verify reproducible evidence bundle
+        run: |
+          set -euo pipefail
+          output="$RUNNER_TEMP/inference-integrity-evidence"
+          bash scripts/generate-inference-integrity-evidence.sh "$GITHUB_WORKSPACE/.anthesis/evidence/ci"
+          cd .anthesis/evidence/ci
+          sha256sum --check SHA256SUMS
+          jq -e '.synthetic == true and .reports.controlled_mismatch_json.exit_code == 7' manifest.json >/dev/null
 
       - name: Validate all cataloged demo packs
         run: bash scripts/validate-demo-packs.sh
