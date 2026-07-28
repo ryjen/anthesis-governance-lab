@@ -1,0 +1,71 @@
+name: Discover Anthesis release metadata
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/discover-release-metadata.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      RELEASE_REPOSITORY: hackelia-micrantha/anthesis-community
+      RELEASE_TAG: anthesis-lab-817bec41e0847819d19f989907520de73a51620f
+      TARBALL: anthesis-lab-linux-x86_64.tar.gz
+    steps:
+      - name: Inspect public immutable assets without execution
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          api="https://api.github.com/repos/${RELEASE_REPOSITORY}/releases/tags/${RELEASE_TAG}"
+          curl --fail --silent --show-error --location \
+            -H 'Accept: application/vnd.github+json' \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "$api" > release.json
+
+          jq -e --arg tag "$RELEASE_TAG" '.tag_name == $tag and .draft == false' release.json >/dev/null
+          jq -r '.assets[].name' release.json | sort
+
+          asset_url() {
+            jq -r --arg name "$1" '.assets[] | select(.name == $name) | .browser_download_url' release.json
+          }
+
+          for name in \
+            "$TARBALL" \
+            "$TARBALL.sha256" \
+            anthesis-lab-provenance.json \
+            "$TARBALL.sigstore.json" \
+            "$TARBALL.sha256.sigstore.json" \
+            anthesis-lab-provenance.json.sigstore.json; do
+            url="$(asset_url "$name")"
+            test -n "$url"
+            curl --fail --silent --show-error --location "$url" --output "$name"
+          done
+
+          tarball_sha="$(sha256sum "$TARBALL" | awk '{print $1}')"
+          checksum_line="$(tr -d '\r\n' < "$TARBALL.sha256")"
+          test "$checksum_line" = "$tarball_sha  $TARBALL"
+
+          mkdir package
+          tar -xzf "$TARBALL" -C package --no-same-owner --no-same-permissions
+          binary_sha="$(sha256sum package/anthesis-lab | awk '{print $1}')"
+          packaged_line="$(tr -d '\r\n' < package/anthesis-lab.sha256)"
+          test "$packaged_line" = "$binary_sha  anthesis-lab"
+
+          jq -e \
+            --arg tag "$RELEASE_TAG" \
+            --arg digest "$tarball_sha" \
+            '.distribution.tag == $tag and .artifact.sha256 == $digest' \
+            anthesis-lab-provenance.json >/dev/null
+
+          echo "ANTHESIS_REVISION=${RELEASE_TAG#anthesis-lab-}"
+          echo "ANTHESIS_RELEASE_TAG=$RELEASE_TAG"
+          echo "ANTHESIS_TARBALL_SHA256=$tarball_sha"
+          echo "ANTHESIS_BINARY_SHA256=$binary_sha"
+          jq -c '{schema,source,distribution,artifact,build}' anthesis-lab-provenance.json
