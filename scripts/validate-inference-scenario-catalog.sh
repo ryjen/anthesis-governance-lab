@@ -3,55 +3,56 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 catalog="$repo_root/.anthesis/catalogs/inference-integrity-scenarios.json"
-manifest="$repo_root/fixtures/inference-integrity/manifest.json"
+suite="$repo_root/fixtures/inference-integrity/scenario-suite-v1alpha1.yaml"
+fixtures="$repo_root/fixtures/inference-integrity/fixtures-v1alpha1.json"
 
 fail() { echo "error: $*" >&2; exit 1; }
 command -v jq >/dev/null || fail "jq is required"
-[[ -f "$catalog" && ! -L "$catalog" ]] || fail "scenario catalog must be a regular file"
-[[ -f "$manifest" && ! -L "$manifest" ]] || fail "fixture manifest must be a regular file"
+for path in "$catalog" "$suite" "$fixtures"; do
+  [[ -f "$path" && ! -L "$path" ]] || fail "contract must be a regular file: ${path#$repo_root/}"
+done
 
 jq -e '
-  .version == "anthesis-governance-lab.inference-integrity-scenario-catalog/v0" and
-  .status == "blocked_pending_canonical_contract" and
+  .version == "anthesis-governance-lab.inference-integrity-scenario-catalog/v1" and
+  .status == "executable_fixture_contract" and
   .canonical_authority == "hackelia-micrantha/anthesis#108" and
-  .fixture_manifest == "fixtures/inference-integrity/manifest.json" and
+  .suite == "fixtures/inference-integrity/scenario-suite-v1alpha1.yaml" and
+  .fixtures == "fixtures/inference-integrity/fixtures-v1alpha1.json" and
   .scenario_count == 24 and
-  .executable == false and
-  .exit_code_contract == "pending_anthesis_108" and
-  .declared_expectations == ["verification_class", "operating_mode", "expected_verdict", "expected_policy_outcome"] and
+  .executable == true and
+  .execution_mode == "fixture_only" and
+  .requirements == {gpu:false, network:false, live_model:false} and
+  .report_contract == "anthesis.inference-integrity-report/v1alpha1" and
+  .exit_codes == {success:0, invalid_input:3, expectation_mismatch:7, unsupported_version:8} and
+  .declared_expectations == ["verdict", "capability_class", "policy_posture"] and
   (.scenarios | length == 24) and
   ([.scenarios[].number] == [range(1;25)]) and
   ([.scenarios[].id] | length == (unique | length)) and
-  ([.scenarios[].fixture_id] | length == (unique | length)) and
-  ([.scenarios[].future_path] | length == (unique | length)) and
+  ([.scenarios[].fixture_key] | length == (unique | length)) and
   all(.scenarios[];
     (.id | type == "string" and length > 0) and
-    (.fixture_id | type == "string" and length > 0) and
-    (.future_path | startswith(".anthesis/scenarios/inference-integrity/") and endswith(".yaml") and (contains("..") | not)) and
-    ((.issue_aliases // []) | type == "array" and all(.[]; type == "string" and length > 0))
+    (.fixture_key | type == "string" and length > 0)
   )
 ' "$catalog" >/dev/null || fail "inference scenario catalog contract is invalid"
 
-mapfile -t catalog_fixture_ids < <(jq -r '.scenarios[].fixture_id' "$catalog" | sort)
-mapfile -t manifest_fixture_ids < <(jq -r '.fixtures[].id' "$manifest" | sort)
-[[ "${catalog_fixture_ids[*]}" == "${manifest_fixture_ids[*]}" ]] || fail "scenario catalog must map every fixture exactly once"
+mapfile -t catalog_ids < <(jq -r '.scenarios[].id' "$catalog")
+mapfile -t catalog_fixture_keys < <(jq -r '.scenarios[].fixture_key' "$catalog")
+mapfile -t suite_ids < <(sed -n 's/^  - id: //p' "$suite")
+mapfile -t suite_fixture_keys < <(sed -n 's/^    fixture_key: //p' "$suite")
 
-while IFS=$'\t' read -r fixture_id fixture_path expected_class expected_verdict expected_outcome; do
-  fixture="$repo_root/$fixture_path"
-  [[ -f "$fixture" && ! -L "$fixture" ]] || fail "missing mapped fixture: $fixture_id"
-  jq -e \
-    --arg class "$expected_class" \
-    --arg verdict "$expected_verdict" \
-    --arg outcome "$expected_outcome" '
-      .original_execution.verification_request.capability_class == $class and
-      (.original_execution.verification_request.operating_mode | IN("observe", "selective_gate", "required_gate")) and
-      .verification_result.verdict == $verdict and
-      .policy_result.outcome == $outcome
-    ' "$fixture" >/dev/null || fail "mapped fixture declarations disagree: $fixture_id"
-done < <(jq -r '.fixtures[] | [.id,.path,.verification_class,.expected_verdict,.expected_outcome] | @tsv' "$manifest")
+[[ "${#suite_ids[@]}" -eq 24 ]] || fail "canonical suite must contain 24 scenario IDs"
+[[ "${#suite_fixture_keys[@]}" -eq 24 ]] || fail "canonical suite must contain 24 fixture keys"
+[[ "${catalog_ids[*]}" == "${suite_ids[*]}" ]] || fail "catalog scenario order must match canonical suite"
+[[ "${catalog_fixture_keys[*]}" == "${suite_fixture_keys[*]}" ]] || fail "catalog fixture mapping must match canonical suite"
 
-while IFS= read -r future_path; do
-  [[ ! -e "$repo_root/$future_path" ]] || fail "blocked skeleton must not claim executable scenario file: $future_path"
-done < <(jq -r '.scenarios[].future_path' "$catalog")
+mapfile -t fixture_keys < <(jq -r '.fixtures | keys[]' "$fixtures" | sort)
+mapfile -t catalog_fixture_keys_sorted < <(jq -r '.scenarios[].fixture_key' "$catalog" | sort)
+[[ "${catalog_fixture_keys_sorted[*]}" == "${fixture_keys[*]}" ]] || \
+  fail "catalog must map every canonical fixture exactly once"
 
-echo "Inference-integrity scenario catalog skeleton validation passed"
+jq -e '
+  .version == "anthesis.inference-integrity-fixtures/v1alpha1" and
+  (.fixtures | type == "object" and length == 24)
+' "$fixtures" >/dev/null || fail "canonical fixture contract is invalid"
+
+echo "Inference-integrity executable 24-case catalog validation passed"
