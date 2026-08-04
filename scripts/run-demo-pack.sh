@@ -18,6 +18,7 @@ EOF
 }
 
 command -v jq >/dev/null || fail "jq is required"
+command -v sha256sum >/dev/null || fail "sha256sum is required"
 [[ -f "$catalog" && ! -L "$catalog" ]] || fail "demo catalog must be a regular file"
 
 if [[ "${1:-}" == "--list" ]]; then
@@ -52,12 +53,48 @@ done
 
 work_dir="$(mktemp -d "$repo_root/.anthesis/demo-pack.XXXXXX")"
 trap 'rm -rf "$work_dir"' EXIT
-report="$work_dir/report.json"
+bound_pack="$work_dir/$pack"
+mkdir -p "$bound_pack"
 
+# Demo packs are synthetic, non-authoritative evaluation fixtures. Materialize
+# exact request bindings from immutable fixture and catalog bytes before passing
+# them to the fail-closed evaluator. The source fixtures remain human-readable;
+# the evaluated request is deterministic and uniquely bound to its inputs.
+catalog_digest="sha256:$(sha256sum "$catalog" | awk '{print $1}')"
+empty_dependency_digest="sha256:$(printf '{}' | sha256sum | awk '{print $1}')"
+for scenario in "${catalog_scenarios[@]}"; do
+  source="$repo_root/$scenario"
+  destination="$bound_pack/$(basename "$scenario")"
+  input_digest="sha256:$(sha256sum "$source" | awk '{print $1}')"
+  scenario_id="$(awk -F': *' '$1 == "id" {print $2; exit}' "$source")"
+  [[ -n "$scenario_id" ]] || fail "scenario id is missing: $scenario"
+  plan_digest="sha256:$(printf '%s' "$scenario_id" | sha256sum | awk '{print $1}')"
+
+  awk \
+    -v input_digest="$input_digest" \
+    -v plan_digest="$plan_digest" \
+    -v source_digest="$catalog_digest" \
+    -v dependency_state_digest="$empty_dependency_digest" '
+      { print }
+      /^runtime:/ {
+        print "request_binding:"
+        print "  version: anthesis.request-binding/v1"
+        print "  canonicalization: rfc8785-json"
+        print "  algorithm: sha256"
+        print "  input_digest: " input_digest
+        print "  plan_digest: " plan_digest
+        print "  source_digest: " source_digest
+        print "  dependency_state_digest: " dependency_state_digest
+      }
+    ' "$source" > "$destination"
+done
+
+report="$work_dir/report.json"
+bound_pack_relative="${bound_pack#"$repo_root"/}"
 set +e
 "$binary" test \
   --repo "$repo_root" \
-  --scenarios "$pack_path" \
+  --scenarios "$bound_pack_relative" \
   --format json >"$report"
 status=$?
 set -e
