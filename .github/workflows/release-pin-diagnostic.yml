@@ -1,0 +1,40 @@
+name: Release Pin Diagnostic
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/release-pin-diagnostic.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Download and inspect immutable release
+        env:
+          RELEASE_TAG: anthesis-lab-dfc826733f9a90b9966ad5d39ee470b056c787b7
+        run: |
+          set -euo pipefail
+          base="https://github.com/hackelia-micrantha/anthesis-community/releases/download/${RELEASE_TAG}"
+          curl --fail --location --proto '=https' --tlsv1.2 \
+            "$base/anthesis-lab-linux-x86_64.tar.gz" \
+            --output anthesis-lab-linux-x86_64.tar.gz
+          curl --fail --location --proto '=https' --tlsv1.2 \
+            "$base/anthesis-lab-linux-x86_64.tar.gz.sha256" \
+            --output anthesis-lab-linux-x86_64.tar.gz.sha256
+          curl --fail --location --proto '=https' --tlsv1.2 \
+            "$base/anthesis-lab-provenance.json" \
+            --output anthesis-lab-provenance.json
+          echo '--- archive checksum asset ---'
+          cat anthesis-lab-linux-x86_64.tar.gz.sha256
+          echo '--- provenance ---'
+          jq -S . anthesis-lab-provenance.json
+          mkdir package
+          tar -xzf anthesis-lab-linux-x86_64.tar.gz -C package
+          echo '--- binary sha256 ---'
+          sha256sum package/anthesis-lab
+          echo '--- version ---'
+          package/anthesis-lab version --format json | jq -S .
