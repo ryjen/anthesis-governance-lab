@@ -61,12 +61,9 @@ ANTHESIS_SIGSTORE_REQUIRED=${metadata[ANTHESIS_SIGSTORE_REQUIRED]}
   fail_boundary "release tag does not match the pinned Anthesis revision"
 [[ "$ANTHESIS_TARBALL_NAME" == 'anthesis-lab-linux-x86_64.tar.gz' ]] || \
   fail_boundary "tarball name is not the promoted Linux x86_64 package"
-[[ "$ANTHESIS_TARBALL_SHA256" =~ ^[0-9a-f]{64}$ ]] || \
-  fail_boundary "tarball SHA-256 is malformed"
-[[ "$ANTHESIS_BINARY_SHA256" =~ ^[0-9a-f]{64}$ ]] || \
-  fail_boundary "binary SHA-256 is malformed"
-[[ "$ANTHESIS_CLI_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || \
-  fail_boundary "CLI version is malformed"
+[[ "$ANTHESIS_TARBALL_SHA256" =~ ^[0-9a-f]{64}$ ]] || fail_boundary "tarball SHA-256 is malformed"
+[[ "$ANTHESIS_BINARY_SHA256" =~ ^[0-9a-f]{64}$ ]] || fail_boundary "binary SHA-256 is malformed"
+[[ "$ANTHESIS_CLI_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || fail_boundary "CLI version is malformed"
 [[ "$ANTHESIS_SIGSTORE_REQUIRED" == 'true' || "$ANTHESIS_SIGSTORE_REQUIRED" == 'false' ]] || \
   fail_boundary "Sigstore requirement must be true or false"
 
@@ -91,23 +88,13 @@ provenance="$work_dir/anthesis-lab-provenance.json"
 printf 'Anthesis revision: %s\n' "$ANTHESIS_REVISION"
 printf 'Public release: %s/%s\n' "$ANTHESIS_RELEASE_REPOSITORY" "$ANTHESIS_RELEASE_TAG"
 
-assets=(
-  "$ANTHESIS_TARBALL_NAME"
-  "${ANTHESIS_TARBALL_NAME}.sha256"
-  anthesis-lab-provenance.json
-)
+assets=("$ANTHESIS_TARBALL_NAME" "${ANTHESIS_TARBALL_NAME}.sha256" anthesis-lab-provenance.json)
 if [[ "$ANTHESIS_SIGSTORE_REQUIRED" == 'true' ]]; then
   command -v cosign >/dev/null || fail_boundary "cosign is required for the pinned signed release"
-  assets+=(
-    "${ANTHESIS_TARBALL_NAME}.sigstore.json"
-    "${ANTHESIS_TARBALL_NAME}.sha256.sigstore.json"
-    anthesis-lab-provenance.json.sigstore.json
-  )
+  assets+=("${ANTHESIS_TARBALL_NAME}.sigstore.json" "${ANTHESIS_TARBALL_NAME}.sha256.sigstore.json" anthesis-lab-provenance.json.sigstore.json)
 fi
-
 for asset in "${assets[@]}"; do
-  curl --fail --location --proto '=https' --tlsv1.2 \
-    "$base_url/$asset" --output "$work_dir/$asset"
+  curl --fail --location --proto '=https' --tlsv1.2 "$base_url/$asset" --output "$work_dir/$asset"
 done
 
 verify_sigstore_bundle() {
@@ -158,20 +145,14 @@ jq -e \
    (if $sigstore_required then .build.workflow_identity == $workflow_identity else true end)' \
   "$provenance" >/dev/null || fail_boundary "release provenance does not match the pinned source and artifact identity"
 
-test "$(tar -tzf "$tarball" | sort)" = \
-  "$(printf '%s\n' anthesis-lab anthesis-lab.sha256 | sort)"
+test "$(tar -tzf "$tarball" | sort)" = "$(printf '%s\n' anthesis-lab anthesis-lab.sha256 | sort)"
 mkdir -p "$work_dir/package"
 tar -xzf "$tarball" -C "$work_dir/package" --no-same-owner --no-same-permissions
-
 test "$(find "$work_dir/package" -mindepth 1 -maxdepth 1 -type f | wc -l)" -eq 2
 test -f "$work_dir/package/anthesis-lab"
 test -f "$work_dir/package/anthesis-lab.sha256"
-(
-  cd "$work_dir/package"
-  sha256sum --check --strict anthesis-lab.sha256
-)
-printf '%s  %s\n' "$ANTHESIS_BINARY_SHA256" "$work_dir/package/anthesis-lab" | \
-  sha256sum --check --strict
+(cd "$work_dir/package" && sha256sum --check --strict anthesis-lab.sha256)
+printf '%s  %s\n' "$ANTHESIS_BINARY_SHA256" "$work_dir/package/anthesis-lab" | sha256sum --check --strict
 
 version_json="$($work_dir/package/anthesis-lab version --format json)"
 jq -e \
@@ -181,6 +162,8 @@ jq -e \
    (.supported_contracts | sort) == ([
      "anthesis.decision/v1",
      "anthesis.evaluation-request/v1",
+     "anthesis.evidence-bundle/v1",
+     "anthesis.evidence-bundle-verification/v1",
      "anthesis.lab-profile/v1",
      "anthesis.policy/v1",
      "anthesis.request-binding/v1",
