@@ -90,10 +90,11 @@ for scenario in "${catalog_scenarios[@]}"; do
 done
 
 report="$work_dir/report.json"
+bound_pack_relative="${bound_pack#"$repo_root"/}"
 set +e
 "$binary" test \
   --repo "$repo_root" \
-  --scenarios "$bound_pack" \
+  --scenarios "$bound_pack_relative" \
   --format json >"$report"
 status=$?
 set -e
