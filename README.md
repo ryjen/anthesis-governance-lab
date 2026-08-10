@@ -28,7 +28,7 @@ Use the operator runbook to understand the demo surfaces, the full verification 
 The executable trial supports **Linux x86_64**. It uses a statically linked Rust `anthesis-lab` release and requires:
 
 ```text
-bash curl cosign sha256sum tar jq realpath
+git bash curl cosign sha256sum tar jq realpath
 ```
 
 No GitHub token, private Anthesis checkout, GPU, live model, or hosted service is required.
