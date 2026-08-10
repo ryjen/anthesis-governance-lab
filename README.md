@@ -85,7 +85,7 @@ The repository intentionally keeps three scenario surfaces separate. The counts 
 
 ### Canonical Governance Lab contract — 7 scenarios
 
-`anthesis-lab test --repo . --format json` evaluates seven pinned public-contract fixtures in deterministic lexical order. They cover allow, approval-required, policy denial, engine-guard denial, and expectation drift.
+`anthesis-lab test --repo . --format json` evaluates seven pinned public-contract fixtures in deterministic lexical order. They cover allow, approval-required, policy denial, and engine-guard denial. `scripts/validate-governance-lab.sh` adds the controlled expectation-drift check.
 
 ### General demonstration catalog — 9 packs / 27 scenarios
 
