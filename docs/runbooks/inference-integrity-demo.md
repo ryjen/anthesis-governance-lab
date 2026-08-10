@@ -4,7 +4,9 @@
 
 This runbook demonstrates how Anthesis evaluates synthetic inference evidence for seed integrity, token substitution, route and fallback governance, verifier trust, covert-channel capacity, supervisor/specialist localization, immutable re-verification, verification-class honesty, operating modes, sampling escalation, and authorized recovery.
 
-The default demonstration is provider-neutral and does not require a GPU, network access after acquisition, a live model, or Dubnium services.
+The default demonstration is provider-neutral and does not require a GPU, network access after evaluator acquisition, a live model, provider credentials, or Dubnium services.
+
+This is the **24-scenario inference-integrity proof surface**. It is separate from the 7 canonical governance scenarios and the 9 general governance demo packs / 27 scenarios. For one end-to-end procedure covering all three surfaces, use [`full-verification.md`](full-verification.md).
 
 ## Responsibility boundary
 
@@ -18,11 +20,15 @@ Verifier output is evidence. It does not directly authorize release, quarantine,
 
 ## Prerequisites
 
-- Linux x86_64
-- `bash`
-- `jq`
-- `sha256sum`
-- network access only when initially acquiring the published CLI
+Supported platform: Linux x86_64.
+
+Required tools:
+
+```text
+bash curl cosign sha256sum tar jq realpath
+```
+
+Network access is required only when initially acquiring the pinned public CLI.
 
 Acquire the signed, checksum-verified public CLI:
 
@@ -30,7 +36,7 @@ Acquire the signed, checksum-verified public CLI:
 bash scripts/acquire-anthesis-lab.sh
 ```
 
-Acquisition verifies the Sigstore identity of the archive, checksum, and provenance assets before trusting their contents, then validates the pinned checksums, provenance fields, archive-member allowlist, packaged binary, and CLI contract.
+Acquisition verifies the Sigstore identity of the archive, checksum, and provenance assets before trusting their contents, then validates the pinned checksums, provenance fields, archive-member allowlist, packaged binary, CLI identity, and supported contract set.
 
 ## Quick start
 
@@ -47,7 +53,20 @@ Expected result:
 - report version: `anthesis.inference-integrity-report/v1alpha1`
 - total scenarios: `24`
 - passed scenarios: `24`
+- failed scenarios: `0`
 - exit code: `0`
+
+Run the executable regression validation:
+
+```bash
+bash scripts/validate-executable-inference-integrity.sh
+```
+
+Expected final output:
+
+```text
+Inference-integrity executable suite: 24 passed; mismatch exit 7 verified
+```
 
 Generate the complete reproducible evidence bundle:
 
@@ -222,9 +241,9 @@ Key point: observe, selective-gate, and required-gate modes have distinct releas
 
 ## Controlled failure demonstration
 
-The evidence generator creates a temporary copy of the suite and changes one expected policy posture. The evaluator must return exit code `7` and produce a report with exactly one failed scenario.
+The executable validator and evidence generator create a temporary copy of the suite and change one expected policy posture. The evaluator must return exit code `7` and produce a report with exactly one failed scenario.
 
-This demonstrates that expected outcomes are not trusted as computed outcomes.
+This demonstrates that expected outcomes are assertions rather than trusted computed outcomes.
 
 ## Exit codes
 
