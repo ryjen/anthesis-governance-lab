@@ -8,6 +8,7 @@ This repository is an independent public consumer of the accepted Anthesis Gover
 
 - [Micrantha architecture context](docs/micrantha-architecture-context.md)
 - [Governance Lab operator runbook](docs/runbooks/governance-lab-demo.md)
+- [Full verification runbook](docs/runbooks/full-verification.md)
 - [Inference-integrity runbook](docs/runbooks/inference-integrity-demo.md)
 - [Five-minute walkthrough](docs/walkthroughs/five-minute-demo.md)
 - [Stakeholder walkthrough](docs/walkthroughs/stakeholder-demo.md)
@@ -19,6 +20,8 @@ This repository is an independent public consumer of the accepted Anthesis Gover
 - [Inference-integrity fixtures and executable contract](docs/scenarios/inference-integrity-fixtures.md)
 - [Scenario authoring guide](docs/scenarios/authoring.md)
 - [Decision and report interpretation](docs/scenarios/interpretation.md)
+
+Use the operator runbook to understand the demo surfaces, the full verification runbook to reproduce every current proof surface from a fresh checkout, and the five-minute walkthrough for a short stakeholder presentation.
 
 ## Supported trial platform
 
@@ -54,6 +57,8 @@ bash scripts/validate-docs-and-catalog.sh
 bash scripts/validate-walkthroughs.sh
 ```
 
+For expected counts, negative controls, evidence generation, and interpretation of the complete result, follow [`docs/runbooks/full-verification.md`](docs/runbooks/full-verification.md).
+
 ## Signed immutable release pin
 
 `.anthesis/cli-artifact.env` is the machine-readable source of truth for the complete release identity:
@@ -76,7 +81,7 @@ Upgrades must change all identity values together in a reviewed pull request. Ne
 
 ## Proof surfaces and counts
 
-The repository intentionally keeps three scenario surfaces separate.
+The repository intentionally keeps three scenario surfaces separate. The counts are independent: the 24 inference-integrity cases are not part of the 27 general demo scenarios.
 
 ### Canonical Governance Lab contract — 7 scenarios
 
