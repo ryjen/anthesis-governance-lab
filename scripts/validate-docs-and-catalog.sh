@@ -88,6 +88,8 @@ done
 required_docs=(
   README.md
   docs/runbooks/governance-lab-demo.md
+  docs/runbooks/full-verification.md
+  docs/runbooks/inference-integrity-demo.md
   docs/scenarios/catalog.md
   docs/scenarios/catalog.json
   docs/scenarios/demo-catalog.json
@@ -97,6 +99,7 @@ required_docs=(
   scripts/acquire-anthesis-lab.sh
   scripts/run-demo-pack.sh
   scripts/validate-governance-lab.sh
+  scripts/validate-executable-inference-integrity.sh
 )
 for path in "${required_docs[@]}"; do
   [[ -f "$repo_root/$path" && ! -L "$repo_root/$path" ]] || fail "missing documented path: $path"
@@ -122,10 +125,44 @@ set -e
 grep -Fq 'invalid pack name' <<<"$unsafe_output" || fail "unsafe demo pack failure is not explicit"
 
 grep -Fq 'docs/runbooks/governance-lab-demo.md' "$repo_root/README.md" || fail "README does not link the operator runbook"
+grep -Fq 'docs/runbooks/full-verification.md' "$repo_root/README.md" || fail "README does not link the full verification runbook"
+grep -Fq 'docs/runbooks/inference-integrity-demo.md' "$repo_root/README.md" || fail "README does not link the inference-integrity runbook"
 grep -Fq 'docs/scenarios/demo-packs.md' "$repo_root/README.md" || fail "README does not link demo packs"
 grep -Fq 'docs/scenarios/demo-catalog.json' "$repo_root/README.md" || fail "README does not link demo catalog"
-grep -Fq 'scripts/acquire-anthesis-lab.sh' "$repo_root/docs/runbooks/governance-lab-demo.md" || fail "runbook acquisition command drifted"
-grep -Fq 'scripts/validate-governance-lab.sh' "$repo_root/docs/runbooks/governance-lab-demo.md" || fail "runbook validation command drifted"
-grep -Fq 'scripts/run-demo-pack.sh' "$repo_root/docs/runbooks/governance-lab-demo.md" || fail "runbook demo-pack command drifted"
+
+governance_runbook="$repo_root/docs/runbooks/governance-lab-demo.md"
+full_runbook="$repo_root/docs/runbooks/full-verification.md"
+inference_runbook="$repo_root/docs/runbooks/inference-integrity-demo.md"
+human_catalog="$repo_root/docs/scenarios/catalog.md"
+
+grep -Fq 'scripts/acquire-anthesis-lab.sh' "$governance_runbook" || fail "runbook acquisition command drifted"
+grep -Fq 'scripts/validate-governance-lab.sh' "$governance_runbook" || fail "runbook validation command drifted"
+grep -Fq 'scripts/run-demo-pack.sh' "$governance_runbook" || fail "runbook demo-pack command drifted"
+grep -Fq 'scripts/validate-executable-inference-integrity.sh' "$governance_runbook" || fail "runbook inference validation command drifted"
+grep -Fq 'full-verification.md' "$governance_runbook" || fail "operator runbook does not link full verification"
+grep -Fq 'full-verification.md' "$inference_runbook" || fail "inference runbook does not link full verification"
+grep -Fq 'cosign' "$governance_runbook" || fail "operator runbook does not document the required Sigstore verifier"
+grep -Fq 'cosign' "$inference_runbook" || fail "inference runbook does not document the required Sigstore verifier"
+grep -Fq 'anthesis.evidence-bundle/v1' "$governance_runbook" || fail "operator runbook supported contracts are stale"
+grep -Fq 'anthesis.evidence-bundle-verification/v1' "$governance_runbook" || fail "operator runbook supported contracts are stale"
+
+for pack in "${catalog_pack_ids[@]}"; do
+  grep -Fq "\`$pack\`" "$governance_runbook" || fail "operator runbook is missing demo pack: $pack"
+done
+
+grep -Fq '7 scenarios' "$full_runbook" || fail "full verification does not document the canonical scenario count"
+grep -Fq '27 scenarios across 9 packs' "$full_runbook" || fail "full verification does not document the general demo count"
+grep -Fq '24 scenarios' "$full_runbook" || fail "full verification does not document the inference-integrity count"
+grep -Fq 'scripts/validate-governance-lab.sh' "$full_runbook" || fail "full verification is missing canonical validation"
+grep -Fq 'scripts/aggregate-demo-packs.sh' "$full_runbook" || fail "full verification is missing demo aggregation"
+grep -Fq 'scripts/validate-executable-inference-integrity.sh' "$full_runbook" || fail "full verification is missing inference validation"
+grep -Fq 'sha256sum --check SHA256SUMS' "$full_runbook" || fail "full verification is missing evidence checksum verification"
+
+if grep -Fq 'planned interface, not an executable collection' "$human_catalog"; then
+  fail "human catalog still describes executable demo packs as planned"
+fi
+if grep -Fq 'Pack selection is not available' "$human_catalog"; then
+  fail "human catalog still says demo pack selection is unavailable"
+fi
 
 echo "Documentation, scenario catalog, and demo runner validation passed"
