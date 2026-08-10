@@ -198,7 +198,7 @@ Expected final output:
 Inference-integrity executable suite: 24 passed; mismatch exit 7 verified
 ```
 
-This validation also requires byte-identical JSON across repeated evaluations, valid YAML output, and exactly one failure when a copied expectation is intentionally changed.
+This validation also requires byte-identical JSON across repeated evaluations, checks the YAML report for the expected version and passing markers, and requires exactly one failure when a copied expectation is intentionally changed. It does not parse the YAML report with a YAML-aware validator.
 
 ## 7. Generate and verify the inference evidence bundle
 
