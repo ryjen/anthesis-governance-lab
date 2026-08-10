@@ -230,7 +230,7 @@ bash scripts/validate-walkthroughs.sh
 
 These checks confirm catalog/fixture parity, exact demo-pack selection, inference fixture structure, scenario-catalog parity, walkthrough references, and documented operator invariants.
 
-## 9. Optional one-command CI-equivalent sequence
+## 9. CI-equivalent validation sequence
 
 After the evaluator has been acquired, the main repository validation sequence is:
 
