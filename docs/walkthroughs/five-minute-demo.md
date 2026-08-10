@@ -4,6 +4,8 @@
 
 Show deterministic policy evaluation for AI-assisted software work without implying that this repository executes declared effects.
 
+This short walkthrough intentionally covers the **7-scenario canonical governance contract** and the **9 general demo packs / 27 scenarios**. It does not attempt to present all 24 inference-integrity cases. Use the [inference-integrity runbook](../runbooks/inference-integrity-demo.md) for that extension or the [full verification runbook](../runbooks/full-verification.md) to reproduce every proof surface.
+
 ## 1. Acquire and verify the evaluator
 
 ```bash
@@ -14,7 +16,7 @@ export PATH="$PWD/.anthesis/bin:$PATH"
 anthesis-lab version --format json | jq .
 ```
 
-Acquisition is anonymous and verifies the immutable public release, provenance, archive and binary checksums, CLI identity, and supported contracts before installation.
+Acquisition is anonymous and verifies the immutable public release, Sigstore identity, provenance, archive and binary checksums, CLI identity, and supported contracts before installation.
 
 ## 2. Run the canonical contract suite
 
@@ -70,8 +72,19 @@ bash scripts/run-demo-pack.sh adversarial | jq .
 
 The adversarial pack shows that policy-bypass wording, absolute host paths, and unrestricted command requests do not expand capability.
 
-## 5. State the enforcement boundary
+## 5. Optional inference-integrity extension
 
-Anthesis proves that a pinned declaration, policy, runtime profile, and scenario expectation produce a deterministic decision and report.
+If the audience needs the inference-integrity proof surface, show the aggregate 24-case result rather than walking every fixture:
 
-This repository does not write files, run commands, access networks, merge branches, deploy software, publish releases, persist approvals, or prevent an agent from using an ungoverned tool. Production enforcement requires a governed executor, gateway, broker, supervisor boundary, sandbox, or equivalent control that makes Anthesis decisions authoritative.
+```bash
+.anthesis/bin/anthesis-lab inference-integrity --repo . --format json |
+  jq '{passed, total, passed_count, failed_count}'
+```
+
+Expected result is 24 passed and zero failed. A useful representative scenario is `detect-token-substitution`; the dedicated runbook explains the remaining verification classes, routes, supervisor/specialist cases, operating modes, and controlled mismatch.
+
+## 6. State the enforcement boundary
+
+Anthesis proves that a pinned declaration, policy, runtime profile, and scenario expectation produce a deterministic decision and report. The inference-integrity extension likewise evaluates recorded provider-neutral evidence deterministically.
+
+This repository does not write files, run commands, access networks, merge branches, deploy software, publish releases, persist approvals, invoke live providers, or prevent an agent from using an ungoverned tool. Production enforcement requires a governed executor, gateway, broker, supervisor boundary, sandbox, or equivalent control that makes Anthesis decisions authoritative.
