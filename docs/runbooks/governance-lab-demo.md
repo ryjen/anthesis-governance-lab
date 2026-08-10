@@ -34,7 +34,7 @@ The executable trial supports Linux x86_64.
 Required tools:
 
 ```text
-bash curl cosign sha256sum tar jq realpath
+git bash curl cosign sha256sum tar jq realpath
 ```
 
 Network access is required only to clone the repository and acquire the pinned public CLI. The scenario suites themselves use repository-local synthetic inputs.
