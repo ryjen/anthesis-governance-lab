@@ -27,7 +27,7 @@ Supported platform: Linux x86_64.
 Required tools:
 
 ```text
-bash curl cosign sha256sum tar jq realpath
+git bash curl cosign sha256sum tar jq realpath
 ```
 
 Network access is required to clone this repository and acquire the pinned public evaluator. No GitHub token, private Anthesis checkout, GPU, live model, provider credential, Dubnium service, or hosted Anthesis service is required.
