@@ -2,9 +2,19 @@
 
 The human-readable catalog is paired with the validated machine-readable manifest at [`docs/scenarios/catalog.json`](catalog.json).
 
+Governance Lab intentionally exposes three separate proof surfaces. Keep the counts and purposes distinct:
+
+| Surface | Path / command | Count | Purpose |
+|---|---|---:|---|
+| Canonical governance contract | `.anthesis/scenarios` / `anthesis-lab test` | 7 | Stable public conformance fixtures for deterministic policy evaluation. |
+| General demonstration catalog | `.anthesis/demos` / `scripts/run-demo-pack.sh` | 27 across 9 packs | Broader synthetic SDLC governance examples for demos and integration design. |
+| Inference-integrity contract | `fixtures/inference-integrity` / `anthesis-lab inference-integrity` | 24 | Provider-neutral synthetic inference evidence evaluated against the inference-integrity contract. |
+
+The 24 inference-integrity scenarios are not part of the 27-scenario demo-pack catalog. See [`inference-integrity-fixtures.md`](inference-integrity-fixtures.md) for that contract.
+
 ## Collections
 
-### Canonical conformance suite
+### Canonical conformance suite — 7 scenarios
 
 Path: `.anthesis/scenarios`
 
@@ -26,23 +36,44 @@ The manifest and fixture directory are checked one-to-one by:
 bash scripts/validate-docs-and-catalog.sh
 ```
 
-### Demonstration catalog
+### General demonstration catalog — 9 packs / 27 scenarios
 
-The separate demo collection is tracked by issues #6–#9. It will contain themed, synthetic use cases without changing the canonical conformance suite.
+Path: `.anthesis/demos`
 
-Planned packs:
+The demonstration collection is executable through the signed `anthesis-lab` evaluator. It contains nine synthetic packs with three scenarios each. These scenarios evaluate declared effects but never execute them.
 
-- documentation;
-- source code;
-- CI and release;
-- dependencies;
-- secrets and evidence;
-- network and tools;
-- runtime and identity;
-- deployment and repository administration;
-- adversarial declarations.
+Machine-readable metadata is in [`demo-catalog.json`](demo-catalog.json), with presentation-oriented detail in [`demo-packs.md`](demo-packs.md).
 
-The `.anthesis/demos` path is currently a planned interface, not an executable collection. Pack selection is not available until issues #8 and #9 land.
+Available packs:
+
+- `documentation`;
+- `source-code`;
+- `ci-and-release`;
+- `dependencies`;
+- `secrets-and-evidence`;
+- `network-and-tools`;
+- `runtime-and-identity`;
+- `deployment-and-administration`;
+- `adversarial`.
+
+Run them with:
+
+```bash
+bash scripts/run-demo-pack.sh --list
+bash scripts/run-demo-pack.sh documentation | jq .
+bash scripts/aggregate-demo-packs.sh | jq .
+```
+
+Expected aggregate result:
+
+```json
+{
+  "classification": "passed",
+  "pack_count": 9,
+  "passed_packs": 9,
+  "total_scenarios": 27
+}
+```
 
 ## Required demo metadata
 
@@ -62,7 +93,7 @@ Every non-canonical demo must identify:
 
 ## Decision coverage
 
-The complete catalog should demonstrate:
+The complete catalog demonstrates:
 
 - allow;
 - approval required;
@@ -71,16 +102,18 @@ The complete catalog should demonstrate:
 - expectation mismatch;
 - malformed or unsafe input rejection where appropriate.
 
-Not every pack must manufacture every outcome. Policy must not be weakened solely to produce a visually balanced demo.
+Not every pack manufactures every outcome. Policy must not be weakened solely to produce a visually balanced demo.
 
 ## Curated showcase
 
-The recommended five-scenario walkthrough is:
+The recommended five-case walkthrough is synchronized with [`docs/walkthroughs/showcase.json`](../walkthroughs/showcase.json) and the [five-minute walkthrough](../walkthroughs/five-minute-demo.md):
 
-1. allowed documentation edit;
-2. approval-gated CI workflow change;
-3. denied secret access;
-4. engine-guard denial for unknown runtime;
-5. expectation drift detected with exit code `7`.
+1. scoped documentation write allowed;
+2. CI workflow change requiring approval;
+3. direct merge denied by policy;
+4. unknown runtime denied by the engine guard;
+5. deliberate expectation drift detected with exit code `7`.
 
-This sequence shows normal permission, higher-impact review, protected data, runtime identity enforcement, and governance regression detection.
+This sequence shows normal permission, higher-impact review, prohibited repository administration, runtime identity enforcement, and governance regression detection.
+
+For the 24-case inference-integrity extension, use the dedicated [inference-integrity runbook](../runbooks/inference-integrity-demo.md).
