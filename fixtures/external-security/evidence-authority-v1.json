@@ -1,0 +1,87 @@
+{
+  "version": "anthesis-governance-lab.external-security-evidence-authority/v1",
+  "synthetic": true,
+  "executes_effects": false,
+  "policy": {
+    "requires_current_verified_artifact": true,
+    "requires_independent_action_authorization": true,
+    "fail_closed_on_unverifiable_required_evidence": true
+  },
+  "evidence_states": [
+    "verified",
+    "missing",
+    "stale",
+    "mismatch",
+    "contradictory",
+    "unverifiable"
+  ],
+  "cases": [
+    {
+      "id": "verified-evidence-authorized-action",
+      "artifact_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "evidence_state": "verified",
+      "action_authorized": true,
+      "expected_decision": "allow",
+      "expected_reason": "independent_action_authority_satisfied"
+    },
+    {
+      "id": "verified-evidence-unauthorized-action",
+      "artifact_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "evidence_state": "verified",
+      "action_authorized": false,
+      "expected_decision": "deny",
+      "expected_reason": "action_authority_missing"
+    },
+    {
+      "id": "missing-required-evidence",
+      "artifact_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "evidence_state": "missing",
+      "action_authorized": true,
+      "expected_decision": "deny",
+      "expected_reason": "required_evidence_missing"
+    },
+    {
+      "id": "stale-required-evidence",
+      "artifact_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "evidence_state": "stale",
+      "action_authorized": true,
+      "expected_decision": "deny",
+      "expected_reason": "required_evidence_stale"
+    },
+    {
+      "id": "artifact-digest-mismatch",
+      "artifact_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "evidence_state": "mismatch",
+      "action_authorized": true,
+      "expected_decision": "deny",
+      "expected_reason": "artifact_binding_mismatch"
+    },
+    {
+      "id": "contradictory-evidence-providers",
+      "artifact_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "evidence_state": "contradictory",
+      "action_authorized": true,
+      "expected_decision": "deny",
+      "expected_reason": "evidence_contradiction_unresolved"
+    },
+    {
+      "id": "required-evidence-unverifiable",
+      "artifact_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "evidence_state": "unverifiable",
+      "action_authorized": true,
+      "expected_decision": "deny",
+      "expected_reason": "required_evidence_unverifiable"
+    }
+  ],
+  "assertions": [
+    "Verified provenance evidence does not grant action authority.",
+    "Action authority does not waive a required current provenance precondition.",
+    "Operational verification failure remains distinguishable from missing, stale, mismatched, or contradictory evidence.",
+    "No case executes an external effect."
+  ],
+  "does_not_prove": [
+    "Any real signature, SBOM, AIBOM, attestation, or provenance statement was cryptographically verified.",
+    "The represented artifact is safe, correct, or authorized for every action.",
+    "Production runtime bypass paths are unreachable."
+  ]
+}
