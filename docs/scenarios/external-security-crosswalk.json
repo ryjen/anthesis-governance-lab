@@ -1,0 +1,251 @@
+{
+  "version": "anthesis-governance-lab.external-security-crosswalk/v1",
+  "status": "non_normative_mapping",
+  "certification": false,
+  "executes_effects": false,
+  "coverage_values": [
+    "demonstrated",
+    "partial",
+    "runtime-dependent",
+    "not-demonstrated",
+    "not-applicable"
+  ],
+  "rows": [
+    {
+      "id": "cosai-mcp-complete-mediation",
+      "framework": "CoSAI MCP Security",
+      "external_ref": "cosai-oasis/ws4-secure-design-agentic-systems#22",
+      "topic": "Complete mediation and bypass resistance",
+      "coverage": "runtime-dependent",
+      "scenario_refs": [
+        "network-and-tools-01-allow-test-command",
+        "network-and-tools-02-require-network-approval",
+        "network-and-tools-03-deny-unrestricted-command",
+        "runtime-and-identity-02-deny-unknown-runtime-read",
+        "runtime-and-identity-03-deny-unknown-runtime-write"
+      ],
+      "inference_scenario_refs": [
+        "block-direct-runtime-bypass",
+        "required-gate-fails-closed-on-verifier-outage"
+      ],
+      "proves": [
+        "The public evaluator deterministically distinguishes allow, approval-required, policy denial, and unknown-runtime denial for synthetic declarations.",
+        "The inference-integrity fixture contract contains a direct-runtime-bypass rejection and a required-gate fail-closed case."
+      ],
+      "does_not_prove": [
+        "Raw MCP endpoints, downstream credentials, alternate registries, network routes, or equivalent production effect paths are actually unreachable.",
+        "All possible bypass paths have been discovered."
+      ],
+      "next_gap": "Add generic effect-path fixtures and, in a real runtime integration, verify raw endpoint, credential, network, and registry bypass resistance."
+    },
+    {
+      "id": "cosai-mcp-provenance-evidence",
+      "framework": "CoSAI MCP Security",
+      "external_ref": "cosai-oasis/ws4-secure-design-agentic-systems#26",
+      "topic": "Supply-chain provenance evidence and authorization boundaries",
+      "coverage": "partial",
+      "scenario_refs": [
+        "dependencies-01-allow-manifest-read",
+        "dependencies-02-require-manifest-approval",
+        "dependencies-03-require-install-approval",
+        "secrets-and-evidence-02-deny-evidence-write"
+      ],
+      "inference_scenario_refs": [
+        "reject-reverification-mutation",
+        "preserve-original-on-reverification"
+      ],
+      "proves": [
+        "Dependency changes and networked acquisition can be separated from read-only inventory and placed behind approval.",
+        "Evidence mutation is denied and inference-integrity re-verification preserves immutable source evidence."
+      ],
+      "does_not_prove": [
+        "A signed SBOM, model signature, attestation, or AIBOM was independently verified.",
+        "Verified artifact provenance authorizes a runtime invocation."
+      ],
+      "next_gap": "Add provider-neutral verified/missing/stale/mismatch/contradictory/unverifiable evidence fixtures and a verified-artifact-plus-unauthorized-invocation denial."
+    },
+    {
+      "id": "cosai-agentic-iam-delegation",
+      "framework": "CoSAI Agentic Identity and Access Management",
+      "external_ref": "agentic-identity-and-access-control:delegation-and-least-privilege",
+      "topic": "Delegated identity, least privilege, and scope narrowing",
+      "coverage": "partial",
+      "scenario_refs": [
+        "adversarial-03-deny-capability-expansion-command",
+        "runtime-and-identity-01-allow-registered-runtime",
+        "runtime-and-identity-03-deny-unknown-runtime-write"
+      ],
+      "inference_scenario_refs": [],
+      "proves": [
+        "A registered runtime can receive an allowed decision while an unknown runtime and an undeclared capability expansion fail closed."
+      ],
+      "does_not_prove": [
+        "A cryptographic delegation chain was authenticated.",
+        "Child authority is mathematically or cryptographically constrained to the parent grant."
+      ],
+      "next_gap": "Add a synthetic supervisor-to-specialist narrowing vector once the public contract can represent delegated actor and parent-grant context."
+    },
+    {
+      "id": "owasp-llm-2026-excessive-agency",
+      "framework": "OWASP GenAI LLM Top 10 2026",
+      "external_ref": "excessive-agency",
+      "topic": "Excessive agency and downstream authorization",
+      "coverage": "partial",
+      "scenario_refs": [
+        "network-and-tools-03-deny-unrestricted-command",
+        "deployment-and-administration-01-deny-deploy",
+        "deployment-and-administration-02-deny-release",
+        "ci-and-release-02-require-workflow-approval"
+      ],
+      "inference_scenario_refs": [],
+      "proves": [
+        "Synthetic high-impact and unrestricted requested effects can be denied or routed to approval independently of model intent."
+      ],
+      "does_not_prove": [
+        "A production downstream system performs complete mediation.",
+        "The model cannot discover an ungoverned alternate effect path."
+      ],
+      "next_gap": "Pair declaration-level decisions with runtime effect-path mediation evidence."
+    },
+    {
+      "id": "owasp-agentic-asi02-tool-misuse",
+      "framework": "OWASP Top 10 for Agentic Applications 2026",
+      "external_ref": "ASI02: Tool Misuse & Exploitation",
+      "topic": "Tool misuse and unsafe capability invocation",
+      "coverage": "partial",
+      "scenario_refs": [
+        "network-and-tools-01-allow-test-command",
+        "network-and-tools-03-deny-unrestricted-command",
+        "adversarial-03-deny-capability-expansion-command"
+      ],
+      "inference_scenario_refs": [],
+      "proves": [
+        "Known bounded tool intent and unrestricted or capability-expanding tool intent can receive different deterministic decisions."
+      ],
+      "does_not_prove": [
+        "The selected tool is semantically correct for the user's goal.",
+        "Tool parameters are bound to a live downstream authorization decision."
+      ],
+      "next_gap": "Add exact-action/argument mismatch fixtures when the public scenario contract exposes action binding."
+    },
+    {
+      "id": "owasp-agentic-asi03-identity-privilege",
+      "framework": "OWASP Top 10 for Agentic Applications 2026",
+      "external_ref": "ASI03: Identity & Privilege Abuse",
+      "topic": "Runtime identity and privilege abuse",
+      "coverage": "demonstrated",
+      "scenario_refs": [
+        "runtime-and-identity-01-allow-registered-runtime",
+        "runtime-and-identity-02-deny-unknown-runtime-read",
+        "runtime-and-identity-03-deny-unknown-runtime-write",
+        "secrets-and-evidence-01-deny-env-read"
+      ],
+      "inference_scenario_refs": [
+        "reject-missing-resolved-identity"
+      ],
+      "proves": [
+        "The synthetic evaluator fails closed on unknown runtime identity for both read and write declarations.",
+        "Inference-integrity verification rejects missing resolved execution identity."
+      ],
+      "does_not_prove": [
+        "The runtime identity was issued by or authenticated against a production workload identity system.",
+        "Credentials are inaccessible outside the tested declaration/evidence boundary."
+      ],
+      "next_gap": "Add authenticated delegation and execution-principal vectors through the Keylix integration track."
+    },
+    {
+      "id": "owasp-agentic-asi04-supply-chain",
+      "framework": "OWASP Top 10 for Agentic Applications 2026",
+      "external_ref": "ASI04: Agentic Supply Chain Vulnerabilities",
+      "topic": "Agentic dependency and artifact supply chain",
+      "coverage": "partial",
+      "scenario_refs": [
+        "dependencies-01-allow-manifest-read",
+        "dependencies-02-require-manifest-approval",
+        "dependencies-03-require-install-approval"
+      ],
+      "inference_scenario_refs": [
+        "reject-reverification-mutation"
+      ],
+      "proves": [
+        "Dependency inventory, dependency mutation, and networked installation are distinct declared effects with different decisions.",
+        "Recorded inference evidence cannot be silently rewritten during re-verification."
+      ],
+      "does_not_prove": [
+        "Model, prompt, skill, MCP server, dataset, or runtime artifacts have valid supply-chain attestations.",
+        "Artifact integrity implies authorization to use the artifact."
+      ],
+      "next_gap": "Add AIBOM/model/prompt-context digest substitution and evidence-state fixtures."
+    },
+    {
+      "id": "owasp-agentic-asi06-memory-context",
+      "framework": "OWASP Top 10 for Agentic Applications 2026",
+      "external_ref": "ASI06: Memory & Context Poisoning",
+      "topic": "Persistent memory and context mutation",
+      "coverage": "not-demonstrated",
+      "scenario_refs": [],
+      "inference_scenario_refs": [],
+      "proves": [],
+      "does_not_prove": [
+        "Memory writes are governed as consequential effects.",
+        "Memory/context provenance, isolation, expiry, or poisoning detection is enforced."
+      ],
+      "next_gap": "Add a synthetic unapproved durable-memory write and a provenance-aware approved memory update when the public contract supports memory/context effect types."
+    },
+    {
+      "id": "owasp-agentic-asi07-inter-agent",
+      "framework": "OWASP Top 10 for Agentic Applications 2026",
+      "external_ref": "ASI07: Insecure Inter-Agent Communication",
+      "topic": "Authenticated inter-agent handoff and delegation continuity",
+      "coverage": "not-demonstrated",
+      "scenario_refs": [],
+      "inference_scenario_refs": [
+        "localize-specialist-tamper",
+        "detect-synthesis-tamper"
+      ],
+      "proves": [
+        "Inference-integrity fixtures can localize specialist and synthesis tampering within a synthetic multi-stage flow."
+      ],
+      "does_not_prove": [
+        "Inter-agent messages are authenticated, replay-resistant, or encrypted.",
+        "Delegated authority remains valid and narrowed across an inter-agent handoff."
+      ],
+      "next_gap": "Add sender/authenticated-principal mismatch, replay, and parent-to-child scope-narrowing vectors."
+    },
+    {
+      "id": "owasp-aibom-artifact-identity",
+      "framework": "OWASP AIBOM / CycloneDX",
+      "external_ref": "AI artifact identity and composition evidence",
+      "topic": "Model, prompt/context, runtime, and tool artifact identity",
+      "coverage": "not-demonstrated",
+      "scenario_refs": [],
+      "inference_scenario_refs": [],
+      "proves": [],
+      "does_not_prove": [
+        "The lab currently parses or verifies an AIBOM or CycloneDX ML-BOM.",
+        "Composition evidence authorizes an artifact to execute."
+      ],
+      "next_gap": "Coordinate Invokrum #98 and Anthesis #187 to add a generic prompt/context artifact identity and digest-substitution fixture."
+    },
+    {
+      "id": "cosai-agent-manifest-action-binding",
+      "framework": "CoSAI Agent Manifest Phase 2",
+      "external_ref": "cosai-oasis/ws4-secure-design-agentic-systems#149",
+      "topic": "Admitted manifest version to action-time authority binding",
+      "coverage": "not-demonstrated",
+      "scenario_refs": [],
+      "inference_scenario_refs": [
+        "detect-plano-route-change",
+        "reject-reverification-mutation"
+      ],
+      "proves": [
+        "Existing inference-integrity fixtures detect route drift and reject mutation during re-verification."
+      ],
+      "does_not_prove": [
+        "An exact action-time authorization is cryptographically bound to the exact admitted manifest version.",
+        "A stale decision is rejected after manifest-bound tool, policy, or actor context changes."
+      ],
+      "next_gap": "Add a manifest-M1/action-decision binding vector with M2 drift before dispatch and mandatory fresh authorization."
+    }
+  ]
+}
