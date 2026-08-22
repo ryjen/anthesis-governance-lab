@@ -84,14 +84,14 @@ jq -e '
   .rows[] |
   select(.id == "cosai-mcp-complete-mediation") |
   .coverage == "runtime-dependent" and
-  (.does_not_prove | any(contains("unreachable")))
+  any(.does_not_prove[]; contains("unreachable"))
 ' "$crosswalk" >/dev/null || fail "complete-mediation row must preserve runtime assurance limitation"
 
 jq -e '
   .rows[] |
   select(.id == "owasp-aibom-artifact-identity") |
   .coverage == "not-demonstrated" and
-  (.does_not_prove | any(contains("authorizes")))
+  any(.does_not_prove[]; contains("authorizes"))
 ' "$crosswalk" >/dev/null || fail "AIBOM row must preserve evidence-versus-authority limitation"
 
 echo "External agent-security crosswalk validation passed"
