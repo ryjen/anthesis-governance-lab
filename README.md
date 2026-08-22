@@ -19,6 +19,7 @@ This repository is an independent public consumer of the accepted Anthesis Gover
 - [Machine-readable demo catalog](docs/scenarios/demo-catalog.json)
 - [External agent-security crosswalk](docs/scenarios/external-security-crosswalk.md)
 - [Machine-readable external security crosswalk](docs/scenarios/external-security-crosswalk.json)
+- [External agent-security test vectors](docs/scenarios/external-security-fixtures.md)
 - [Inference-integrity fixtures and executable contract](docs/scenarios/inference-integrity-fixtures.md)
 - [Scenario authoring guide](docs/scenarios/authoring.md)
 - [Decision and report interpretation](docs/scenarios/interpretation.md)
@@ -57,6 +58,7 @@ bash scripts/validate-demo-packs.sh
 bash scripts/validate-executable-inference-integrity.sh
 bash scripts/validate-docs-and-catalog.sh
 bash scripts/validate-external-security-crosswalk.sh
+bash scripts/validate-external-security-fixtures.sh
 bash scripts/validate-walkthroughs.sh
 ```
 
@@ -134,11 +136,13 @@ bash scripts/generate-inference-integrity-evidence.sh
 
 The generated evidence bundle records 24 passing results, a controlled mismatch with exit code `7`, release identity, report contract, source revisions, and file checksums.
 
-### External security crosswalk
+### External security crosswalk and vectors
 
 `docs/scenarios/external-security-crosswalk.json` maps existing public proof surfaces to selected CoSAI and OWASP agent-security topics using explicit coverage states: `demonstrated`, `partial`, `runtime-dependent`, `not-demonstrated`, and `not-applicable`.
 
 The crosswalk is non-normative. It records what current synthetic fixtures prove and, equally importantly, what they do not prove. `scripts/validate-external-security-crosswalk.sh` verifies that mapped demo and inference scenario IDs actually exist and that required assurance limitations are retained.
+
+`fixtures/external-security/` contains provider-neutral structural test vectors for evidence-state-versus-authority and manifest-version-versus-action-time binding. They do not extend the current `anthesis-lab` evaluator contract or execute effects. `scripts/validate-external-security-fixtures.sh` checks the vector contracts and paired fail-closed invariants.
 
 ## Integration boundary
 

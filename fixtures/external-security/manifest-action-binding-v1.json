@@ -1,0 +1,138 @@
+{
+  "version": "anthesis-governance-lab.external-security-manifest-action-binding/v1",
+  "synthetic": true,
+  "executes_effects": false,
+  "policy": {
+    "requires_admitted_manifest_binding": true,
+    "requires_exact_call_binding": true,
+    "requires_actor_context_binding": true,
+    "requires_live_unrevoked_decision": true
+  },
+  "identities": {
+    "manifest_m1": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "manifest_m2": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "call_a1": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "call_a2": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "actor_parent": "actor:supervisor",
+    "actor_other": "actor:other"
+  },
+  "cases": [
+    {
+      "id": "fresh-m1-decision-exact-action",
+      "admitted_manifest": "manifest_m1",
+      "decision_manifest": "manifest_m1",
+      "requested_call": "call_a1",
+      "decision_call": "call_a1",
+      "runtime_actor": "actor_parent",
+      "decision_actor": "actor_parent",
+      "decision_live": true,
+      "decision_revoked": false,
+      "expected_decision": "allow",
+      "expected_reason": "exact_action_binding_satisfied"
+    },
+    {
+      "id": "manifest-drift-before-dispatch",
+      "admitted_manifest": "manifest_m2",
+      "decision_manifest": "manifest_m1",
+      "requested_call": "call_a1",
+      "decision_call": "call_a1",
+      "runtime_actor": "actor_parent",
+      "decision_actor": "actor_parent",
+      "decision_live": true,
+      "decision_revoked": false,
+      "expected_decision": "deny",
+      "expected_reason": "manifest_binding_stale"
+    },
+    {
+      "id": "normalized-call-digest-changed",
+      "admitted_manifest": "manifest_m1",
+      "decision_manifest": "manifest_m1",
+      "requested_call": "call_a2",
+      "decision_call": "call_a1",
+      "runtime_actor": "actor_parent",
+      "decision_actor": "actor_parent",
+      "decision_live": true,
+      "decision_revoked": false,
+      "expected_decision": "deny",
+      "expected_reason": "call_binding_mismatch"
+    },
+    {
+      "id": "actor-context-changed",
+      "admitted_manifest": "manifest_m1",
+      "decision_manifest": "manifest_m1",
+      "requested_call": "call_a1",
+      "decision_call": "call_a1",
+      "runtime_actor": "actor_other",
+      "decision_actor": "actor_parent",
+      "decision_live": true,
+      "decision_revoked": false,
+      "expected_decision": "deny",
+      "expected_reason": "actor_binding_mismatch"
+    },
+    {
+      "id": "expired-action-decision",
+      "admitted_manifest": "manifest_m1",
+      "decision_manifest": "manifest_m1",
+      "requested_call": "call_a1",
+      "decision_call": "call_a1",
+      "runtime_actor": "actor_parent",
+      "decision_actor": "actor_parent",
+      "decision_live": false,
+      "decision_revoked": false,
+      "expected_decision": "deny",
+      "expected_reason": "decision_expired"
+    },
+    {
+      "id": "revoked-action-decision",
+      "admitted_manifest": "manifest_m1",
+      "decision_manifest": "manifest_m1",
+      "requested_call": "call_a1",
+      "decision_call": "call_a1",
+      "runtime_actor": "actor_parent",
+      "decision_actor": "actor_parent",
+      "decision_live": true,
+      "decision_revoked": true,
+      "expected_decision": "deny",
+      "expected_reason": "decision_revoked"
+    },
+    {
+      "id": "valid-manifest-without-action-decision",
+      "admitted_manifest": "manifest_m1",
+      "decision_manifest": null,
+      "requested_call": "call_a1",
+      "decision_call": null,
+      "runtime_actor": "actor_parent",
+      "decision_actor": null,
+      "decision_live": false,
+      "decision_revoked": false,
+      "expected_decision": "deny",
+      "expected_reason": "action_decision_missing"
+    },
+    {
+      "id": "fresh-m2-decision-after-drift",
+      "admitted_manifest": "manifest_m2",
+      "decision_manifest": "manifest_m2",
+      "requested_call": "call_a1",
+      "decision_call": "call_a1",
+      "runtime_actor": "actor_parent",
+      "decision_actor": "actor_parent",
+      "decision_live": true,
+      "decision_revoked": false,
+      "expected_decision": "allow",
+      "expected_reason": "exact_action_binding_satisfied"
+    }
+  ],
+  "assertions": [
+    "Manifest validity is not action-time authority.",
+    "A decision bound to an old manifest version is invalid after deployment drift.",
+    "Changing normalized action arguments or actor context invalidates a prior exact-action decision.",
+    "Expired or revoked action decisions fail closed.",
+    "A fresh decision against the current admitted manifest can restore eligibility to execute."
+  ],
+  "does_not_prove": [
+    "The selected action is semantically correct for the user's goal.",
+    "The policy that issued the action decision is correct.",
+    "All runtime bypass routes are eliminated.",
+    "A signed trace is complete or faithful merely because its signature verifies."
+  ]
+}

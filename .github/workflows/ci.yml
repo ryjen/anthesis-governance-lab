@@ -34,6 +34,7 @@ jobs:
             scripts/validate-governance-lab.sh \
             scripts/validate-docs-and-catalog.sh \
             scripts/validate-external-security-crosswalk.sh \
+            scripts/validate-external-security-fixtures.sh \
             scripts/validate-inference-integrity-fixtures.sh \
             scripts/validate-inference-capacity-fixtures.sh \
             scripts/validate-inference-final-catalog.sh \
@@ -43,6 +44,7 @@ jobs:
           ! grep -RInE '(^|[^[:alnum:]_])(python3?|pip|pytest)([^[:alnum:]_]|$)' scripts
           bash scripts/validate-docs-and-catalog.sh
           bash scripts/validate-external-security-crosswalk.sh
+          bash scripts/validate-external-security-fixtures.sh
           bash scripts/validate-inference-integrity-fixtures.sh
           bash scripts/validate-inference-capacity-fixtures.sh
           bash scripts/validate-inference-final-catalog.sh
