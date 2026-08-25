@@ -90,6 +90,34 @@ source domain/state
 
 Source provenance and observation evidence remain distinct from authorization. The fixture does not require a live model, credentials, network, or external service and does not claim generic prompt-injection detection, exhaustive complete mediation, or production containment.
 
+## Authorization versus execution correspondence
+
+Fixture: [`../../fixtures/external-security/execution-correspondence-v1.json`](../../fixtures/external-security/execution-correspondence-v1.json)
+
+This fixture starts after an exact action has already been authorized and admitted. It asks a different question: did the downstream effector actually perform the same policy-relevant action?
+
+The central pair is:
+
+```text
+authorized A -> dispatched A -> provider reports B -> A != B -> correspondence fail
+authorized A -> dispatched A -> provider reports A -> A == A -> correspondence pass
+```
+
+The mismatch case changes only the protected target. Authorization for `action_a` remains valid and immutable; execution evidence truthfully records `action_b`. The checker therefore fails correspondence rather than rewriting the authorization record or treating `B` as retroactively authorized.
+
+The modeled evidence chain keeps four facts separate:
+
+```text
+authorization evidence
+  -> dispatch evidence
+  -> provider execution evidence
+  -> deterministic terminal-state evidence
+```
+
+The fixture compares policy-relevant fields including tool, operation, target, arguments, and actor context. Its positive control proves the checker does not simply mark every execution as mismatched or unverifiable.
+
+This is structural evidence only. It does not establish production complete mediation, receipt authenticity, absence of unobserved side effects, universal provider semantics, exhaustive TOCTOU resistance, or policy correctness.
+
 ## Validation
 
 Run:
@@ -108,6 +136,7 @@ The fixtures are designed to be adaptable to:
 - CoSAI Agent Manifest #149 for manifest-version/action-time binding;
 - OWASP Agentic ASI02/ASI03/ASI04 cases where identity, tool authority, and supply-chain evidence must remain separate;
 - OWASP Agentic tool-misuse and memory/context-poisoning examples where attacker-controlled observations must remain non-authoritative;
+- conformance work that distinguishes a correctly authorized request from the effect actually reported or observed downstream;
 - research/tooling that evaluates indirect environmental influence through deterministic state and terminal-effect assertions.
 
 Before proposing them upstream, translate field names into the target project's vocabulary and retain the `does_not_prove` limitations rather than presenting synthetic structural validation as production assurance.

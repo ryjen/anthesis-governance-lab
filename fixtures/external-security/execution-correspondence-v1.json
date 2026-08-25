@@ -1,0 +1,92 @@
+{
+  "version": "anthesis-governance-lab.external-security-execution-correspondence/v1",
+  "synthetic": true,
+  "executes_effects": false,
+  "requires_network": false,
+  "requires_credentials": false,
+  "requires_live_model": false,
+  "comparison": {
+    "policy_relevant_fields": [
+      "tool",
+      "operation",
+      "target",
+      "arguments",
+      "actor_context"
+    ],
+    "authorization_record_immutable": true,
+    "execution_evidence_distinct": true,
+    "terminal_state_evidence_distinct": true
+  },
+  "actions": {
+    "action_a": {
+      "tool": "repo.writer",
+      "operation": "write",
+      "target": "workspace/allowed.txt",
+      "arguments": {
+        "content": "approved-content"
+      },
+      "actor_context": "actor_primary",
+      "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "action_b": {
+      "tool": "repo.writer",
+      "operation": "write",
+      "target": "workspace/protected.txt",
+      "arguments": {
+        "content": "approved-content"
+      },
+      "actor_context": "actor_primary",
+      "digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    }
+  },
+  "cases": [
+    {
+      "id": "authorized-a-provider-executes-b",
+      "authorized_action": "action_a",
+      "dispatched_action": "action_a",
+      "executed_action": "action_b",
+      "authorization_valid": true,
+      "dispatch_record_present": true,
+      "execution_record_present": true,
+      "mismatch_fields": ["target"],
+      "expected_correspondence": "fail",
+      "expected_reason": "executed_action_mismatch",
+      "terminal_state": {
+        "allowed_target_changed": false,
+        "protected_target_changed": true
+      }
+    },
+    {
+      "id": "authorized-a-provider-executes-a",
+      "authorized_action": "action_a",
+      "dispatched_action": "action_a",
+      "executed_action": "action_a",
+      "authorization_valid": true,
+      "dispatch_record_present": true,
+      "execution_record_present": true,
+      "mismatch_fields": [],
+      "expected_correspondence": "pass",
+      "expected_reason": "exact_execution_correspondence",
+      "terminal_state": {
+        "allowed_target_changed": true,
+        "protected_target_changed": false
+      }
+    }
+  ],
+  "proves": [
+    "authorization and execution correspondence are separate assurance properties in this bounded synthetic scenario",
+    "valid authorization for action A does not authorize or prove execution of materially different action B",
+    "policy-relevant execution mismatch can be detected without rewriting the original authorization evidence",
+    "an exact A-to-A execution path can pass as a positive control",
+    "terminal-state evidence can reflect the actual modeled effect rather than the intended action"
+  ],
+  "does_not_prove": [
+    "production complete mediation",
+    "cryptographic authenticity or honesty of arbitrary provider execution receipts",
+    "absence of unobserved side effects",
+    "correctness of the authorization policy itself",
+    "correctness of every provider-specific semantic mapping",
+    "exhaustive TOCTOU protection",
+    "certification or compliance"
+  ]
+}
