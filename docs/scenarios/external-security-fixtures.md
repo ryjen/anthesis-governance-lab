@@ -61,6 +61,35 @@ The fixture includes:
 
 The vector is intentionally structural. It does not claim that the selected tool/action is semantically correct for the user's goal, that the issuing policy is correct, or that all bypass paths are closed.
 
+## Environmental influence versus action authority
+
+Fixture: [`../../fixtures/external-security/environmental-influence-v1.json`](../../fixtures/external-security/environmental-influence-v1.json)
+
+This fixture models attacker-writable environment state that reaches an agent through an ordinary read path. The source and observation can both be validly attributed without granting the observed content instruction authority.
+
+The central pair is:
+
+```text
+hostile content present -> protected effect requested -> deny -> protected target unchanged
+hostile content present -> benign authorized effect     -> allow -> benign artifact present
+```
+
+The hostile input remains present in both cases. This prevents the fixture from succeeding merely by deleting or filtering the input and demonstrates that useful progress can coexist with an independently denied hostile request.
+
+The modeled evidence chain is:
+
+```text
+source domain/state
+  -> acquisition/read
+  -> observation
+  -> exact requested effect
+  -> policy decision
+  -> execution or no-execution evidence
+  -> deterministic terminal state
+```
+
+Source provenance and observation evidence remain distinct from authorization. The fixture does not require a live model, credentials, network, or external service and does not claim generic prompt-injection detection, exhaustive complete mediation, or production containment.
+
 ## Validation
 
 Run:
@@ -77,6 +106,8 @@ The fixtures are designed to be adaptable to:
 
 - CoSAI MCP Security #26 for evidence-state and authority separation;
 - CoSAI Agent Manifest #149 for manifest-version/action-time binding;
-- OWASP Agentic ASI02/ASI03/ASI04 cases where identity, tool authority, and supply-chain evidence must remain separate.
+- OWASP Agentic ASI02/ASI03/ASI04 cases where identity, tool authority, and supply-chain evidence must remain separate;
+- OWASP Agentic tool-misuse and memory/context-poisoning examples where attacker-controlled observations must remain non-authoritative;
+- research/tooling that evaluates indirect environmental influence through deterministic state and terminal-effect assertions.
 
 Before proposing them upstream, translate field names into the target project's vocabulary and retain the `does_not_prove` limitations rather than presenting synthetic structural validation as production assurance.
