@@ -22,8 +22,6 @@
             gnutar
             gzip
             jq
-            realpath
-            sha256sum
           ];
 
           shellHook = ''
