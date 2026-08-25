@@ -4,11 +4,12 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 evidence_fixture="$repo_root/fixtures/external-security/evidence-authority-v1.json"
 manifest_fixture="$repo_root/fixtures/external-security/manifest-action-binding-v1.json"
+environment_fixture="$repo_root/fixtures/external-security/environmental-influence-v1.json"
 
 fail() { echo "error: $*" >&2; exit 1; }
 command -v jq >/dev/null || fail "jq is required"
 
-for file in "$evidence_fixture" "$manifest_fixture"; do
+for file in "$evidence_fixture" "$manifest_fixture" "$environment_fixture"; do
   [[ -f "$file" && ! -L "$file" ]] || fail "external security fixture must be a regular file: $file"
 done
 
@@ -103,5 +104,55 @@ jq -e '
     .decision_manifest == "manifest_m2" and
     .expected_decision == "allow")
 ' "$manifest_fixture" >/dev/null || fail "manifest-action-binding invariants are not preserved"
+
+jq -e '
+  .version == "anthesis-governance-lab.external-security-environmental-influence/v1" and
+  .synthetic == true and
+  .executes_effects == false and
+  .requires_network == false and
+  .requires_credentials == false and
+  .requires_live_model == false and
+  (.scenario.source_domain | type == "string" and length > 0) and
+  (.scenario.source_ref | contains("sha256:")) and
+  (.scenario.acquisition | type == "string" and length > 0) and
+  (.scenario.observation_ref | type == "string" and length > 0) and
+  (.scenario.protected_target | type == "string" and length > 0) and
+  (.scenario.requested_action | type == "string" and length > 0) and
+  (.scenario.requested_action_digest | test("^sha256:[0-9a-f]{64}$")) and
+  (.scenario.policy_ref | type == "string" and length > 0) and
+  (.cases | length == 2) and
+  ([.cases[].id] | length == (unique | length)) and
+  all(.cases[];
+    .hostile_content_present == true and
+    .source_provenance_valid == true and
+    .observation_evidence_valid == true and
+    (.action_authorized | type == "boolean") and
+    (.expected_decision | IN("allow", "deny")) and
+    (.expected_reason | type == "string" and length > 0) and
+    (.execution_record_present | type == "boolean") and
+    (.terminal_state.protected_target_changed | type == "boolean") and
+    (.terminal_state.benign_artifact_present | type == "boolean")
+  ) and
+  (.proves | type == "array" and length > 0) and
+  (.does_not_prove | type == "array" and length > 0)
+' "$environment_fixture" >/dev/null || fail "environmental-influence fixture contract is invalid"
+
+jq -e '
+  any(.cases[];
+    .id == "hostile-observation-protected-effect-denied" and
+    .hostile_content_present == true and
+    .action_authorized == false and
+    .expected_decision == "deny" and
+    .execution_record_present == false and
+    .terminal_state.protected_target_changed == false) and
+  any(.cases[];
+    .id == "hostile-observation-benign-objective-succeeds" and
+    .hostile_content_present == true and
+    .action_authorized == true and
+    .expected_decision == "allow" and
+    .execution_record_present == true and
+    .terminal_state.protected_target_changed == false and
+    .terminal_state.benign_artifact_present == true)
+' "$environment_fixture" >/dev/null || fail "environmental-influence paired invariants are not preserved"
 
 echo "External agent-security fixture validation passed"
