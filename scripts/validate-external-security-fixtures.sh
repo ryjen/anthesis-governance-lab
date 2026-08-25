@@ -189,6 +189,23 @@ jq -e '
 ' "$execution_fixture" >/dev/null || fail "execution-correspondence fixture contract is invalid"
 
 jq -e '
+  . as $root |
+  all(.cases[];
+    . as $case |
+    ($root.actions[$case.authorized_action]) as $authorized |
+    ($root.actions[$case.executed_action]) as $executed |
+    ([
+      $root.comparison.policy_relevant_fields[] as $field
+      | select($authorized[$field] != $executed[$field])
+      | $field
+    ] | sort) as $derived_mismatches |
+    ($case.dispatched_action == $case.authorized_action) and
+    ($derived_mismatches == ($case.mismatch_fields | sort)) and
+    (if $case.expected_correspondence == "pass"
+      then ($derived_mismatches | length) == 0
+      else ($derived_mismatches | length) > 0
+     end)
+  ) and
   any(.cases[];
     .id == "authorized-a-provider-executes-b" and
     .authorized_action == "action_a" and
@@ -209,6 +226,6 @@ jq -e '
     (.mismatch_fields | length == 0) and
     .terminal_state.allowed_target_changed == true and
     .terminal_state.protected_target_changed == false)
-' "$execution_fixture" >/dev/null || fail "execution-correspondence paired invariants are not preserved"
+' "$execution_fixture" >/dev/null || fail "execution-correspondence derived mismatch invariants are not preserved"
 
 echo "External agent-security fixture validation passed"

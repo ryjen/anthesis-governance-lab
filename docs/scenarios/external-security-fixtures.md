@@ -105,6 +105,8 @@ authorized A -> dispatched A -> provider reports A -> A == A -> correspondence p
 
 The mismatch case changes only the protected target. Authorization for `action_a` remains valid and immutable; execution evidence truthfully records `action_b`. The checker therefore fails correspondence rather than rewriting the authorization record or treating `B` as retroactively authorized.
 
+The validator derives policy-relevant differences directly from the authorized and executed action objects and requires the result to match each case's declared `mismatch_fields`. The fixture therefore cannot pass merely by asserting that a target mismatch exists when the underlying action fields do not support that claim.
+
 The modeled evidence chain keeps four facts separate:
 
 ```text
@@ -115,6 +117,8 @@ authorization evidence
 ```
 
 The fixture compares policy-relevant fields including tool, operation, target, arguments, and actor context. Its positive control proves the checker does not simply mark every execution as mismatched or unverifiable.
+
+The `digest` values in this fixture are opaque stable identifiers with SHA-256-shaped syntax. They are not claimed to be cryptographic hashes of canonicalized action content. Any future content-binding digest contract would need to define canonicalization and compute the digest rather than relying on these fixture identifiers.
 
 This is structural evidence only. It does not establish production complete mediation, receipt authenticity, absence of unobserved side effects, universal provider semantics, exhaustive TOCTOU resistance, or policy correctness.
 
