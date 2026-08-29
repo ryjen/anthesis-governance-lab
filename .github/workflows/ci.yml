@@ -147,7 +147,10 @@ jobs:
             ([.bypass_attempts[].result] | all(. == "hard_denial")) and
             ([.bypass_attempts[].repository_state_unchanged] | all(. == true))
           ' /tmp/reference-trial.json >/dev/null
-          git -C .anthesis/reference-trial diff --quiet --exit-code -- docs/onboarding.md && exit 1 || true
+          if git -C .anthesis/reference-trial diff --quiet --exit-code -- docs/onboarding.md; then
+            echo 'reference trial produced no repository mutation' >&2
+            exit 1
+          fi
 
       - name: Validate executable inference-integrity suite
         run: bash scripts/validate-executable-inference-integrity.sh
