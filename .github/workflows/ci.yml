@@ -30,6 +30,7 @@ jobs:
             scripts/aggregate-demo-packs.sh \
             scripts/generate-inference-integrity-evidence.sh \
             scripts/run-demo-pack.sh \
+            scripts/run-reference-trial.sh \
             scripts/validate-demo-packs.sh \
             scripts/validate-governance-lab.sh \
             scripts/validate-docs-and-catalog.sh \
@@ -132,6 +133,21 @@ jobs:
 
       - name: Validate public contracts and canonical scenarios
         run: bash scripts/validate-governance-lab.sh
+
+      - name: Validate hard-denial reference trial
+        run: |
+          set -euo pipefail
+          bash scripts/run-reference-trial.sh > /tmp/reference-trial.json
+          jq -e '
+            .reference_trial == true and
+            .non_normative == true and
+            .integration_mode == "tool-wrapper" and
+            .governed_effect.result == "mutated" and
+            (.bypass_attempts | length == 2) and
+            ([.bypass_attempts[].result] | all(. == "hard_denial")) and
+            ([.bypass_attempts[].repository_state_unchanged] | all(. == true))
+          ' /tmp/reference-trial.json >/dev/null
+          git -C .anthesis/reference-trial diff --quiet --exit-code -- docs/onboarding.md && exit 1 || true
 
       - name: Validate executable inference-integrity suite
         run: bash scripts/validate-executable-inference-integrity.sh
