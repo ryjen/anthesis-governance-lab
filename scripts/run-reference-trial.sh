@@ -17,6 +17,8 @@ fail_boundary() {
 [[ -x "$cli" && ! -L "$cli" ]] || fail_boundary "verified anthesis-lab binary is required; run scripts/acquire-anthesis-lab.sh first"
 [[ -f "$scenario" && ! -L "$scenario" ]] || fail_boundary "canonical allow scenario is missing or unsafe"
 [[ -d "$repo_root/.anthesis" && ! -L "$repo_root/.anthesis" ]] || fail_boundary ".anthesis must be a real directory"
+command -v git >/dev/null || fail_boundary "git is required for the disposable repository trial"
+command -v jq >/dev/null || fail_boundary "jq is required for reference-trial evidence"
 
 if [[ -e "$workspace" ]]; then
   [[ -d "$workspace" && ! -L "$workspace" && -f "$marker" && ! -L "$marker" ]] || \
@@ -29,6 +31,12 @@ fi
 mkdir -p "$workspace/docs"
 printf '%s\n' 'anthesis-reference-trial-v1' > "$marker"
 printf '%s\n' 'Reference onboarding content before governed mutation.' > "$workspace/docs/onboarding.md"
+git -C "$workspace" init --quiet
+git -C "$workspace" add docs/onboarding.md
+git -C "$workspace" \
+  -c user.name='Anthesis Reference Trial' \
+  -c user.email='reference-trial@invalid.example' \
+  commit --quiet -m 'reference baseline'
 before_sha256="$(sha256sum "$workspace/docs/onboarding.md" | awk '{print $1}')"
 
 "$cli" evaluate \
@@ -100,6 +108,8 @@ runtime_dispatch \
 
 after_allow_sha256="$(sha256sum "$workspace/docs/onboarding.md" | awk '{print $1}')"
 [[ "$after_allow_sha256" != "$before_sha256" ]] || fail_boundary "governed mutation did not change the reference repository state"
+git -C "$workspace" diff --quiet --exit-code -- docs/onboarding.md && \
+  fail_boundary "governed mutation produced no inspectable repository diff"
 
 set +e
 raw_denial="$(runtime_dispatch \
@@ -127,6 +137,7 @@ set -e
 [[ "$scope_denial" == 'effect_scope_mismatch:.github/workflows/ci.yml' ]] || fail_boundary "scope denial reason changed unexpectedly"
 [[ ! -e "$workspace/.github/workflows/ci.yml" ]] || fail_boundary "out-of-scope attempt created repository state"
 
+final_diff_sha256="$(git -C "$workspace" diff -- docs/onboarding.md | sha256sum | awk '{print $1}')"
 request_digest="$(jq -r '.request_binding.request_digest' "$decision_file")"
 envelope_ref="reference-envelope:${request_digest#sha256:}"
 
@@ -135,6 +146,7 @@ jq -n \
   --arg envelope_ref "$envelope_ref" \
   --arg before_sha256 "$before_sha256" \
   --arg after_sha256 "$after_allow_sha256" \
+  --arg final_diff_sha256 "$final_diff_sha256" \
   --arg raw_denial "$raw_denial" \
   --arg scope_denial "$scope_denial" \
   --argjson decision "$(cat "$decision_file")" \
@@ -155,6 +167,7 @@ jq -n \
       path: $decision.effect.resource.path,
       before_sha256: $before_sha256,
       after_sha256: $after_sha256,
+      git_diff_sha256: $final_diff_sha256,
       result: "mutated"
     },
     authorization: {
@@ -171,7 +184,8 @@ jq -n \
     evidence: {
       decision_file: "decision.json",
       receipt_file: "reference-trial.json",
-      workspace: $workspace
+      workspace: $workspace,
+      inspect_effect: "git -C .anthesis/reference-trial diff -- docs/onboarding.md"
     },
     bypass_attempts: [
       {
