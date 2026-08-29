@@ -39,10 +39,13 @@ git -C "$workspace" \
   commit --quiet -m 'reference baseline'
 before_sha256="$(sha256sum "$workspace/docs/onboarding.md" | awk '{print $1}')"
 
-"$cli" evaluate \
-  --repo "$repo_root" \
-  --scenario "$scenario" \
-  --format json > "$decision_file"
+(
+  cd "$repo_root"
+  "$cli" evaluate \
+    --repo . \
+    --scenario .anthesis/scenarios/01-allowed-docs-edit.yaml \
+    --format json
+) > "$decision_file"
 
 jq -e '
   .version == "anthesis.decision/v1" and
