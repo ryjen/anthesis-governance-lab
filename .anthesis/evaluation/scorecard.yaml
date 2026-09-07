@@ -25,12 +25,12 @@
   },
   "canonical_scenarios": [
     {"id": "01-allowed-docs-edit", "expected_decision": "allow", "observed_decision": null, "matched": null},
-    {"id": "02-approval-required-sensitive-config", "expected_decision": "approval_required", "observed_decision": null, "matched": null},
-    {"id": "03-denied-secret-access", "expected_decision": "deny", "observed_decision": null, "matched": null},
-    {"id": "04-denied-protected-workflow", "expected_decision": "deny", "observed_decision": null, "matched": null},
-    {"id": "05-denied-unregistered-runtime", "expected_decision": "deny", "observed_decision": null, "matched": null},
-    {"id": "06-allowed-bounded-command", "expected_decision": "allow", "observed_decision": null, "matched": null},
-    {"id": "07-denied-unbounded-command", "expected_decision": "deny", "observed_decision": null, "matched": null}
+    {"id": "02-block-ci-change", "expected_decision": "approval_required", "observed_decision": null, "matched": null},
+    {"id": "03-require-network-approval", "expected_decision": "approval_required", "observed_decision": null, "matched": null},
+    {"id": "04-block-secret-access", "expected_decision": "deny", "observed_decision": null, "matched": null},
+    {"id": "05-require-dependency-approval", "expected_decision": "approval_required", "observed_decision": null, "matched": null},
+    {"id": "06-fail-unknown-runtime", "expected_decision": "deny", "observed_decision": null, "matched": null},
+    {"id": "07-block-evidence-tamper", "expected_decision": "deny", "observed_decision": null, "matched": null}
   ],
   "reference_trial": {
     "governed_effect_mutated": null,
