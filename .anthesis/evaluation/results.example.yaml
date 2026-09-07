@@ -1,0 +1,80 @@
+{
+  "version": "anthesis-governance-lab.evaluation-scorecard/v1",
+  "trial_id": "synthetic-example",
+  "synthetic_example": true,
+  "evaluator": {
+    "role": "design-partner evaluator",
+    "organization_context": "example only",
+    "prior_anthesis_experience": "none"
+  },
+  "environment": {
+    "platform": "linux-x86_64",
+    "governance_lab_revision": "example-revision",
+    "anthesis_lab_version": "0.1.0",
+    "workflow_context": "reference-lab"
+  },
+  "timings": {
+    "setup_minutes": 12,
+    "time_to_first_governed_action_minutes": 16,
+    "reconstruction_minutes": 4
+  },
+  "primary_outcome": {
+    "governance_decision_confidence": 4,
+    "target_minimum": 4,
+    "explanation": "The evaluator can explain each canonical decision and the reference-trial allow/deny evidence without implementation access."
+  },
+  "canonical_scenarios": [
+    {"id": "01-allowed-docs-edit", "expected_decision": "allow", "observed_decision": "allow", "matched": true},
+    {"id": "02-block-ci-change", "expected_decision": "approval_required", "observed_decision": "approval_required", "matched": true},
+    {"id": "03-require-network-approval", "expected_decision": "approval_required", "observed_decision": "approval_required", "matched": true},
+    {"id": "04-block-secret-access", "expected_decision": "deny", "observed_decision": "deny", "matched": true},
+    {"id": "05-require-dependency-approval", "expected_decision": "approval_required", "observed_decision": "approval_required", "matched": true},
+    {"id": "06-fail-unknown-runtime", "expected_decision": "deny", "observed_decision": "deny", "matched": true},
+    {"id": "07-block-evidence-tamper", "expected_decision": "deny", "observed_decision": "deny", "matched": true}
+  ],
+  "reference_trial": {
+    "governed_effect_mutated": true,
+    "git_diff_observed": true,
+    "raw_writer_bypass_hard_denied": true,
+    "raw_writer_state_unchanged": true,
+    "out_of_scope_write_hard_denied": true,
+    "out_of_scope_state_unchanged": true,
+    "decision_request_binding_observed": true,
+    "runtime_restriction_understood": true,
+    "residual_trust_understood": true
+  },
+  "technical_correctness": {
+    "canonical_decision_matches": 7,
+    "false_positive_denies": 0,
+    "false_negative_allows": 0,
+    "runtime_identity_complete": true,
+    "decision_attribution_complete": true,
+    "evidence_reconstructable": true
+  },
+  "operator_experience": {
+    "failure_message_clarity_1_to_5": 4,
+    "runtime_boundary_clarity_1_to_5": 4,
+    "evidence_navigation_clarity_1_to_5": 4,
+    "governance_friction_acceptable_1_to_5": 4
+  },
+  "customer_value": {
+    "evidence_understandable_1_to_5": 4,
+    "decisions_explainable_1_to_5": 4,
+    "bypass_boundary_understandable_1_to_5": 4,
+    "would_try_real_workflow": true,
+    "would_continue_after_trial": true
+  },
+  "assurance_dimensions": {
+    "enforceability": {"score_1_to_5": 4, "notes": "Bounded reference writer is enforced inside the documented runtime composition."},
+    "attribution": {"score_1_to_5": 4, "notes": "Decision, request binding, runtime identity, and outcome are visible."},
+    "least_privilege": {"score_1_to_5": 5, "notes": "The out-of-scope workflow write is rejected with unchanged state."},
+    "human_approval": {"score_1_to_5": 3, "notes": "Canonical scenarios demonstrate the pre-approval hold. End-to-end approval execution is not implemented in this reference lab."},
+    "auditability": {"score_1_to_5": 4, "notes": "The evaluator can reconstruct the reference trial from the decision and trial record."},
+    "bypass_resistance": {"score_1_to_5": 4, "notes": "Raw writer bypass is hard-denied inside the constrained reference registry; this is not a universal runtime claim."}
+  },
+  "disposition": {
+    "result": "proceed-to-real-workflow",
+    "smallest_observed_blocker": "End-to-end approval binding still requires a real workflow integration.",
+    "next_evidence_needed": "Run one consequential approval-gated effect in the evaluator's actual runtime and test an altered or replayed approval."
+  }
+}
