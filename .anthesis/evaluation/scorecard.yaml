@@ -11,6 +11,9 @@
     "platform": "linux-x86_64",
     "governance_lab_revision": "replace-me",
     "anthesis_lab_version": "replace-me",
+    "runtime_identity": "replace-me",
+    "model_identity_status": "not-applicable-no-live-model|recorded",
+    "model_identity": null,
     "workflow_context": "reference-lab|real-workflow"
   },
   "timings": {
@@ -48,6 +51,7 @@
     "false_positive_denies": null,
     "false_negative_allows": null,
     "runtime_identity_complete": null,
+    "model_identity_status_explicit": null,
     "decision_attribution_complete": null,
     "evidence_reconstructable": null
   },
