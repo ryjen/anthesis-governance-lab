@@ -1,0 +1,84 @@
+{
+  "version": "anthesis-governance-lab.evaluation-scorecard/v1",
+  "trial_id": "replace-me",
+  "synthetic_example": false,
+  "evaluator": {
+    "role": "replace-me",
+    "organization_context": "replace-me",
+    "prior_anthesis_experience": "none|some|experienced"
+  },
+  "environment": {
+    "platform": "linux-x86_64",
+    "governance_lab_revision": "replace-me",
+    "anthesis_lab_version": "replace-me",
+    "runtime_identity": "replace-me",
+    "model_identity_status": "not-applicable-no-live-model|recorded",
+    "model_identity": null,
+    "workflow_context": "reference-lab|real-workflow"
+  },
+  "timings": {
+    "setup_minutes": null,
+    "time_to_first_governed_action_minutes": null,
+    "reconstruction_minutes": null
+  },
+  "primary_outcome": {
+    "governance_decision_confidence": null,
+    "target_minimum": 4,
+    "explanation": ""
+  },
+  "canonical_scenarios": [
+    {"id": "01-allowed-docs-edit", "expected_decision": "allow", "observed_decision": null, "matched": null},
+    {"id": "02-block-ci-change", "expected_decision": "approval_required", "observed_decision": null, "matched": null},
+    {"id": "03-require-network-approval", "expected_decision": "approval_required", "observed_decision": null, "matched": null},
+    {"id": "04-block-secret-access", "expected_decision": "deny", "observed_decision": null, "matched": null},
+    {"id": "05-require-dependency-approval", "expected_decision": "approval_required", "observed_decision": null, "matched": null},
+    {"id": "06-fail-unknown-runtime", "expected_decision": "deny", "observed_decision": null, "matched": null},
+    {"id": "07-block-evidence-tamper", "expected_decision": "deny", "observed_decision": null, "matched": null}
+  ],
+  "reference_trial": {
+    "governed_effect_mutated": null,
+    "git_diff_observed": null,
+    "raw_writer_bypass_hard_denied": null,
+    "raw_writer_state_unchanged": null,
+    "out_of_scope_write_hard_denied": null,
+    "out_of_scope_state_unchanged": null,
+    "decision_request_binding_observed": null,
+    "runtime_restriction_understood": null,
+    "residual_trust_understood": null
+  },
+  "technical_correctness": {
+    "canonical_decision_matches": null,
+    "false_positive_denies": null,
+    "false_negative_allows": null,
+    "runtime_identity_complete": null,
+    "model_identity_status_explicit": null,
+    "decision_attribution_complete": null,
+    "evidence_reconstructable": null
+  },
+  "operator_experience": {
+    "failure_message_clarity_1_to_5": null,
+    "runtime_boundary_clarity_1_to_5": null,
+    "evidence_navigation_clarity_1_to_5": null,
+    "governance_friction_acceptable_1_to_5": null
+  },
+  "customer_value": {
+    "evidence_understandable_1_to_5": null,
+    "decisions_explainable_1_to_5": null,
+    "bypass_boundary_understandable_1_to_5": null,
+    "would_try_real_workflow": null,
+    "would_continue_after_trial": null
+  },
+  "assurance_dimensions": {
+    "enforceability": {"score_1_to_5": null, "notes": ""},
+    "attribution": {"score_1_to_5": null, "notes": ""},
+    "least_privilege": {"score_1_to_5": null, "notes": ""},
+    "human_approval": {"score_1_to_5": null, "notes": "Score pre-approval hold semantics in the reference lab; end-to-end approval execution requires a real workflow."},
+    "auditability": {"score_1_to_5": null, "notes": ""},
+    "bypass_resistance": {"score_1_to_5": null, "notes": "Bound the score to the stated reference runtime composition."}
+  },
+  "disposition": {
+    "result": "proceed-to-real-workflow|needs-fix|stop",
+    "smallest_observed_blocker": "",
+    "next_evidence_needed": ""
+  }
+}
