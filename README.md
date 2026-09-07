@@ -2,13 +2,15 @@
 
 A deliberately small, executable trial repository for deterministic governance of AI-assisted SDLC workflows.
 
-This repository is an independent public consumer of the accepted Anthesis Governance Lab contract and signed `anthesis-lab` release. It does not contain private Anthesis source and is not part of the runtime execution path.
+This repository is an independent public consumer of the accepted Anthesis Governance Lab contract and signed `anthesis-lab` release. It does not contain private Anthesis source and is not part of the production runtime execution path.
 
 ## Documentation
 
 - [Micrantha architecture context](docs/micrantha-architecture-context.md)
 - [Governance Lab operator runbook](docs/runbooks/governance-lab-demo.md)
 - [Full verification runbook](docs/runbooks/full-verification.md)
+- [Governed repository reference trial](docs/reference-trial.md)
+- [Design-partner evaluation](docs/evaluation.md)
 - [Inference-integrity runbook](docs/runbooks/inference-integrity-demo.md)
 - [Five-minute walkthrough](docs/walkthroughs/five-minute-demo.md)
 - [Stakeholder walkthrough](docs/walkthroughs/stakeholder-demo.md)
@@ -24,7 +26,7 @@ This repository is an independent public consumer of the accepted Anthesis Gover
 - [Scenario authoring guide](docs/scenarios/authoring.md)
 - [Decision and report interpretation](docs/scenarios/interpretation.md)
 
-Use the operator runbook to understand the demo surfaces, the full verification runbook to reproduce every current proof surface from a fresh checkout, and the five-minute walkthrough for a short stakeholder presentation.
+Use the operator runbook to understand the demo surfaces, the full verification runbook to reproduce every current proof surface from a fresh checkout, the reference trial for the bounded governed-effect demonstration, the evaluation guide when handing the lab to a design partner, and the five-minute walkthrough for a short stakeholder presentation.
 
 ## Supported trial platform
 
@@ -48,6 +50,7 @@ export PATH="$PWD/.anthesis/bin:$PATH"
 anthesis-lab version --format json
 anthesis-lab test --repo . --format json
 anthesis-lab inference-integrity --repo . --format json
+bash scripts/run-reference-trial.sh
 ```
 
 Run the complete validation:
@@ -136,6 +139,15 @@ bash scripts/generate-inference-integrity-evidence.sh
 
 The generated evidence bundle records 24 passing results, a controlled mismatch with exit code `7`, release identity, report contract, source revisions, and file checksums.
 
+### Executable reference trial — one governed repository mutation
+
+`scripts/run-reference-trial.sh` composes the signed evaluator with a deliberately constrained local tool-wrapper runtime. It evaluates the canonical allowed `file.write` request, performs that exact mutation only through `anthesis.repo_write`, then verifies two runtime denials:
+
+- `raw.repo_write` is not registered and hard-denies with repository state unchanged;
+- the registered writer cannot mutate `.github/workflows/ci.yml` because that path is outside the exact authorized effect.
+
+The resulting Git diff and `reference-trial.json` make the allowed mutation and both denied paths inspectable. This is a bounded runtime-enforcement demonstration, not a universal complete-mediation claim. See [`docs/reference-trial.md`](docs/reference-trial.md).
+
 ### External security crosswalk and vectors
 
 `docs/scenarios/external-security-crosswalk.json` maps existing public proof surfaces to selected CoSAI and OWASP agent-security topics using explicit coverage states: `demonstrated`, `partial`, `runtime-dependent`, `not-demonstrated`, and `not-applicable`.
@@ -146,14 +158,18 @@ The crosswalk is non-normative. It records what current synthetic fixtures prove
 
 ## Integration boundary
 
-Governance Lab proves public evaluator compatibility and deterministic policy outcomes over synthetic declarations and recorded evidence. It does not:
+The canonical, demo-pack, inference-integrity, and external-security fixture surfaces prove public evaluator/fixture compatibility and deterministic outcomes over synthetic declarations or recorded evidence. Those surfaces do not execute their declared external effects.
 
-- execute file, command, network, merge, deployment, release, or repository-administration effects;
-- persist approvals;
+The executable reference trial is intentionally different: it performs one bounded file mutation in a disposable Git repository through a constrained `anthesis.repo_write` wrapper and verifies that two equivalent or broader paths are hard-denied inside that stated composition.
+
+Governance Lab still does not:
+
+- persist approvals or demonstrate post-approval execution;
 - invoke an LLM or provider;
 - perform independent live replay;
 - execute containment or recovery actions;
-- prove that an external runtime cannot bypass Anthesis through ungoverned tools, credentials, network paths, or processes.
+- prove hostile-local-user or administrator containment;
+- prove that an arbitrary external runtime cannot bypass Anthesis through ungoverned tools, credentials, network paths, or processes.
 
 A production integration must ensure effectful paths are reachable only through an enforced governance boundary:
 
@@ -165,7 +181,7 @@ agent request
   -> attributable evidence and outcome
 ```
 
-Dubnium provides the bounded reference execution environment; Anthesis remains the policy authority; Governance Lab independently validates the public evaluator contract.
+Dubnium provides the bounded reference execution environment; Anthesis remains the policy authority; Governance Lab independently validates the public evaluator contract and provides a small local enforcement composition for evaluation.
 
 ## CI trust boundary
 
