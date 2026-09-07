@@ -11,6 +11,9 @@
     "platform": "linux-x86_64",
     "governance_lab_revision": "example-revision",
     "anthesis_lab_version": "0.1.0",
+    "runtime_identity": "reference-runtime:tool-wrapper",
+    "model_identity_status": "not-applicable-no-live-model",
+    "model_identity": null,
     "workflow_context": "reference-lab"
   },
   "timings": {
@@ -48,6 +51,7 @@
     "false_positive_denies": 0,
     "false_negative_allows": 0,
     "runtime_identity_complete": true,
+    "model_identity_status_explicit": true,
     "decision_attribution_complete": true,
     "evidence_reconstructable": true
   },
