@@ -61,6 +61,8 @@ Record:
 - customer value;
 - the six public trial criteria: enforceability, attribution, least privilege, human approval, auditability, and bypass resistance;
 - false-positive denies and false-negative allows;
+- runtime/evaluator identity and, for a real model-backed workflow, exact model/provider identity;
+- an explicit `not-applicable-no-live-model` model-identity status for this reference lab rather than silently omitting the field;
 - whether the evaluator would try Anthesis on a real workflow and continue after the trial.
 
 A synthetic completed example is available at [`.anthesis/evaluation/results.example.yaml`](../.anthesis/evaluation/results.example.yaml). Do not reuse its scores as evidence.
@@ -75,6 +77,7 @@ The initial trial should require:
 - the out-of-scope governed write hard-denies and leaves repository state unchanged;
 - policy decision and request binding are attributable;
 - runtime/evaluator identity is recorded;
+- model/provider identity is recorded for a real model-backed workflow, or explicitly marked not applicable for this no-model reference lab;
 - evidence is sufficient to reconstruct the reference trial;
 - false-negative allows are **zero**.
 
@@ -135,3 +138,8 @@ Use one of three dispositions:
 - **stop** — the evaluator does not see sufficient value or the claimed enforcement boundary cannot be established safely.
 
 Do not activate broad architecture work from a low score alone. Record the smallest observed blocker and promote that concrete gap into the normal Anthesis issue queue.
+
+## Related Anthesis work
+
+- [`hackelia-micrantha/anthesis#55`](https://github.com/hackelia-micrantha/anthesis/issues/55) — broader trial/adoption value context; this scorecard intentionally stays smaller and evaluator-facing.
+- [`hackelia-micrantha/anthesis#59`](https://github.com/hackelia-micrantha/anthesis/issues/59) — supporting metrics/observability context; automated metrics remain supporting evidence rather than customer-value authority.
