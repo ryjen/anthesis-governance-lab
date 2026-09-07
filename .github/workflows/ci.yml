@@ -32,6 +32,7 @@ jobs:
             scripts/run-demo-pack.sh \
             scripts/run-reference-trial.sh \
             scripts/validate-demo-packs.sh \
+            scripts/validate-evaluation-scorecard.sh \
             scripts/validate-governance-lab.sh \
             scripts/validate-docs-and-catalog.sh \
             scripts/validate-external-security-crosswalk.sh \
@@ -44,6 +45,7 @@ jobs:
             scripts/validate-walkthroughs.sh
           ! grep -RInE '(^|[^[:alnum:]_])(python3?|pip|pytest)([^[:alnum:]_]|$)' scripts
           bash scripts/validate-docs-and-catalog.sh
+          bash scripts/validate-evaluation-scorecard.sh
           bash scripts/validate-external-security-crosswalk.sh
           bash scripts/validate-external-security-fixtures.sh
           bash scripts/validate-inference-integrity-fixtures.sh
