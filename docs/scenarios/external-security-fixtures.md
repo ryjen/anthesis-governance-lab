@@ -122,15 +122,67 @@ The `digest` values in this fixture are opaque stable identifiers with SHA-256-s
 
 This is structural evidence only. It does not establish production complete mediation, receipt authenticity, absence of unobserved side effects, universal provider semantics, exhaustive TOCTOU resistance, or policy correctness.
 
+## Complete mediation and effect-path closure
+
+Fixture: [`../../fixtures/external-security/effect-path-closure-v1.json`](../../fixtures/external-security/effect-path-closure-v1.json)
+
+This vector makes the complete-mediation claim narrower and testable: protecting the normal tool or adapter path is insufficient if a semantically equivalent effect can still be reached through another path.
+
+```text
+                         authorization
+                              |
+                              v
+runtime -> governed adapter -> unavoidable boundary -> executor -> effect
+   |                                                    ^
+   +-> raw API ------------------------ blocked ---------+
+   +-> alternate registry ------------- blocked --------+
+   +-> direct credential -------------- blocked --------+
+```
+
+The positive case allows one exact effect through the mediated path. The three bypass paths model the same external effect but must remain structurally unreachable and produce zero externally observable effects.
+
+The fixture also covers:
+
+- target mutation after authorization;
+- policy-relevant argument mutation;
+- replay of a consumed single-use authorization;
+- expired authorization;
+- authorization bound to a different executor identity;
+- loss of the required enforcement boundary;
+- a control signal being observed while an equivalent raw bypass path is still attempted.
+
+That last case deliberately distinguishes **observation** from **enforcement**. A hook, audit record, policy decision, or other control-plane signal can show that a governed interaction was observed. It does not by itself prove that all equivalent effect paths were mediated.
+
+Every case with `expected_verdict: block` is valid only when `effect_count` remains `0`. This prevents a fixture from declaring success because a denial record exists after the external effect already happened.
+
+### Optional ACS mapping
+
+The base vector is protocol-neutral. For Agent Control Standard (ACS) experiments, the same fields can be projected without changing authority ownership:
+
+| Provider-neutral fixture | ACS projection |
+| --- | --- |
+| `control_signal_observed` | observation of `steps/toolCallRequest` or equivalent lifecycle traffic |
+| authorization/effect binding | Guardian decision plus exact policy-relevant request binding |
+| `allow` / `block` | ALLOW / DENY, with ASK represented by a separate approval flow when needed |
+| path/component inventory | AgBOM/tool inventory evidence where available |
+| boundary/executor/effect observations | Trace or external evidence projection |
+
+The mapping is intentionally one-way. ACS vocabulary can describe the interaction, but an ACS hook or Guardian response does not become proof of complete mediation. Stronger assurance still depends on an unavoidable enforcement boundary or structural unreachability of equivalent bypass paths.
+
+For the ACS #16 discussion, the corresponding simple explanation is: **putting a guard on one of four doors does not secure the room; either every door must pass the guard or the other doors must be locked.**
+
+The fixture remains synthetic. It does not prove production network isolation, credential unreachability, absence of unknown bypass paths, cryptographic token authenticity, or ACS conformance/certification. A concrete runtime composition belongs in a bounded runtime integration rather than in this provider-neutral vector.
+
 ## Validation
 
 Run:
 
 ```bash
 bash scripts/validate-external-security-fixtures.sh
+bash scripts/validate-effect-path-closure-fixture.sh
 ```
 
-The validator checks the fixture contracts and the critical paired invariants. It does not call a model, network, credential provider, policy service, signer, or external runtime.
+The validators check the fixture contracts and the critical paired invariants. They do not call a model, network, credential provider, policy service, signer, or external runtime.
 
 ## Upstream use
 
@@ -138,6 +190,7 @@ The fixtures are designed to be adaptable to:
 
 - CoSAI MCP Security #26 for evidence-state and authority separation;
 - CoSAI Agent Manifest #149 for manifest-version/action-time binding;
+- Agent Control Standard #16 for effect-path closure, observed-versus-enforced coverage, and zero-effect bypass vectors;
 - OWASP Agentic ASI02/ASI03/ASI04 cases where identity, tool authority, and supply-chain evidence must remain separate;
 - OWASP Agentic tool-misuse and memory/context-poisoning examples where attacker-controlled observations must remain non-authoritative;
 - conformance work that distinguishes a correctly authorized request from the effect actually reported or observed downstream;

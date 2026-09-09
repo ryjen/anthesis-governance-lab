@@ -20,7 +20,7 @@ A `demonstrated` row still inherits the repository's integration boundary: Gover
 
 | External guidance | Topic | Coverage | Existing lab evidence | Main gap |
 | --- | --- | --- | --- | --- |
-| CoSAI MCP Security #22 | Complete mediation / bypass resistance | runtime-dependent | network/tool allow/approval/deny cases; unknown-runtime denial; inference direct-runtime-bypass and fail-closed verifier cases | no proof that raw endpoints, credentials, network routes, or alternate registries are unreachable in production |
+| CoSAI MCP Security #22 | Complete mediation / bypass resistance | runtime-dependent | network/tool allow/approval/deny cases; unknown-runtime denial; inference direct-runtime-bypass and fail-closed verifier cases; provider-neutral [`effect-path-closure-v1.json`](../../fixtures/external-security/effect-path-closure-v1.json) structural vector | no proof that raw endpoints, credentials, network routes, or alternate registries are unreachable in production |
 | CoSAI MCP Security #26 | Supply-chain provenance and authority boundary | partial | dependency read/change/install separation; evidence-write denial; immutable re-verification cases | no provider-neutral SBOM/AIBOM/signature/attestation state model yet |
 | CoSAI Agentic IAM | Delegation and least privilege | partial | capability-expansion denial; registered vs unknown runtime decisions | no authenticated delegation chain or child-scope attenuation vector |
 | OWASP GenAI LLM Top 10 2026 | Excessive agency | partial | unrestricted command denial; deploy/release denial; workflow approval | no live downstream complete-mediation proof |
@@ -45,8 +45,11 @@ The crosswalk intentionally reuses existing fixtures before creating more scenar
 - `runtime-and-identity-03-deny-unknown-runtime-write`
 - inference `block-direct-runtime-bypass`
 - inference `required-gate-fails-closed-on-verifier-outage`
+- structural fixture [`effect-path-closure-v1.json`](../../fixtures/external-security/effect-path-closure-v1.json)
 
-These demonstrate deterministic decisions over known declarations and evidence. They **do not** demonstrate that the real operating system, network, MCP registry, credentials, or downstream APIs prevent an alternate effect path.
+The declaration and inference fixtures demonstrate deterministic decisions over known declarations and evidence. The effect-path closure fixture adds one mediated positive case, three semantically equivalent bypass paths, exact-action mutation, replay, identity binding, enforcement outage, and an observed-control-signal/bypass case. Every blocked vector requires zero externally observable effects.
+
+These fixtures still **do not** demonstrate that a real operating system, network, MCP registry, credentials, or downstream APIs prevent an alternate production effect path.
 
 ### Supply chain and evidence integrity
 
@@ -116,7 +119,20 @@ This vector must not claim that a valid manifest proves semantic correctness of 
 
 ### 3. Runtime complete-mediation test harness
 
-The declaration layer cannot prove production bypass resistance. A later bounded runtime fixture should test known equivalent effect paths explicitly:
+A provider-neutral structural vector now exists at [`effect-path-closure-v1.json`](../../fixtures/external-security/effect-path-closure-v1.json). It encodes the core invariant:
+
+> every semantically equivalent path capable of producing a governed effect must cross an unavoidable exact-effect enforcement boundary or be structurally unreachable from the runtime under test.
+
+Its modeled paths are:
+
+- governed adapter/tool route succeeds for one exact authorized effect;
+- raw API route is blocked;
+- alternate tool/registry route is blocked;
+- direct credential/service-client route is blocked;
+- mutation, replay, stale authorization, wrong executor identity, and enforcement outage fail closed;
+- observation of a control signal does not make a bypass path authoritative.
+
+The next step is a bounded runtime composition that executes these semantics against a real no-effect provider and records terminal-state evidence. That integration should verify known equivalent paths explicitly:
 
 - governed MCP/tool route succeeds;
 - raw MCP/tool route is unreachable;
@@ -150,17 +166,18 @@ The generic cases should be exportable without requiring Anthesis tooling or Ant
 
 Initial targets:
 
-1. CoSAI MCP Security #22 — complete-mediation/bypass scenarios;
-2. CoSAI MCP Security #26 — evidence-state and `verified artifact != authorized action` scenarios;
-3. CoSAI Agent Manifest #149 — manifest-version/action-time decision binding vector;
-4. OWASP Agentic — tool misuse, identity/privilege, supply-chain, memory/context, and inter-agent cases;
-5. OWASP AIBOM — provider-neutral AI artifact identity/substitution case after Invokrum/Anthesis work establishes the representation.
+1. Agent Control Standard #16 — effect-path closure, observed-versus-enforced coverage, and zero-effect bypass vectors;
+2. CoSAI MCP Security #22 — complete-mediation/bypass scenarios;
+3. CoSAI MCP Security #26 — evidence-state and `verified artifact != authorized action` scenarios;
+4. CoSAI Agent Manifest #149 — manifest-version/action-time decision binding vector;
+5. OWASP Agentic — tool misuse, identity/privilege, supply-chain, memory/context, and inter-agent cases;
+6. OWASP AIBOM — provider-neutral AI artifact identity/substitution case after Invokrum/Anthesis work establishes the representation.
 
 ## Assurance boundary
 
 This crosswalk and its scenarios do not prove:
 
-- certification or compliance with CoSAI or OWASP guidance;
+- certification or compliance with CoSAI, OWASP, or ACS guidance;
 - absence of all bypass routes;
 - production network isolation;
 - production credential unreachability;
