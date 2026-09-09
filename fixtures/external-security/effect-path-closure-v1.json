@@ -1,0 +1,312 @@
+{
+  "version": "anthesis-governance-lab.external-security-effect-path-closure/v1",
+  "synthetic": true,
+  "executes_effects": false,
+  "requires_network": false,
+  "requires_credentials": false,
+  "requires_live_model": false,
+  "invariant": "Every semantically equivalent path capable of producing a governed effect must cross an unavoidable exact-effect enforcement boundary or be structurally unreachable from the runtime under test.",
+  "effects": {
+    "effect_a": {
+      "operation": "write",
+      "target": "resource/allowed",
+      "arguments": {
+        "value": "approved"
+      },
+      "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "effect_target_mutated": {
+      "operation": "write",
+      "target": "resource/protected",
+      "arguments": {
+        "value": "approved"
+      },
+      "digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    "effect_args_mutated": {
+      "operation": "write",
+      "target": "resource/allowed",
+      "arguments": {
+        "value": "changed"
+      },
+      "digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    }
+  },
+  "authorizations": {
+    "permit_a": {
+      "effect": "effect_a",
+      "executor_identity": "executor_primary",
+      "state": "active",
+      "single_use": true
+    },
+    "permit_a_consumed": {
+      "effect": "effect_a",
+      "executor_identity": "executor_primary",
+      "state": "consumed",
+      "single_use": true
+    },
+    "permit_a_expired": {
+      "effect": "effect_a",
+      "executor_identity": "executor_primary",
+      "state": "expired",
+      "single_use": true
+    },
+    "permit_wrong_executor": {
+      "effect": "effect_a",
+      "executor_identity": "executor_other",
+      "state": "active",
+      "single_use": true
+    }
+  },
+  "paths": {
+    "governed_adapter": {
+      "path_class": "mediated",
+      "semantically_equivalent_effect": true,
+      "expected_reachability": "reachable",
+      "requires_enforcement_boundary": true
+    },
+    "raw_api": {
+      "path_class": "bypass",
+      "semantically_equivalent_effect": true,
+      "expected_reachability": "unreachable",
+      "requires_enforcement_boundary": false
+    },
+    "alternate_registry": {
+      "path_class": "bypass",
+      "semantically_equivalent_effect": true,
+      "expected_reachability": "unreachable",
+      "requires_enforcement_boundary": false
+    },
+    "direct_credential": {
+      "path_class": "bypass",
+      "semantically_equivalent_effect": true,
+      "expected_reachability": "unreachable",
+      "requires_enforcement_boundary": false
+    }
+  },
+  "cases": [
+    {
+      "id": "mediated-exact-effect-allowed",
+      "path": "governed_adapter",
+      "requested_effect": "effect_a",
+      "authorization_ref": "permit_a",
+      "control_signal_observed": true,
+      "enforcement_boundary_available": true,
+      "enforcement_boundary_observed": true,
+      "executor_observed": true,
+      "effect_count": 1,
+      "expected_verdict": "allow",
+      "expected_reason": "exact_effect_authorized",
+      "proves": [
+        "the modeled mediated path can produce the exact authorized effect through the enforcement boundary"
+      ],
+      "does_not_prove": [
+        "all equivalent production effect paths are closed"
+      ]
+    },
+    {
+      "id": "raw-api-bypass-blocked",
+      "path": "raw_api",
+      "requested_effect": "effect_a",
+      "authorization_ref": null,
+      "control_signal_observed": false,
+      "enforcement_boundary_available": true,
+      "enforcement_boundary_observed": false,
+      "executor_observed": false,
+      "effect_count": 0,
+      "expected_verdict": "block",
+      "expected_reason": "equivalent_path_unreachable",
+      "proves": [
+        "the modeled raw API bypass path cannot produce the effect without crossing the governed boundary"
+      ],
+      "does_not_prove": [
+        "a real provider endpoint is unreachable in production"
+      ]
+    },
+    {
+      "id": "alternate-registry-bypass-blocked",
+      "path": "alternate_registry",
+      "requested_effect": "effect_a",
+      "authorization_ref": null,
+      "control_signal_observed": false,
+      "enforcement_boundary_available": true,
+      "enforcement_boundary_observed": false,
+      "executor_observed": false,
+      "effect_count": 0,
+      "expected_verdict": "block",
+      "expected_reason": "alternate_capability_unreachable",
+      "proves": [
+        "the modeled alternate registry path cannot introduce an unmediated equivalent effect"
+      ],
+      "does_not_prove": [
+        "all dynamic production tool registries are constrained"
+      ]
+    },
+    {
+      "id": "direct-credential-bypass-blocked",
+      "path": "direct_credential",
+      "requested_effect": "effect_a",
+      "authorization_ref": null,
+      "control_signal_observed": false,
+      "enforcement_boundary_available": true,
+      "enforcement_boundary_observed": false,
+      "executor_observed": false,
+      "effect_count": 0,
+      "expected_verdict": "block",
+      "expected_reason": "credential_path_unreachable",
+      "proves": [
+        "the modeled direct credential path cannot produce the equivalent effect"
+      ],
+      "does_not_prove": [
+        "production credentials are absent or inaccessible"
+      ]
+    },
+    {
+      "id": "target-mutated-after-authorization",
+      "path": "governed_adapter",
+      "requested_effect": "effect_target_mutated",
+      "authorization_ref": "permit_a",
+      "control_signal_observed": true,
+      "enforcement_boundary_available": true,
+      "enforcement_boundary_observed": true,
+      "executor_observed": false,
+      "effect_count": 0,
+      "expected_verdict": "block",
+      "expected_reason": "effect_binding_mismatch",
+      "proves": [
+        "exact target binding prevents an authorized effect from widening to a different target"
+      ],
+      "does_not_prove": [
+        "semantic correctness of the original authorized target"
+      ]
+    },
+    {
+      "id": "arguments-mutated-after-authorization",
+      "path": "governed_adapter",
+      "requested_effect": "effect_args_mutated",
+      "authorization_ref": "permit_a",
+      "control_signal_observed": true,
+      "enforcement_boundary_available": true,
+      "enforcement_boundary_observed": true,
+      "executor_observed": false,
+      "effect_count": 0,
+      "expected_verdict": "block",
+      "expected_reason": "effect_binding_mismatch",
+      "proves": [
+        "policy-relevant argument mutation is rejected before the executor"
+      ],
+      "does_not_prove": [
+        "all provider-specific argument semantics are captured"
+      ]
+    },
+    {
+      "id": "consumed-authorization-replay-blocked",
+      "path": "governed_adapter",
+      "requested_effect": "effect_a",
+      "authorization_ref": "permit_a_consumed",
+      "control_signal_observed": true,
+      "enforcement_boundary_available": true,
+      "enforcement_boundary_observed": true,
+      "executor_observed": false,
+      "effect_count": 0,
+      "expected_verdict": "block",
+      "expected_reason": "authorization_replayed",
+      "proves": [
+        "a consumed single-use authorization cannot produce a second effect"
+      ],
+      "does_not_prove": [
+        "distributed replay resistance outside the modeled boundary"
+      ]
+    },
+    {
+      "id": "expired-authorization-blocked",
+      "path": "governed_adapter",
+      "requested_effect": "effect_a",
+      "authorization_ref": "permit_a_expired",
+      "control_signal_observed": true,
+      "enforcement_boundary_available": true,
+      "enforcement_boundary_observed": true,
+      "executor_observed": false,
+      "effect_count": 0,
+      "expected_verdict": "block",
+      "expected_reason": "authorization_expired",
+      "proves": [
+        "stale authorization cannot produce the governed effect"
+      ],
+      "does_not_prove": [
+        "clock synchronization or distributed expiry enforcement"
+      ]
+    },
+    {
+      "id": "wrong-executor-identity-blocked",
+      "path": "governed_adapter",
+      "requested_effect": "effect_a",
+      "authorization_ref": "permit_wrong_executor",
+      "control_signal_observed": true,
+      "enforcement_boundary_available": true,
+      "enforcement_boundary_observed": true,
+      "executor_observed": false,
+      "effect_count": 0,
+      "expected_verdict": "block",
+      "expected_reason": "executor_identity_mismatch",
+      "proves": [
+        "authorization for a different executor identity is not transferable"
+      ],
+      "does_not_prove": [
+        "production workload identity issuance or authentication"
+      ]
+    },
+    {
+      "id": "enforcement-boundary-unavailable-fails-closed",
+      "path": "governed_adapter",
+      "requested_effect": "effect_a",
+      "authorization_ref": "permit_a",
+      "control_signal_observed": true,
+      "enforcement_boundary_available": false,
+      "enforcement_boundary_observed": false,
+      "executor_observed": false,
+      "effect_count": 0,
+      "expected_verdict": "block",
+      "expected_reason": "enforcement_boundary_unavailable",
+      "proves": [
+        "loss of the required enforcement boundary does not silently permit the consequential effect"
+      ],
+      "does_not_prove": [
+        "availability or fault tolerance of a production enforcement service"
+      ]
+    },
+    {
+      "id": "control-signal-observed-but-raw-bypass-blocked",
+      "path": "raw_api",
+      "requested_effect": "effect_a",
+      "authorization_ref": "permit_a",
+      "control_signal_observed": true,
+      "enforcement_boundary_available": true,
+      "enforcement_boundary_observed": false,
+      "executor_observed": false,
+      "effect_count": 0,
+      "expected_verdict": "block",
+      "expected_reason": "observed_signal_does_not_authorize_bypass_path",
+      "proves": [
+        "observed control traffic alone is insufficient; the equivalent bypass path must still be unable to produce the effect"
+      ],
+      "does_not_prove": [
+        "that a particular control protocol emitted the observed signal honestly"
+      ]
+    }
+  ],
+  "proves": [
+    "within this synthetic model, one exact mediated effect succeeds while three semantically equivalent bypass paths produce zero externally observable effects",
+    "observed control traffic and enforced mediation are distinct properties",
+    "exact effect binding, single-use authorization, expiry, executor identity, and fail-closed boundary availability can be asserted independently"
+  ],
+  "does_not_prove": [
+    "production network isolation",
+    "production credential unreachability",
+    "absence of unknown or unmodeled bypass paths",
+    "cryptographic authenticity of authorization material",
+    "correctness of an external policy engine",
+    "ACS conformance or certification",
+    "universal complete mediation outside the explicitly modeled reachable surface"
+  ]
+}
