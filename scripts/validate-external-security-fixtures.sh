@@ -323,7 +323,6 @@ jq -e '
     .expected_reason == "effect_path_not_covered_by_independent_capture")
 ' "$trace_fixture" >/dev/null || fail "trace-integrity paired invariants are not preserved"
 
-
 jq -e '
   .version == "anthesis-governance-lab.external-security-stale-memory-authority/v1" and
   .synthetic == true and
@@ -345,7 +344,7 @@ jq -e '
     (.current_authority.state | IN("valid", "revoked", "narrowed", "expired", "superseded")) and
     (.current_authority.revision | type == "string" and length > 0) and
     (.current_authority.scope_allows_effect | type == "boolean") and
-    (.memory.claims_authorized | type == "boolean") and
+    .memory.claims_authorized == true and
     (.memory.captured_authority_revision | type == "string" and length > 0) and
     (.memory.source_provenance_valid | type == "boolean") and
     (.memory.restored_snapshot | type == "boolean") and
@@ -371,6 +370,7 @@ jq -e '
     .memory.claims_authorized == true and
     .current_authority.state == "valid" and
     .current_authority.scope_allows_effect == true and
+    .memory.captured_authority_revision == .current_authority.revision and
     .expected_decision == "allow" and
     .execution_record_present == true and
     .terminal_state.protected_target_changed == true) and
@@ -378,6 +378,7 @@ jq -e '
     .id == "revoked-grant-retained-in-memory" and
     .memory.claims_authorized == true and
     .current_authority.state == "revoked" and
+    .memory.captured_authority_revision != .current_authority.revision and
     .expected_decision == "deny" and
     .expected_reason == "current_authority_revoked") and
   any(.cases[];
@@ -385,21 +386,25 @@ jq -e '
     .memory.claims_authorized == true and
     .current_authority.state == "narrowed" and
     .current_authority.scope_allows_effect == false and
+    .memory.captured_authority_revision != .current_authority.revision and
     .expected_decision == "deny") and
   any(.cases[];
     .id == "valid-provenance-stale-lifecycle" and
     .memory.source_provenance_valid == true and
     .current_authority.state == "superseded" and
+    .memory.captured_authority_revision != .current_authority.revision and
     .expected_decision == "deny") and
   any(.cases[];
     .id == "restored-pre-revocation-memory-snapshot" and
     .memory.restored_snapshot == true and
     .current_authority.state == "revoked" and
+    .memory.captured_authority_revision != .current_authority.revision and
     .expected_decision == "deny" and
     .expected_reason == "restored_memory_does_not_restore_authority") and
   any(.cases[];
     .id == "expired-delegation-retained-in-memory" and
     .current_authority.state == "expired" and
+    .memory.captured_authority_revision != .current_authority.revision and
     .expected_decision == "deny")
 ' "$memory_fixture" >/dev/null || fail "stale-memory-authority paired invariants are not preserved"
 
