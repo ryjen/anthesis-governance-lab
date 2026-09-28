@@ -184,15 +184,24 @@
       "framework": "OWASP Top 10 for Agentic Applications 2026",
       "external_ref": "ASI06: Memory & Context Poisoning",
       "topic": "Persistent memory and context mutation",
-      "coverage": "not-demonstrated",
-      "scenario_refs": [],
-      "inference_scenario_refs": [],
-      "proves": [],
-      "does_not_prove": [
-        "Memory writes are governed as consequential effects.",
-        "Memory/context provenance, isolation, expiry, or poisoning detection is enforced."
+      "coverage": "partial",
+      "scenario_refs": [
+        "fixtures/external-security/durable-memory-write-v1.json"
       ],
-      "next_gap": "Add a synthetic unapproved durable-memory write and a provenance-aware approved memory update when the public contract supports memory/context effect types."
+      "inference_scenario_refs": [],
+      "proves": [
+        "Untrusted external or observed content cannot self-authorize a durable trusted-memory write.",
+        "Explicit instruction, system-prompt inference, compaction, and experience-to-procedure writes remain candidates unless the applicable write/promotion requirements are satisfied.",
+        "Approved retrieval-memory writes remain non-authoritative and preserve provenance.",
+        "Trusted guidance requires provenance, exact candidate identity, independent validation, and promotion approval in the synthetic vector."
+      ],
+      "does_not_prove": [
+        "A production memory database, retrieval pipeline, compaction engine, or skill store enforces these rules.",
+        "All memory-poisoning attacks are detected.",
+        "Retrieved or promoted content is semantically true or safe outside its evaluated scope.",
+        "Production complete mediation, cross-agent isolation, expiry, or credential isolation."
+      ],
+      "next_gap": "Bind the same write/promotion invariants to a real Dubnium memory write/retrieval path and verify provenance, isolation, currentness, and denial effects without treating the memory subsystem as authority."
     },
     {
       "id": "owasp-agentic-asi07-inter-agent",
