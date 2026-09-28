@@ -7,11 +7,12 @@ manifest_fixture="$repo_root/fixtures/external-security/manifest-action-binding-
 environment_fixture="$repo_root/fixtures/external-security/environmental-influence-v1.json"
 execution_fixture="$repo_root/fixtures/external-security/execution-correspondence-v1.json"
 trace_fixture="$repo_root/fixtures/external-security/trace-integrity-v1.json"
+memory_fixture="$repo_root/fixtures/external-security/stale-memory-authority-v1.json"
 
 fail() { echo "error: $*" >&2; exit 1; }
 command -v jq >/dev/null || fail "jq is required"
 
-for file in "$evidence_fixture" "$manifest_fixture" "$environment_fixture" "$execution_fixture" "$trace_fixture"; do
+for file in "$evidence_fixture" "$manifest_fixture" "$environment_fixture" "$execution_fixture" "$trace_fixture" "$memory_fixture"; do
   [[ -f "$file" && ! -L "$file" ]] || fail "external security fixture must be a regular file: $file"
 done
 
@@ -321,5 +322,90 @@ jq -e '
     .authoritative_effect_claim_supported == false and
     .expected_reason == "effect_path_not_covered_by_independent_capture")
 ' "$trace_fixture" >/dev/null || fail "trace-integrity paired invariants are not preserved"
+
+jq -e '
+  .version == "anthesis-governance-lab.external-security-stale-memory-authority/v1" and
+  .synthetic == true and
+  .executes_effects == false and
+  .requires_network == false and
+  .requires_credentials == false and
+  .requires_live_model == false and
+  .policy.memory_is_authoritative == false and
+  .policy.requires_current_authority_at_effect_time == true and
+  .policy.deny_has_null_protected_effect == true and
+  (.requested_effect.effect_id | type == "string" and length > 0) and
+  (.requested_effect.action_digest | test("^sha256:[0-9a-f]{64}$")) and
+  (.requested_effect.required_scope | type == "string" and length > 0) and
+  (.requested_effect.protected_target | type == "string" and length > 0) and
+  (.cases | length == 6) and
+  ([.cases[].id] | length == (unique | length)) and
+  all(.cases[];
+    (.id | type == "string" and length > 0) and
+    (.current_authority.state | IN("valid", "revoked", "narrowed", "expired", "superseded")) and
+    (.current_authority.revision | type == "string" and length > 0) and
+    (.current_authority.scope_allows_effect | type == "boolean") and
+    .memory.claims_authorized == true and
+    (.memory.captured_authority_revision | type == "string" and length > 0) and
+    (.memory.source_provenance_valid | type == "boolean") and
+    (.memory.restored_snapshot | type == "boolean") and
+    (.expected_decision | IN("allow", "deny")) and
+    (.expected_reason | type == "string" and length > 0) and
+    (.execution_record_present | type == "boolean") and
+    (.terminal_state.protected_target_changed | type == "boolean") and
+    (.expected_decision ==
+      (if (.current_authority.state == "valid" and .current_authority.scope_allows_effect == true)
+       then "allow" else "deny" end)) and
+    (if .expected_decision == "allow"
+     then (.execution_record_present == true and .terminal_state.protected_target_changed == true)
+     else (.execution_record_present == false and .terminal_state.protected_target_changed == false)
+     end)
+  ) and
+  (.proves | type == "array" and length > 0) and
+  (.does_not_prove | type == "array" and length > 0)
+' "$memory_fixture" >/dev/null || fail "stale-memory-authority fixture contract is invalid"
+
+jq -e '
+  any(.cases[];
+    .id == "current-valid-memory-matches" and
+    .memory.claims_authorized == true and
+    .current_authority.state == "valid" and
+    .current_authority.scope_allows_effect == true and
+    .memory.captured_authority_revision == .current_authority.revision and
+    .expected_decision == "allow" and
+    .execution_record_present == true and
+    .terminal_state.protected_target_changed == true) and
+  any(.cases[];
+    .id == "revoked-grant-retained-in-memory" and
+    .memory.claims_authorized == true and
+    .current_authority.state == "revoked" and
+    .memory.captured_authority_revision != .current_authority.revision and
+    .expected_decision == "deny" and
+    .expected_reason == "current_authority_revoked") and
+  any(.cases[];
+    .id == "narrowed-scope-memory-still-broad" and
+    .memory.claims_authorized == true and
+    .current_authority.state == "narrowed" and
+    .current_authority.scope_allows_effect == false and
+    .memory.captured_authority_revision != .current_authority.revision and
+    .expected_decision == "deny") and
+  any(.cases[];
+    .id == "valid-provenance-stale-lifecycle" and
+    .memory.source_provenance_valid == true and
+    .current_authority.state == "superseded" and
+    .memory.captured_authority_revision != .current_authority.revision and
+    .expected_decision == "deny") and
+  any(.cases[];
+    .id == "restored-pre-revocation-memory-snapshot" and
+    .memory.restored_snapshot == true and
+    .current_authority.state == "revoked" and
+    .memory.captured_authority_revision != .current_authority.revision and
+    .expected_decision == "deny" and
+    .expected_reason == "restored_memory_does_not_restore_authority") and
+  any(.cases[];
+    .id == "expired-delegation-retained-in-memory" and
+    .current_authority.state == "expired" and
+    .memory.captured_authority_revision != .current_authority.revision and
+    .expected_decision == "deny")
+' "$memory_fixture" >/dev/null || fail "stale-memory-authority paired invariants are not preserved"
 
 echo "External agent-security fixture validation passed"
