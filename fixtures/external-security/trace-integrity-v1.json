@@ -1,0 +1,123 @@
+{
+  "version": "anthesis-governance-lab.external-security-trace-integrity/v1",
+  "synthetic": true,
+  "executes_effects": false,
+  "requires_network": false,
+  "requires_credentials": false,
+  "requires_live_model": false,
+  "evidence_plane": {
+    "actor_can_mutate_local_trace": true,
+    "actor_can_mutate_independent_capture": false,
+    "local_trace_authoritative": false,
+    "independent_capture_required_for_authoritative_claim": true,
+    "required_bindings": [
+      "actor_id",
+      "run_id",
+      "effect_id",
+      "action_digest",
+      "decision_ref",
+      "observed_result_digest"
+    ]
+  },
+  "cases": [
+    {
+      "id": "baseline-independent-capture",
+      "local_trace_state": "intact",
+      "local_trace_consistent": true,
+      "independent_capture_present": true,
+      "independent_mutation_attempt": false,
+      "independent_mutation_succeeded": false,
+      "effect_path": "governed_adapter",
+      "effect_path_covered": true,
+      "terminal_effect_observed": true,
+      "authoritative_effect_claim_supported": true,
+      "expected_evidence_state": "verified",
+      "expected_reason": "independent_capture_complete"
+    },
+    {
+      "id": "local-trace-deleted-after-effect",
+      "local_trace_state": "deleted",
+      "local_trace_consistent": null,
+      "independent_capture_present": true,
+      "independent_mutation_attempt": false,
+      "independent_mutation_succeeded": false,
+      "effect_path": "governed_adapter",
+      "effect_path_covered": true,
+      "terminal_effect_observed": true,
+      "authoritative_effect_claim_supported": true,
+      "expected_evidence_state": "verified",
+      "expected_reason": "independent_capture_survives_local_trace_deletion"
+    },
+    {
+      "id": "local-trace-rewritten-after-effect",
+      "local_trace_state": "rewritten",
+      "local_trace_consistent": false,
+      "independent_capture_present": true,
+      "independent_mutation_attempt": false,
+      "independent_mutation_succeeded": false,
+      "effect_path": "governed_adapter",
+      "effect_path_covered": true,
+      "terminal_effect_observed": true,
+      "authoritative_effect_claim_supported": true,
+      "expected_evidence_state": "verified_with_local_mismatch",
+      "expected_reason": "independent_capture_detects_local_trace_mismatch"
+    },
+    {
+      "id": "independent-sink-mutation-blocked",
+      "local_trace_state": "intact",
+      "local_trace_consistent": true,
+      "independent_capture_present": true,
+      "independent_mutation_attempt": true,
+      "independent_mutation_succeeded": false,
+      "effect_path": "governed_adapter",
+      "effect_path_covered": true,
+      "terminal_effect_observed": true,
+      "authoritative_effect_claim_supported": true,
+      "expected_evidence_state": "verified",
+      "expected_reason": "independent_sink_outside_actor_mutation_authority"
+    },
+    {
+      "id": "independent-capture-unavailable",
+      "local_trace_state": "intact",
+      "local_trace_consistent": true,
+      "independent_capture_present": false,
+      "independent_mutation_attempt": false,
+      "independent_mutation_succeeded": false,
+      "effect_path": "governed_adapter",
+      "effect_path_covered": true,
+      "terminal_effect_observed": true,
+      "authoritative_effect_claim_supported": false,
+      "expected_evidence_state": "insufficient",
+      "expected_reason": "independent_capture_missing"
+    },
+    {
+      "id": "alternate-effect-path-not-captured",
+      "local_trace_state": "intact",
+      "local_trace_consistent": true,
+      "independent_capture_present": true,
+      "independent_mutation_attempt": false,
+      "independent_mutation_succeeded": false,
+      "effect_path": "alternate_path",
+      "effect_path_covered": false,
+      "terminal_effect_observed": true,
+      "authoritative_effect_claim_supported": false,
+      "expected_evidence_state": "insufficient",
+      "expected_reason": "effect_path_not_covered_by_independent_capture"
+    }
+  ],
+  "proves": [
+    "within this synthetic model, deletion or rewriting of actor-controlled local traces does not erase independently captured governed-effect evidence",
+    "an attempted mutation of the independent evidence sink is modeled as blocked within the declared assurance boundary",
+    "missing independent capture or an uncovered equivalent effect path remains insufficient evidence rather than a successful provenance claim"
+  ],
+  "does_not_prove": [
+    "production kernel, host, collector, storage, or remote telemetry is tamper-proof",
+    "all semantically equivalent production effect paths are covered by the independent recorder",
+    "cryptographic authenticity of arbitrary runtime receipts or logs",
+    "the underlying authorization policy is correct",
+    "the observed effect itself was safe or desirable",
+    "compliance or certification"
+  ]
+}
+
+[executed on device: 76a4bdf5fc1b (a7fd9f41-8002-4c03-ac43-498109dd9775)]
