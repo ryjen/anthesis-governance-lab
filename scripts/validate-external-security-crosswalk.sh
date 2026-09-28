@@ -101,6 +101,7 @@ jq -e '
   select(.id == "owasp-agentic-asi06-memory-context") |
   .coverage == "partial" and
   any(.proves[]; contains("cannot self-authorize")) and
+  any(.proves[]; contains("Multi-record co-retrieval")) and
   any(.does_not_prove[]; contains("production memory database"))
 ' "$crosswalk" >/dev/null || fail "ASI06 row must preserve durable-memory structural coverage limits"
 
