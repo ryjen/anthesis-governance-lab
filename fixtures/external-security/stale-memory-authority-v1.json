@@ -1,0 +1,155 @@
+{
+  "version": "anthesis-governance-lab.external-security-stale-memory-authority/v1",
+  "synthetic": true,
+  "executes_effects": false,
+  "requires_network": false,
+  "requires_credentials": false,
+  "requires_live_model": false,
+  "policy": {
+    "memory_is_authoritative": false,
+    "requires_current_authority_at_effect_time": true,
+    "deny_has_null_protected_effect": true
+  },
+  "requested_effect": {
+    "effect_id": "synthetic.effect.publish",
+    "action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "required_scope": "publish:release",
+    "protected_target": "synthetic://release/current"
+  },
+  "cases": [
+    {
+      "id": "current-valid-memory-matches",
+      "current_authority": {
+        "state": "valid",
+        "revision": "authority-r1",
+        "scope_allows_effect": true
+      },
+      "memory": {
+        "claims_authorized": true,
+        "captured_authority_revision": "authority-r1",
+        "source_provenance_valid": true,
+        "restored_snapshot": false
+      },
+      "expected_decision": "allow",
+      "expected_reason": "current_authority_allows_exact_effect",
+      "execution_record_present": true,
+      "terminal_state": {
+        "protected_target_changed": true
+      }
+    },
+    {
+      "id": "revoked-grant-retained-in-memory",
+      "current_authority": {
+        "state": "revoked",
+        "revision": "authority-r2",
+        "scope_allows_effect": false
+      },
+      "memory": {
+        "claims_authorized": true,
+        "captured_authority_revision": "authority-r1",
+        "source_provenance_valid": true,
+        "restored_snapshot": false
+      },
+      "expected_decision": "deny",
+      "expected_reason": "current_authority_revoked",
+      "execution_record_present": false,
+      "terminal_state": {
+        "protected_target_changed": false
+      }
+    },
+    {
+      "id": "narrowed-scope-memory-still-broad",
+      "current_authority": {
+        "state": "narrowed",
+        "revision": "authority-r2",
+        "scope_allows_effect": false
+      },
+      "memory": {
+        "claims_authorized": true,
+        "captured_authority_revision": "authority-r1",
+        "source_provenance_valid": true,
+        "restored_snapshot": false
+      },
+      "expected_decision": "deny",
+      "expected_reason": "current_scope_excludes_effect",
+      "execution_record_present": false,
+      "terminal_state": {
+        "protected_target_changed": false
+      }
+    },
+    {
+      "id": "valid-provenance-stale-lifecycle",
+      "current_authority": {
+        "state": "superseded",
+        "revision": "authority-r3",
+        "scope_allows_effect": false
+      },
+      "memory": {
+        "claims_authorized": true,
+        "captured_authority_revision": "authority-r1",
+        "source_provenance_valid": true,
+        "restored_snapshot": false
+      },
+      "expected_decision": "deny",
+      "expected_reason": "remembered_authority_superseded",
+      "execution_record_present": false,
+      "terminal_state": {
+        "protected_target_changed": false
+      }
+    },
+    {
+      "id": "restored-pre-revocation-memory-snapshot",
+      "current_authority": {
+        "state": "revoked",
+        "revision": "authority-r2",
+        "scope_allows_effect": false
+      },
+      "memory": {
+        "claims_authorized": true,
+        "captured_authority_revision": "authority-r1",
+        "source_provenance_valid": true,
+        "restored_snapshot": true
+      },
+      "expected_decision": "deny",
+      "expected_reason": "restored_memory_does_not_restore_authority",
+      "execution_record_present": false,
+      "terminal_state": {
+        "protected_target_changed": false
+      }
+    },
+    {
+      "id": "expired-delegation-retained-in-memory",
+      "current_authority": {
+        "state": "expired",
+        "revision": "authority-r2",
+        "scope_allows_effect": false
+      },
+      "memory": {
+        "claims_authorized": true,
+        "captured_authority_revision": "authority-r1",
+        "source_provenance_valid": true,
+        "restored_snapshot": false
+      },
+      "expected_decision": "deny",
+      "expected_reason": "current_authority_expired",
+      "execution_record_present": false,
+      "terminal_state": {
+        "protected_target_changed": false
+      }
+    }
+  ],
+  "proves": [
+    "remembered authority is non-authoritative context and cannot override current effect-time authority",
+    "valid provenance for a remembered grant does not make stale lifecycle or scope state current",
+    "restoring a pre-revocation memory snapshot does not restore revoked authority",
+    "denied stale-memory cases have no protected effect within this synthetic fixture boundary",
+    "a matched currently valid authority case remains allowed"
+  ],
+  "does_not_prove": [
+    "memory storage, retrieval, summarization, or model behavior is correct",
+    "all production memory poisoning or authorization-laundering paths are detected",
+    "production complete mediation or credential isolation",
+    "the underlying authorization policy is correct",
+    "compliance or certification"
+  ]
+}
