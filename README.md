@@ -190,5 +190,3 @@ Pull requests and `main` run the real Rust CLI without repository secrets. CI ve
 ## License
 
 Licensed under the Apache License 2.0. See [LICENSE](LICENSE).
-
-[executed on device: 76a4bdf5fc1b (a7fd9f41-8002-4c03-ac43-498109dd9775)]
