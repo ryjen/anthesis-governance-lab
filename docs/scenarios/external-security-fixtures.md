@@ -200,6 +200,36 @@ Each case carries concrete actor/run, exact effect identity, action digest, deci
 
 The fixture deliberately does **not** claim that an external collector, kernel, host, storage backend, or arbitrary telemetry pipeline is tamper-proof. It also does not prove complete mediation: if an equivalent effect path is not covered by the independent recorder, the evidence claim remains insufficient. That limitation composes with the separate effect-path-closure fixture rather than replacing it.
 
+## Stale remembered authority versus current effect-time authority
+
+Fixture: [`../../fixtures/external-security/stale-memory-authority-v1.json`](../../fixtures/external-security/stale-memory-authority-v1.json)
+
+This vector treats remembered authority as context, not permission. A remembered grant can remain well-attributed and still be stale after revocation, narrowing, expiry, supersession, or restoration of an older memory snapshot.
+
+```text
+memory says "authorized"
+        |
+        v
+current authority at effect time
+        |
+        +-> valid + scope permits exact effect -> allow
+        |
+        +-> revoked/narrowed/expired/superseded -> deny -> no protected effect
+```
+
+The validator derives each expected decision from the current authority state and scope. The remembered claim cannot override that derivation.
+
+The cases cover:
+
+- a matched currently valid allow control;
+- a revoked grant still remembered as authorized;
+- a narrowed grant remembered with its older broader scope;
+- valid source provenance with stale lifecycle state;
+- restoration of a pre-revocation memory snapshot;
+- an expired delegation retained in memory.
+
+The fixture does not test memory quality, model behavior, retrieval correctness, or every production laundering path. It demonstrates only the portable governance boundary: remembered context does not become current effect authority.
+
 ## Validation
 
 Run:
