@@ -32,7 +32,23 @@
       "terminal_effect_observed": true,
       "authoritative_effect_claim_supported": true,
       "expected_evidence_state": "verified",
-      "expected_reason": "independent_capture_complete"
+      "expected_reason": "independent_capture_complete",
+      "local_record": {
+        "actor_id": "actor_supervisor_1",
+        "run_id": "run_001",
+        "effect_id": "synthetic.effect.publish",
+        "action_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "decision_ref": "urn:anthesis:decision:allow:001",
+        "observed_result_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      },
+      "independent_record": {
+        "actor_id": "actor_supervisor_1",
+        "run_id": "run_001",
+        "effect_id": "synthetic.effect.publish",
+        "action_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "decision_ref": "urn:anthesis:decision:allow:001",
+        "observed_result_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      }
     },
     {
       "id": "local-trace-deleted-after-effect",
@@ -46,7 +62,16 @@
       "terminal_effect_observed": true,
       "authoritative_effect_claim_supported": true,
       "expected_evidence_state": "verified",
-      "expected_reason": "independent_capture_survives_local_trace_deletion"
+      "expected_reason": "independent_capture_survives_local_trace_deletion",
+      "local_record": null,
+      "independent_record": {
+        "actor_id": "actor_supervisor_1",
+        "run_id": "run_001",
+        "effect_id": "synthetic.effect.publish",
+        "action_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "decision_ref": "urn:anthesis:decision:allow:001",
+        "observed_result_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      }
     },
     {
       "id": "local-trace-rewritten-after-effect",
@@ -60,7 +85,23 @@
       "terminal_effect_observed": true,
       "authoritative_effect_claim_supported": true,
       "expected_evidence_state": "verified_with_local_mismatch",
-      "expected_reason": "independent_capture_detects_local_trace_mismatch"
+      "expected_reason": "independent_capture_detects_local_trace_mismatch",
+      "local_record": {
+        "actor_id": "actor_supervisor_1",
+        "run_id": "run_001",
+        "effect_id": "synthetic.effect.other",
+        "action_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "decision_ref": "urn:anthesis:decision:allow:001",
+        "observed_result_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      },
+      "independent_record": {
+        "actor_id": "actor_supervisor_1",
+        "run_id": "run_001",
+        "effect_id": "synthetic.effect.publish",
+        "action_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "decision_ref": "urn:anthesis:decision:allow:001",
+        "observed_result_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      }
     },
     {
       "id": "independent-sink-mutation-blocked",
@@ -74,7 +115,53 @@
       "terminal_effect_observed": true,
       "authoritative_effect_claim_supported": true,
       "expected_evidence_state": "verified",
-      "expected_reason": "independent_sink_outside_actor_mutation_authority"
+      "expected_reason": "independent_sink_outside_actor_mutation_authority",
+      "local_record": {
+        "actor_id": "actor_supervisor_1",
+        "run_id": "run_001",
+        "effect_id": "synthetic.effect.publish",
+        "action_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "decision_ref": "urn:anthesis:decision:allow:001",
+        "observed_result_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      },
+      "independent_record": {
+        "actor_id": "actor_supervisor_1",
+        "run_id": "run_001",
+        "effect_id": "synthetic.effect.publish",
+        "action_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "decision_ref": "urn:anthesis:decision:allow:001",
+        "observed_result_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      }
+    },
+    {
+      "id": "independent-capture-wrong-effect-binding",
+      "local_trace_state": "intact",
+      "local_trace_consistent": true,
+      "local_record": {
+        "actor_id": "actor_supervisor_1",
+        "run_id": "run_001",
+        "effect_id": "synthetic.effect.publish",
+        "action_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "decision_ref": "urn:anthesis:decision:allow:001",
+        "observed_result_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      },
+      "independent_capture_present": true,
+      "independent_record": {
+        "actor_id": "actor_supervisor_1",
+        "run_id": "run_001",
+        "effect_id": "synthetic.effect.other",
+        "action_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "decision_ref": "urn:anthesis:decision:allow:001",
+        "observed_result_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      },
+      "independent_mutation_attempt": false,
+      "independent_mutation_succeeded": false,
+      "effect_path": "governed_adapter",
+      "effect_path_covered": true,
+      "terminal_effect_observed": true,
+      "authoritative_effect_claim_supported": false,
+      "expected_evidence_state": "mismatch",
+      "expected_reason": "independent_capture_binding_mismatch"
     },
     {
       "id": "independent-capture-unavailable",
@@ -88,7 +175,16 @@
       "terminal_effect_observed": true,
       "authoritative_effect_claim_supported": false,
       "expected_evidence_state": "insufficient",
-      "expected_reason": "independent_capture_missing"
+      "expected_reason": "independent_capture_missing",
+      "local_record": {
+        "actor_id": "actor_supervisor_1",
+        "run_id": "run_001",
+        "effect_id": "synthetic.effect.publish",
+        "action_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "decision_ref": "urn:anthesis:decision:allow:001",
+        "observed_result_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      },
+      "independent_record": null
     },
     {
       "id": "alternate-effect-path-not-captured",
@@ -102,7 +198,16 @@
       "terminal_effect_observed": true,
       "authoritative_effect_claim_supported": false,
       "expected_evidence_state": "insufficient",
-      "expected_reason": "effect_path_not_covered_by_independent_capture"
+      "expected_reason": "effect_path_not_covered_by_independent_capture",
+      "local_record": {
+        "actor_id": "actor_supervisor_1",
+        "run_id": "run_001",
+        "effect_id": "synthetic.effect.publish",
+        "action_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "decision_ref": "urn:anthesis:decision:allow:001",
+        "observed_result_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      },
+      "independent_record": null
     }
   ],
   "proves": [
@@ -117,5 +222,13 @@
     "the underlying authorization policy is correct",
     "the observed effect itself was safe or desirable",
     "compliance or certification"
-  ]
+  ],
+  "expected_record": {
+    "actor_id": "actor_supervisor_1",
+    "run_id": "run_001",
+    "effect_id": "synthetic.effect.publish",
+    "action_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "decision_ref": "urn:anthesis:decision:allow:001",
+    "observed_result_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+  }
 }
