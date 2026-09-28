@@ -173,6 +173,32 @@ For the ACS #16 discussion, the corresponding simple explanation is: **putting a
 
 The fixture remains synthetic. It does not prove production network isolation, credential unreachability, absence of unknown bypass paths, cryptographic token authenticity, or ACS conformance/certification. A concrete runtime composition belongs in a bounded runtime integration rather than in this provider-neutral vector.
 
+## Independent trace integrity versus actor-controlled logs
+
+Fixture: [`../../fixtures/external-security/trace-integrity-v1.json`](../../fixtures/external-security/trace-integrity-v1.json)
+
+This vector models a compromised or reward-seeking agent/harness that can delete or rewrite its own local trace after a governed effect. The portable property is not that local traces are immutable; it is that the evidence used for an authoritative governed-effect claim is captured outside the actor's mutation authority.
+
+```text
+agent / harness
+  -> local trace (diagnostic, mutable)
+  -> independent capture (outside actor authority)
+  -> effect/provenance claim
+```
+
+The fixture includes:
+
+- a baseline with matching local and independent evidence;
+- local trace deletion after the modeled effect;
+- local trace rewriting that conflicts with independent evidence;
+- an attempted mutation of the independent evidence sink that is blocked;
+- missing independent capture, which yields insufficient evidence;
+- an alternate effect path not covered by the recorder, which also yields insufficient evidence.
+
+The independent record binds the modeled actor/run, exact effect identity, action digest, decision reference, and observed result digest. A surviving independent record can support an effect claim even when the actor-local trace is gone, while a local mismatch remains visible rather than rewriting the independent record.
+
+The fixture deliberately does **not** claim that an external collector, kernel, host, storage backend, or arbitrary telemetry pipeline is tamper-proof. It also does not prove complete mediation: if an equivalent effect path is not covered by the independent recorder, the evidence claim remains insufficient. That limitation composes with the separate effect-path-closure fixture rather than replacing it.
+
 ## Validation
 
 Run:
@@ -197,3 +223,5 @@ The fixtures are designed to be adaptable to:
 - research/tooling that evaluates indirect environmental influence through deterministic state and terminal-effect assertions.
 
 Before proposing them upstream, translate field names into the target project's vocabulary and retain the `does_not_prove` limitations rather than presenting synthetic structural validation as production assurance.
+
+[executed on device: 76a4bdf5fc1b (a7fd9f41-8002-4c03-ac43-498109dd9775)]
