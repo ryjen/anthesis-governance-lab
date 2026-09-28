@@ -185,9 +185,7 @@
       "external_ref": "ASI06: Memory & Context Poisoning",
       "topic": "Persistent memory and context mutation",
       "coverage": "partial",
-      "scenario_refs": [
-        "fixtures/external-security/durable-memory-write-v1.json"
-      ],
+      "scenario_refs": [],
       "inference_scenario_refs": [],
       "proves": [
         "Untrusted external or observed content cannot self-authorize a durable trusted-memory write.",
