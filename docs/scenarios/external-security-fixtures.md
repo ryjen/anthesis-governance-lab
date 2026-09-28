@@ -282,6 +282,36 @@ The underlying measurements remain separate from the derived conclusion. This al
 
 The fixture does not establish causal identification for arbitrary systems, promotion eligibility, promotion authority, or runtime/effect authority. It is a deterministic profile for the RFC-0025 distinction between optimization evidence and experimental-understanding evidence.
 
+## Untrusted input to durable memory
+
+Fixture: [`../../fixtures/external-security/durable-memory-write-v1.json`](../../fixtures/external-security/durable-memory-write-v1.json)
+
+This vector models the write-path boundary identified by memory-poisoning research:
+
+```text
+external/tool/observed content
+        |
+        v
+memory write candidate
+        |
+        +-> non-authoritative retrieval write, when explicitly allowed + provenance retained
+        |
+        +-> trusted guidance only after independent validation + promotion
+```
+
+It covers four ways a model-controlled write can arise without treating those channel names as Anthesis authority:
+
+- explicit "remember/store" instructions from external content;
+- inferred retention under a system prompt;
+- compaction/summarization that selects salient or repeated content;
+- experience-to-procedure / skill synthesis.
+
+The validator derives whether a case stays candidate-only, becomes non-authoritative retrieval memory, becomes trusted guidance, or is rejected. A model's decision to remember, repetition/salience, compaction, or a producer-visible success check cannot independently upgrade trust.
+
+Positive controls show both permitted outcomes: an approved source may enter retrieval memory while remaining non-authoritative, and exact trusted guidance may be committed after provenance, independent validation, and explicit promotion approval.
+
+This fixture does not implement a production memory database, retrieval system, poisoning detector, or memory-policy engine. It demonstrates only the portable write/promotion boundary.
+
 ## Validation
 
 Run:

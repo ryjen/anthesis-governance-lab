@@ -10,11 +10,12 @@ trace_fixture="$repo_root/fixtures/external-security/trace-integrity-v1.json"
 memory_fixture="$repo_root/fixtures/external-security/stale-memory-authority-v1.json"
 artifact_fixture="$repo_root/fixtures/external-security/artifact-resolution-identity-v1.json"
 experiment_fixture="$repo_root/fixtures/external-security/experimental-understanding-v1.json"
+durable_memory_fixture="$repo_root/fixtures/external-security/durable-memory-write-v1.json"
 
 fail() { echo "error: $*" >&2; exit 1; }
 command -v jq >/dev/null || fail "jq is required"
 
-for file in "$evidence_fixture" "$manifest_fixture" "$environment_fixture" "$execution_fixture" "$trace_fixture" "$memory_fixture" "$artifact_fixture" "$experiment_fixture"; do
+for file in "$evidence_fixture" "$manifest_fixture" "$environment_fixture" "$execution_fixture" "$trace_fixture" "$memory_fixture" "$artifact_fixture" "$experiment_fixture" "$durable_memory_fixture"; do
   [[ -f "$file" && ! -L "$file" ]] || fail "external security fixture must be a regular file: $file"
 done
 
@@ -590,5 +591,95 @@ jq -e '
     .expected_optimization_state == "fail" and
     .expected_understanding_state == "verified")
 ' "$experiment_fixture" >/dev/null || fail "experimental-understanding paired invariants are not preserved"
+
+
+jq -e '
+  .version == "anthesis-governance-lab.external-security-durable-memory-write/v1" and
+  .synthetic == true and
+  .executes_effects == false and
+  .requires_network == false and
+  .requires_credentials == false and
+  .requires_live_model == false and
+  .policy.retrieved_or_external_content_is_non_authoritative == true and
+  .policy.durable_write_must_be_explicit_and_provenance_bearing == true and
+  .policy.trusted_guidance_requires_independent_promotion == true and
+  .policy.compaction_cannot_upgrade_trust == true and
+  .policy.deny_has_null_trusted_memory_effect == true and
+  (.cases | length == 7) and
+  ([.cases[].id] | length == (unique | length)) and
+  all(.cases[];
+    (.write_channel | IN("explicit_instruction", "system_prompt_inferred", "compaction", "experience_to_procedure")) and
+    (.source_trust | IN("untrusted_external", "approved_source", "mixed_execution_observation")) and
+    (.provenance_present | type == "boolean") and
+    (if .provenance_present then (.source_ref | type == "string" and length > 0) else .source_ref == null end) and
+    (.target_class | IN("retrieval_memory", "structured_state", "trusted_guidance")) and
+    (.explicit_durable_write | type == "boolean") and
+    (.candidate_digest | test("^sha256:[0-9a-f]{64}$")) and
+    (.validation_state | IN("not_evaluated", "not_required", "passed_producer_visible_check", "independently_validated")) and
+    (.independent_promotion_approved | type == "boolean") and
+    (.expected_state | IN("candidate_only", "committed_non_authoritative", "committed_trusted", "rejected")) and
+    (.trusted_memory_changed | type == "boolean") and
+    ((if .provenance_present == false then
+        "rejected"
+      elif (.target_class == "retrieval_memory" and
+            .source_trust == "approved_source" and
+            .explicit_durable_write == true) then
+        "committed_non_authoritative"
+      elif (.target_class == "trusted_guidance" and
+            .explicit_durable_write == true and
+            .validation_state == "independently_validated" and
+            .independent_promotion_approved == true) then
+        "committed_trusted"
+      else
+        "candidate_only"
+      end) == .expected_state) and
+    (.trusted_memory_changed == (.expected_state == "committed_trusted"))
+  ) and
+  (.proves | type == "array" and length > 0) and
+  (.does_not_prove | type == "array" and length > 0)
+' "$durable_memory_fixture" >/dev/null || fail "durable-memory-write fixture contract is invalid"
+
+jq -e '
+  any(.cases[];
+    .id == "explicit-external-remember-command" and
+    .write_channel == "explicit_instruction" and
+    .source_trust == "untrusted_external" and
+    .expected_state == "candidate_only" and
+    .trusted_memory_changed == false) and
+  any(.cases[];
+    .id == "policy-conformant-untrusted-fact" and
+    .write_channel == "system_prompt_inferred" and
+    .explicit_durable_write == false and
+    .expected_state == "candidate_only") and
+  any(.cases[];
+    .id == "salience-compaction-poisoning" and
+    .write_channel == "compaction" and
+    .source_trust == "untrusted_external" and
+    .expected_state == "candidate_only") and
+  any(.cases[];
+    .id == "experience-to-procedure-self-promotion" and
+    .write_channel == "experience_to_procedure" and
+    .validation_state == "passed_producer_visible_check" and
+    .independent_promotion_approved == false and
+    .expected_state == "candidate_only") and
+  any(.cases[];
+    .id == "approved-source-to-retrieval-memory" and
+    .target_class == "retrieval_memory" and
+    .source_trust == "approved_source" and
+    .expected_state == "committed_non_authoritative" and
+    .trusted_memory_changed == false) and
+  any(.cases[];
+    .id == "validated-independently-promoted-guidance" and
+    .target_class == "trusted_guidance" and
+    .validation_state == "independently_validated" and
+    .independent_promotion_approved == true and
+    .expected_state == "committed_trusted" and
+    .trusted_memory_changed == true) and
+  any(.cases[];
+    .id == "approved-promotion-missing-provenance" and
+    .provenance_present == false and
+    .expected_state == "rejected" and
+    .trusted_memory_changed == false)
+' "$durable_memory_fixture" >/dev/null || fail "durable-memory-write paired invariants are not preserved"
 
 echo "External agent-security fixture validation passed"

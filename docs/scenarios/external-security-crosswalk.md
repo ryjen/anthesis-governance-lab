@@ -27,7 +27,7 @@ A `demonstrated` row still inherits the repository's integration boundary: Gover
 | OWASP Agentic ASI02 | Tool Misuse & Exploitation | partial | bounded test command vs unrestricted/capability-expanding command | no exact live tool/argument authorization binding |
 | OWASP Agentic ASI03 | Identity & Privilege Abuse | demonstrated | registered runtime allowed; unknown runtime read/write denied; missing resolved inference identity rejected | no production workload-identity issuance/authentication proof |
 | OWASP Agentic ASI04 | Agentic Supply Chain Vulnerabilities | partial | dependency inventory/mutation/install separation; immutable evidence; [`artifact-resolution-identity-v1.json`](../../fixtures/external-security/artifact-resolution-identity-v1.json) substitution vector | no live supply-chain attestation/source-resolution/loader proof |
-| OWASP Agentic ASI06 | Memory & Context Poisoning | not-demonstrated | none | public contract does not yet express governed durable-memory/context writes |
+| OWASP Agentic ASI06 | Memory & Context Poisoning | partial | [`durable-memory-write-v1.json`](../../fixtures/external-security/durable-memory-write-v1.json) write-channel/promotion vector | no live memory store/retrieval/compaction enforcement proof |
 | OWASP Agentic ASI07 | Insecure Inter-Agent Communication | not-demonstrated | specialist/synthesis tamper localization is adjacent evidence | no authenticated/replay-resistant handoff or delegation-continuity vector |
 | OWASP AIBOM / CycloneDX | AI artifact identity/composition | partial | provider-neutral [`artifact-resolution-identity-v1.json`](../../fixtures/external-security/artifact-resolution-identity-v1.json) declared/resolved/loaded identity vector | no real AIBOM/CycloneDX parser or source/loader attestation integration |
 | CoSAI Agent Manifest #149 | Manifest-version to action-time authority binding | not-demonstrated | route-change and re-verification mutation detection are adjacent | no exact action decision bound to admitted manifest version |
@@ -166,7 +166,11 @@ A child request wider than the parent grant must fail regardless of model ration
 
 ### 5. Durable memory/context write governance
 
-A future scenario should treat a shared or durable memory write as a consequential effect rather than inert metadata. The vector should distinguish approved scoped memory updates from unapproved writes and retain source/provenance information for later audit.
+[`durable-memory-write-v1.json`](../../fixtures/external-security/durable-memory-write-v1.json) now models the provider-neutral write/promotion boundary for durable memory.
+
+It distinguishes explicit, system-prompt-inferred, compaction-driven, and experience-to-procedure candidates. Untrusted observed content, repetition/salience, compaction, and producer-visible success cannot independently promote trusted guidance. An approved source can enter non-authoritative retrieval memory with provenance, while trusted guidance requires exact candidate identity, independent validation, and explicit promotion approval.
+
+Coverage remains **partial** because this structural fixture does not prove that a live memory database, retrieval path, compaction engine, or skill store enforces the rule. The next runtime step is a bounded Dubnium integration proving provenance retention, denial effects, isolation, and currentness without making memory authoritative.
 
 ## Upstream contribution packaging
 
