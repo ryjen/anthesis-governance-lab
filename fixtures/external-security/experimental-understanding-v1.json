@@ -1,0 +1,99 @@
+{
+  "version": "anthesis-governance-lab.external-security-experimental-understanding/v1",
+  "synthetic": true,
+  "executes_effects": false,
+  "requires_network": false,
+  "requires_credentials": false,
+  "requires_live_model": false,
+  "experiment": {
+    "development": [
+      {"id": "dev_baseline", "equivalence_class": "exec:baseline", "component_a": false, "component_b": false, "outcome": 10},
+      {"id": "dev_a", "equivalence_class": "exec:a", "component_a": true, "component_b": false, "outcome": 14},
+      {"id": "dev_a_alias", "equivalence_class": "exec:a", "component_a": true, "component_b": false, "outcome": 14},
+      {"id": "dev_b", "equivalence_class": "exec:b", "component_a": false, "component_b": true, "outcome": 9}
+    ],
+    "heldout": [
+      {"id": "hold_baseline", "equivalence_class": "exec:baseline:h", "component_a": false, "component_b": false, "outcome": 20},
+      {"id": "hold_a", "equivalence_class": "exec:a:h", "component_a": true, "component_b": false, "outcome": 24},
+      {"id": "hold_b", "equivalence_class": "exec:b:h", "component_a": false, "component_b": true, "outcome": 19}
+    ],
+    "ground_truth_effects": {
+      "component_a": 4,
+      "component_b": -1
+    }
+  },
+  "cases": [
+    {
+      "id": "best-config-selected-effects-wrong",
+      "development_observations": ["dev_baseline", "dev_a", "dev_b"],
+      "selected_config": "dev_a",
+      "claimed_effects": {"component_a": 0, "component_b": 4},
+      "mechanistic_claim_requires_heldout": false,
+      "heldout_observations": [],
+      "replication_claim": {"configuration_ids": [], "claimed_independent_count": 0},
+      "expected_optimization_state": "pass",
+      "expected_understanding_state": "mismatch"
+    },
+    {
+      "id": "best-config-selected-effects-correct-heldout",
+      "development_observations": ["dev_baseline", "dev_a", "dev_b"],
+      "selected_config": "dev_a",
+      "claimed_effects": {"component_a": 4, "component_b": -1},
+      "mechanistic_claim_requires_heldout": true,
+      "heldout_observations": ["hold_baseline", "hold_a", "hold_b"],
+      "replication_claim": {"configuration_ids": [], "claimed_independent_count": 0},
+      "expected_optimization_state": "pass",
+      "expected_understanding_state": "verified"
+    },
+    {
+      "id": "correct-effects-missing-required-heldout",
+      "development_observations": ["dev_baseline", "dev_a", "dev_b"],
+      "selected_config": "dev_a",
+      "claimed_effects": {"component_a": 4, "component_b": -1},
+      "mechanistic_claim_requires_heldout": true,
+      "heldout_observations": [],
+      "replication_claim": {"configuration_ids": [], "claimed_independent_count": 0},
+      "expected_optimization_state": "pass",
+      "expected_understanding_state": "insufficient"
+    },
+    {
+      "id": "equivalent-configs-do-not-create-independent-replication",
+      "development_observations": ["dev_baseline", "dev_a", "dev_a_alias", "dev_b"],
+      "selected_config": "dev_a",
+      "claimed_effects": {"component_a": 4, "component_b": -1},
+      "mechanistic_claim_requires_heldout": false,
+      "heldout_observations": [],
+      "replication_claim": {
+        "configuration_ids": ["dev_a", "dev_a_alias"],
+        "claimed_independent_count": 2
+      },
+      "expected_optimization_state": "pass",
+      "expected_understanding_state": "replication_overcount"
+    },
+    {
+      "id": "effects-correct-selected-config-not-best",
+      "development_observations": ["dev_baseline", "dev_a", "dev_b"],
+      "selected_config": "dev_b",
+      "claimed_effects": {"component_a": 4, "component_b": -1},
+      "mechanistic_claim_requires_heldout": false,
+      "heldout_observations": [],
+      "replication_claim": {"configuration_ids": [], "claimed_independent_count": 0},
+      "expected_optimization_state": "fail",
+      "expected_understanding_state": "verified"
+    }
+  ],
+  "proves": [
+    "optimization success and component-effect understanding are independently representable",
+    "selecting the best observed configuration does not prove correct component-effect recovery",
+    "correct development-set effect claims can remain insufficient when required held-out validation is absent",
+    "execution-equivalent configurations do not count as independent replication evidence",
+    "underlying measurements can support later derived analysis without rewriting the original observations"
+  ],
+  "does_not_prove": [
+    "causal identification in arbitrary observational or production systems",
+    "semantic correctness of a learned mechanism outside the tested intervention profile",
+    "promotion eligibility or promotion authority",
+    "runtime or effect authority",
+    "compliance or certification"
+  ]
+}

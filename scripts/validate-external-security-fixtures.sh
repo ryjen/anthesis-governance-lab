@@ -9,11 +9,12 @@ execution_fixture="$repo_root/fixtures/external-security/execution-correspondenc
 trace_fixture="$repo_root/fixtures/external-security/trace-integrity-v1.json"
 memory_fixture="$repo_root/fixtures/external-security/stale-memory-authority-v1.json"
 artifact_fixture="$repo_root/fixtures/external-security/artifact-resolution-identity-v1.json"
+experiment_fixture="$repo_root/fixtures/external-security/experimental-understanding-v1.json"
 
 fail() { echo "error: $*" >&2; exit 1; }
 command -v jq >/dev/null || fail "jq is required"
 
-for file in "$evidence_fixture" "$manifest_fixture" "$environment_fixture" "$execution_fixture" "$trace_fixture" "$memory_fixture" "$artifact_fixture"; do
+for file in "$evidence_fixture" "$manifest_fixture" "$environment_fixture" "$execution_fixture" "$trace_fixture" "$memory_fixture" "$artifact_fixture" "$experiment_fixture"; do
   [[ -f "$file" && ! -L "$file" ]] || fail "external security fixture must be a regular file: $file"
 done
 
@@ -505,5 +506,89 @@ jq -e '
     .expected_decision == "deny" and
     .terminal_state.protected_target_changed == false)
 ' "$artifact_fixture" >/dev/null || fail "artifact-resolution-identity paired invariants are not preserved"
+
+
+jq -e '
+  . as $root |
+  def dev($id): first($root.experiment.development[] | select(.id == $id));
+  def dev_effect($a; $b):
+    ((first($root.experiment.development[] | select(.component_a == $a and .component_b == $b and .id != "dev_a_alias"))).outcome);
+  def hold_effect($a; $b):
+    ((first($root.experiment.heldout[] | select(.component_a == $a and .component_b == $b))).outcome);
+  .version == "anthesis-governance-lab.external-security-experimental-understanding/v1" and
+  .synthetic == true and
+  .executes_effects == false and
+  .requires_network == false and
+  .requires_credentials == false and
+  .requires_live_model == false and
+  ((dev_effect(true; false) - dev_effect(false; false)) == .experiment.ground_truth_effects.component_a) and
+  ((dev_effect(false; true) - dev_effect(false; false)) == .experiment.ground_truth_effects.component_b) and
+  ((hold_effect(true; false) - hold_effect(false; false)) == .experiment.ground_truth_effects.component_a) and
+  ((hold_effect(false; true) - hold_effect(false; false)) == .experiment.ground_truth_effects.component_b) and
+  ((dev("dev_a").equivalence_class == dev("dev_a_alias").equivalence_class) and
+   (dev("dev_a").outcome == dev("dev_a_alias").outcome)) and
+  (.cases | length == 5) and
+  ([.cases[].id] | length == (unique | length)) and
+  all(.cases[];
+    . as $case |
+    (.development_observations | type == "array" and length > 0) and
+    all(.development_observations[]; . as $id | any($root.experiment.development[]; .id == $id)) and
+    any(.development_observations[]; . == $case.selected_config) and
+    (.claimed_effects.component_a | type == "number") and
+    (.claimed_effects.component_b | type == "number") and
+    (.mechanistic_claim_requires_heldout | type == "boolean") and
+    (.heldout_observations | type == "array") and
+    all(.heldout_observations[]; . as $id | any($root.experiment.heldout[]; .id == $id)) and
+    (.replication_claim.configuration_ids | type == "array") and
+    all(.replication_claim.configuration_ids[]; . as $id | any($root.experiment.development[]; .id == $id)) and
+    (.replication_claim.claimed_independent_count | type == "number") and
+    (.expected_optimization_state | IN("pass", "fail")) and
+    (.expected_understanding_state | IN("verified", "mismatch", "insufficient", "replication_overcount")) and
+    ((if
+       (dev(.selected_config).outcome ==
+        ([.development_observations[] | dev(.).outcome] | max))
+      then "pass" else "fail" end) == .expected_optimization_state) and
+    (([
+       .replication_claim.configuration_ids[] |
+       dev(.).equivalence_class
+     ] | unique | length) as $independent_replications |
+     ((if
+        (.claimed_effects == $root.experiment.ground_truth_effects) | not
+       then "mismatch"
+       elif .replication_claim.claimed_independent_count > $independent_replications
+       then "replication_overcount"
+       elif .mechanistic_claim_requires_heldout and
+            ((.heldout_observations | index("hold_baseline")) == null or
+             (.heldout_observations | index("hold_a")) == null or
+             (.heldout_observations | index("hold_b")) == null)
+       then "insufficient"
+       else "verified" end) == .expected_understanding_state))
+  ) and
+  (.proves | type == "array" and length > 0) and
+  (.does_not_prove | type == "array" and length > 0)
+' "$experiment_fixture" >/dev/null || fail "experimental-understanding fixture contract is invalid"
+
+jq -e '
+  any(.cases[];
+    .id == "best-config-selected-effects-wrong" and
+    .expected_optimization_state == "pass" and
+    .expected_understanding_state == "mismatch") and
+  any(.cases[];
+    .id == "best-config-selected-effects-correct-heldout" and
+    .expected_optimization_state == "pass" and
+    .expected_understanding_state == "verified") and
+  any(.cases[];
+    .id == "correct-effects-missing-required-heldout" and
+    .expected_optimization_state == "pass" and
+    .expected_understanding_state == "insufficient") and
+  any(.cases[];
+    .id == "equivalent-configs-do-not-create-independent-replication" and
+    .replication_claim.claimed_independent_count == 2 and
+    .expected_understanding_state == "replication_overcount") and
+  any(.cases[];
+    .id == "effects-correct-selected-config-not-best" and
+    .expected_optimization_state == "fail" and
+    .expected_understanding_state == "verified")
+' "$experiment_fixture" >/dev/null || fail "experimental-understanding paired invariants are not preserved"
 
 echo "External agent-security fixture validation passed"

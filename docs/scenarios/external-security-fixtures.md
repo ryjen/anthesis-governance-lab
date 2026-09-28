@@ -256,6 +256,32 @@ The validator derives identity correspondence from the concrete revision/tree/co
 
 The fixture does not implement a Git resolver, package manager, plugin loader, signature verifier, AIBOM parser, or CycloneDX parser. It models only the portable identity and authority boundary.
 
+## Optimization versus experimental understanding
+
+Fixture: [`../../fixtures/external-security/experimental-understanding-v1.json`](../../fixtures/external-security/experimental-understanding-v1.json)
+
+This vector separates two evaluation questions:
+
+```text
+Did the evaluator select the best observed configuration?
+                  !=
+Did the evaluator recover which component caused which effect?
+```
+
+The synthetic response surface has a baseline plus isolated component-A and component-B interventions. The validator derives component effects from the measurements and evaluates optimization success independently from effect recovery.
+
+The cases include:
+
+- the best configuration is selected while the claimed component effects are wrong;
+- the best configuration is selected and the component effects are correct with held-out confirmation;
+- the effects are correct but required held-out evidence is absent;
+- two syntactically distinct configurations share one execution-equivalence class and cannot count as two independent replications;
+- the component effects are correct even though the selected configuration is not the best observed one.
+
+The underlying measurements remain separate from the derived conclusion. This allows later evaluators to reinterpret the same experiment without rewriting the original observations.
+
+The fixture does not establish causal identification for arbitrary systems, promotion eligibility, promotion authority, or runtime/effect authority. It is a deterministic profile for the RFC-0025 distinction between optimization evidence and experimental-understanding evidence.
+
 ## Validation
 
 Run:
