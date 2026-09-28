@@ -302,5 +302,3 @@ jq -e '
 ' "$trace_fixture" >/dev/null || fail "trace-integrity paired invariants are not preserved"
 
 echo "External agent-security fixture validation passed"
-
-[executed on device: 76a4bdf5fc1b (a7fd9f41-8002-4c03-ac43-498109dd9775)]
