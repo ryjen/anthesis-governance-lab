@@ -8,11 +8,12 @@ environment_fixture="$repo_root/fixtures/external-security/environmental-influen
 execution_fixture="$repo_root/fixtures/external-security/execution-correspondence-v1.json"
 trace_fixture="$repo_root/fixtures/external-security/trace-integrity-v1.json"
 memory_fixture="$repo_root/fixtures/external-security/stale-memory-authority-v1.json"
+artifact_fixture="$repo_root/fixtures/external-security/artifact-resolution-identity-v1.json"
 
 fail() { echo "error: $*" >&2; exit 1; }
 command -v jq >/dev/null || fail "jq is required"
 
-for file in "$evidence_fixture" "$manifest_fixture" "$environment_fixture" "$execution_fixture" "$trace_fixture" "$memory_fixture"; do
+for file in "$evidence_fixture" "$manifest_fixture" "$environment_fixture" "$execution_fixture" "$trace_fixture" "$memory_fixture" "$artifact_fixture"; do
   [[ -f "$file" && ! -L "$file" ]] || fail "external security fixture must be a regular file: $file"
 done
 
@@ -407,5 +408,102 @@ jq -e '
     .memory.captured_authority_revision != .current_authority.revision and
     .expected_decision == "deny")
 ' "$memory_fixture" >/dev/null || fail "stale-memory-authority paired invariants are not preserved"
+
+
+jq -e '
+  . as $root |
+  .version == "anthesis-governance-lab.external-security-artifact-resolution-identity/v1" and
+  .synthetic == true and
+  .executes_effects == false and
+  .requires_network == false and
+  .requires_credentials == false and
+  .requires_live_model == false and
+  .policy.requires_exact_resolved_identity == true and
+  .policy.requires_exact_loaded_identity == true and
+  .policy.artifact_identity_is_not_action_authority == true and
+  .policy.deny_has_null_protected_effect == true and
+  (.approved_artifact.declared_ref | test("^git:[0-9a-f]{40}$")) and
+  (.approved_artifact.resolved_revision | test("^git:[0-9a-f]{40}$")) and
+  (.approved_artifact.tree_digest | test("^sha256:[0-9a-f]{64}$")) and
+  (.approved_artifact.content_digest | test("^sha256:[0-9a-f]{64}$")) and
+  (.cases | length == 6) and
+  ([.cases[].id] | length == (unique | length)) and
+  all(.cases[];
+    . as $case |
+    (.id | type == "string" and length > 0) and
+    (.declared_ref | test("^git:[0-9a-f]{40}$")) and
+    (.resolution_state | IN("verified", "missing", "unverifiable")) and
+    (.action_authorized | type == "boolean") and
+    (.expected_identity_state | IN("verified", "mismatch", "insufficient")) and
+    (.expected_decision | IN("allow", "deny")) and
+    (.execution_record_present | type == "boolean") and
+    (.terminal_state.protected_target_changed | type == "boolean") and
+    (if .resolution_state == "verified" then
+       (.resolved_revision | test("^git:[0-9a-f]{40}$")) and
+       (.resolved_tree_digest | test("^sha256:[0-9a-f]{64}$")) and
+       (.loaded_content_digest | test("^sha256:[0-9a-f]{64}$"))
+     else
+       .resolved_revision == null and
+       .resolved_tree_digest == null and
+       .loaded_content_digest == null
+     end) and
+    ((if .resolution_state != "verified" then
+        "insufficient"
+      elif (.resolved_revision == $root.approved_artifact.resolved_revision and
+            .resolved_tree_digest == $root.approved_artifact.tree_digest and
+            .loaded_content_digest == $root.approved_artifact.content_digest) then
+        "verified"
+      else
+        "mismatch"
+      end) == .expected_identity_state) and
+    ((if (.expected_identity_state == "verified" and .action_authorized == true)
+      then "allow" else "deny" end) == .expected_decision) and
+    (if .expected_decision == "allow"
+     then (.execution_record_present == true and .terminal_state.protected_target_changed == true)
+     else (.execution_record_present == false and .terminal_state.protected_target_changed == false)
+     end)
+  ) and
+  (.proves | type == "array" and length > 0) and
+  (.does_not_prove | type == "array" and length > 0)
+' "$artifact_fixture" >/dev/null || fail "artifact-resolution-identity fixture contract is invalid"
+
+jq -e '
+  . as $root |
+  any(.cases[];
+    .id == "declared-resolved-loaded-match-authorized" and
+    .expected_identity_state == "verified" and
+    .action_authorized == true and
+    .expected_decision == "allow") and
+  any(.cases[];
+    .id == "pinned-looking-ref-resolves-to-different-tree" and
+    .declared_ref == $root.approved_artifact.declared_ref and
+    (.resolved_revision != $root.approved_artifact.resolved_revision or
+     .resolved_tree_digest != $root.approved_artifact.tree_digest) and
+    .expected_identity_state == "mismatch" and
+    .expected_decision == "deny") and
+  any(.cases[];
+    .id == "resolved-artifact-match-loaded-bytes-differ" and
+    .resolved_revision == $root.approved_artifact.resolved_revision and
+    .resolved_tree_digest == $root.approved_artifact.tree_digest and
+    .loaded_content_digest != $root.approved_artifact.content_digest and
+    .expected_identity_state == "mismatch" and
+    .expected_decision == "deny") and
+  any(.cases[];
+    .id == "resolution-missing" and
+    .resolution_state == "missing" and
+    .expected_identity_state == "insufficient" and
+    .expected_decision == "deny") and
+  any(.cases[];
+    .id == "resolution-unverifiable" and
+    .resolution_state == "unverifiable" and
+    .expected_identity_state == "insufficient" and
+    .expected_decision == "deny") and
+  any(.cases[];
+    .id == "identity-verified-action-not-authorized" and
+    .expected_identity_state == "verified" and
+    .action_authorized == false and
+    .expected_decision == "deny" and
+    .terminal_state.protected_target_changed == false)
+' "$artifact_fixture" >/dev/null || fail "artifact-resolution-identity paired invariants are not preserved"
 
 echo "External agent-security fixture validation passed"

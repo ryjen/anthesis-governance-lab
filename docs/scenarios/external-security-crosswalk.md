@@ -21,15 +21,15 @@ A `demonstrated` row still inherits the repository's integration boundary: Gover
 | External guidance | Topic | Coverage | Existing lab evidence | Main gap |
 | --- | --- | --- | --- | --- |
 | CoSAI MCP Security #22 | Complete mediation / bypass resistance | runtime-dependent | network/tool allow/approval/deny cases; unknown-runtime denial; inference direct-runtime-bypass and fail-closed verifier cases; provider-neutral [`effect-path-closure-v1.json`](../../fixtures/external-security/effect-path-closure-v1.json) structural vector | no proof that raw endpoints, credentials, network routes, or alternate registries are unreachable in production |
-| CoSAI MCP Security #26 | Supply-chain provenance and authority boundary | partial | dependency read/change/install separation; evidence-write denial; immutable re-verification cases | no provider-neutral SBOM/AIBOM/signature/attestation state model yet |
+| CoSAI MCP Security #26 | Supply-chain provenance and authority boundary | partial | dependency read/change/install separation; evidence-state/authority fixture; immutable re-verification; declared/resolved/loaded artifact identity fixture | no live signed SBOM/AIBOM/attestation, source-resolution, or loader proof |
 | CoSAI Agentic IAM | Delegation and least privilege | partial | capability-expansion denial; registered vs unknown runtime decisions | no authenticated delegation chain or child-scope attenuation vector |
 | OWASP GenAI LLM Top 10 2026 | Excessive agency | partial | unrestricted command denial; deploy/release denial; workflow approval | no live downstream complete-mediation proof |
 | OWASP Agentic ASI02 | Tool Misuse & Exploitation | partial | bounded test command vs unrestricted/capability-expanding command | no exact live tool/argument authorization binding |
 | OWASP Agentic ASI03 | Identity & Privilege Abuse | demonstrated | registered runtime allowed; unknown runtime read/write denied; missing resolved inference identity rejected | no production workload-identity issuance/authentication proof |
-| OWASP Agentic ASI04 | Agentic Supply Chain Vulnerabilities | partial | dependency inventory/mutation/install separation; immutable evidence | no AI artifact attestation/AIBOM verification |
+| OWASP Agentic ASI04 | Agentic Supply Chain Vulnerabilities | partial | dependency inventory/mutation/install separation; immutable evidence; [`artifact-resolution-identity-v1.json`](../../fixtures/external-security/artifact-resolution-identity-v1.json) substitution vector | no live supply-chain attestation/source-resolution/loader proof |
 | OWASP Agentic ASI06 | Memory & Context Poisoning | not-demonstrated | none | public contract does not yet express governed durable-memory/context writes |
 | OWASP Agentic ASI07 | Insecure Inter-Agent Communication | not-demonstrated | specialist/synthesis tamper localization is adjacent evidence | no authenticated/replay-resistant handoff or delegation-continuity vector |
-| OWASP AIBOM / CycloneDX | AI artifact identity/composition | not-demonstrated | none | no AIBOM/ML-BOM parser or prompt/context artifact fixture |
+| OWASP AIBOM / CycloneDX | AI artifact identity/composition | partial | provider-neutral [`artifact-resolution-identity-v1.json`](../../fixtures/external-security/artifact-resolution-identity-v1.json) declared/resolved/loaded identity vector | no real AIBOM/CycloneDX parser or source/loader attestation integration |
 | CoSAI Agent Manifest #149 | Manifest-version to action-time authority binding | not-demonstrated | route-change and re-verification mutation detection are adjacent | no exact action decision bound to admitted manifest version |
 
 ## Reused scenario inventory
@@ -62,6 +62,17 @@ These fixtures still **do not** demonstrate that a real operating system, networ
 
 These establish that dependency mutation/acquisition can receive stronger decisions than inventory reads and that recorded evidence is protected from silent mutation. They do **not** establish that an external signature, SBOM, AIBOM, attestation, or vulnerability statement is valid.
 
+
+The provider-neutral [`artifact-resolution-identity-v1.json`](../../fixtures/external-security/artifact-resolution-identity-v1.json) vector additionally distinguishes:
+
+```text
+declared reference
+  -> resolved revision/tree
+  -> actually loaded content
+```
+
+It detects a pinned-looking reference resolving to a different revision/tree and a correct resolution followed by substituted loaded bytes. Verified identity remains separate from action authority. This is still structural evidence only; it does not validate a real Git host, package registry, plugin loader, signature, AIBOM, or CycloneDX document.
+
 ### Identity and capability narrowing
 
 - `runtime-and-identity-01-allow-registered-runtime`
@@ -76,9 +87,9 @@ These establish deterministic fail-closed behavior for unknown/missing runtime i
 
 The inventory shows that the next work should not be another broad demo pack. The smallest missing vectors are cross-boundary cases that the current declaration contract cannot fully express yet.
 
-### 1. Verified artifact does not grant action authority
+### 1. Artifact evidence and identity substitution
 
-Desired result:
+Provider-neutral vectors now cover both boundaries:
 
 ```text
 artifact evidence = verified
@@ -86,18 +97,15 @@ requested action = outside current authority
 result = deny
 ```
 
-The fixture should represent evidence state independently from the action authorization result. A valid signature, AIBOM, SBOM, model identity, or attestation must never become an implicit allow.
+and:
 
-Required evidence states for the eventual provider-neutral fixture:
+```text
+declared reference
+  -> resolved revision/tree
+  -> actually loaded content
+```
 
-- `verified`
-- `missing`
-- `stale`
-- `mismatch`
-- `contradictory`
-- `unverifiable`
-
-Operational/provider failure must remain distinguishable from negative evidence.
+`evidence-authority-v1.json` keeps verified/missing/stale/mismatch/contradictory/unverifiable evidence separate from action authority. `artifact-resolution-identity-v1.json` detects declared-to-resolved and resolved-to-loaded substitution. The remaining gap is binding these structural vectors to real signed SBOM/AIBOM/attestation, source-resolution, and loader evidence.
 
 ### 2. Exact action decision becomes stale after manifest drift
 
@@ -171,7 +179,7 @@ Initial targets:
 3. CoSAI MCP Security #26 — evidence-state and `verified artifact != authorized action` scenarios;
 4. CoSAI Agent Manifest #149 — manifest-version/action-time decision binding vector;
 5. OWASP Agentic — tool misuse, identity/privilege, supply-chain, memory/context, and inter-agent cases;
-6. OWASP AIBOM — provider-neutral AI artifact identity/substitution case after Invokrum/Anthesis work establishes the representation.
+6. OWASP AIBOM — reuse the provider-neutral declared/resolved/loaded identity substitution vector and map it to real AIBOM/CycloneDX source and loader evidence.
 
 ## Assurance boundary
 

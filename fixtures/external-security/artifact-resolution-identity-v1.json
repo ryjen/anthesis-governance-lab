@@ -1,0 +1,114 @@
+{
+  "version": "anthesis-governance-lab.external-security-artifact-resolution-identity/v1",
+  "synthetic": true,
+  "executes_effects": false,
+  "requires_network": false,
+  "requires_credentials": false,
+  "requires_live_model": false,
+  "approved_artifact": {
+    "declared_ref": "git:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "resolved_revision": "git:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "tree_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "content_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+  },
+  "policy": {
+    "requires_exact_resolved_identity": true,
+    "requires_exact_loaded_identity": true,
+    "artifact_identity_is_not_action_authority": true,
+    "deny_has_null_protected_effect": true
+  },
+  "cases": [
+    {
+      "id": "declared-resolved-loaded-match-authorized",
+      "declared_ref": "git:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "resolution_state": "verified",
+      "resolved_revision": "git:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "resolved_tree_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "loaded_content_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "action_authorized": true,
+      "expected_identity_state": "verified",
+      "expected_decision": "allow",
+      "execution_record_present": true,
+      "terminal_state": {"protected_target_changed": true}
+    },
+    {
+      "id": "pinned-looking-ref-resolves-to-different-tree",
+      "declared_ref": "git:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "resolution_state": "verified",
+      "resolved_revision": "git:dddddddddddddddddddddddddddddddddddddddd",
+      "resolved_tree_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "loaded_content_digest": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "action_authorized": true,
+      "expected_identity_state": "mismatch",
+      "expected_decision": "deny",
+      "execution_record_present": false,
+      "terminal_state": {"protected_target_changed": false}
+    },
+    {
+      "id": "resolved-artifact-match-loaded-bytes-differ",
+      "declared_ref": "git:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "resolution_state": "verified",
+      "resolved_revision": "git:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "resolved_tree_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "loaded_content_digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+      "action_authorized": true,
+      "expected_identity_state": "mismatch",
+      "expected_decision": "deny",
+      "execution_record_present": false,
+      "terminal_state": {"protected_target_changed": false}
+    },
+    {
+      "id": "resolution-missing",
+      "declared_ref": "git:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "resolution_state": "missing",
+      "resolved_revision": null,
+      "resolved_tree_digest": null,
+      "loaded_content_digest": null,
+      "action_authorized": true,
+      "expected_identity_state": "insufficient",
+      "expected_decision": "deny",
+      "execution_record_present": false,
+      "terminal_state": {"protected_target_changed": false}
+    },
+    {
+      "id": "resolution-unverifiable",
+      "declared_ref": "git:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "resolution_state": "unverifiable",
+      "resolved_revision": null,
+      "resolved_tree_digest": null,
+      "loaded_content_digest": null,
+      "action_authorized": true,
+      "expected_identity_state": "insufficient",
+      "expected_decision": "deny",
+      "execution_record_present": false,
+      "terminal_state": {"protected_target_changed": false}
+    },
+    {
+      "id": "identity-verified-action-not-authorized",
+      "declared_ref": "git:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "resolution_state": "verified",
+      "resolved_revision": "git:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "resolved_tree_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "loaded_content_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "action_authorized": false,
+      "expected_identity_state": "verified",
+      "expected_decision": "deny",
+      "execution_record_present": false,
+      "terminal_state": {"protected_target_changed": false}
+    }
+  ],
+  "proves": [
+    "declared references are distinct from resolved source identity and actually loaded content identity",
+    "a pinned-looking reference cannot satisfy the fixture when resolution or loaded content differs from the approved artifact",
+    "missing or unverifiable resolution remains insufficient evidence rather than trusted identity",
+    "verified artifact identity does not grant action authority",
+    "denied identity or authority cases have no protected effect within this synthetic fixture boundary"
+  ],
+  "does_not_prove": [
+    "Git hosting, package registry, plugin loader, signature, AIBOM, or CycloneDX implementations are correct",
+    "the approved artifact is semantically safe or free of vulnerabilities",
+    "production complete mediation or credential isolation",
+    "all artifact substitution paths are covered",
+    "compliance or certification"
+  ]
+}

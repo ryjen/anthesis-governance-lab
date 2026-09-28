@@ -90,7 +90,8 @@ jq -e '
 jq -e '
   .rows[] |
   select(.id == "owasp-aibom-artifact-identity") |
-  .coverage == "not-demonstrated" and
+  .coverage == "partial" and
+  any(.proves[]; contains("declared reference")) and
   any(.does_not_prove[]; contains("authorizes"))
 ' "$crosswalk" >/dev/null || fail "AIBOM row must preserve evidence-versus-authority limitation"
 

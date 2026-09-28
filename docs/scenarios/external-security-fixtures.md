@@ -230,6 +230,32 @@ The cases cover:
 
 The fixture does not test memory quality, model behavior, retrieval correctness, or every production laundering path. It demonstrates only the portable governance boundary: remembered context does not become current effect authority.
 
+## Declared, resolved, and loaded artifact identity
+
+Fixture: [`../../fixtures/external-security/artifact-resolution-identity-v1.json`](../../fixtures/external-security/artifact-resolution-identity-v1.json)
+
+This vector keeps three supply-chain facts distinct:
+
+```text
+declared reference
+  -> resolved revision/tree
+  -> actually loaded content
+```
+
+A reference that looks pinned is not sufficient if resolution produces a different revision/tree, and a correct resolution is not sufficient if different bytes are actually loaded.
+
+The fixture includes:
+
+- a matched declared/resolved/loaded positive control;
+- a SHA-looking declared ref that resolves to a different revision/tree;
+- a correct resolved artifact followed by substituted loaded bytes;
+- missing and unverifiable resolution states;
+- verified artifact identity with no independent action authority.
+
+The validator derives identity correspondence from the concrete revision/tree/content values, then derives the decision separately from identity state and action authority. Artifact integrity/provenance therefore remains evidence and cannot grant invocation authority.
+
+The fixture does not implement a Git resolver, package manager, plugin loader, signature verifier, AIBOM parser, or CycloneDX parser. It models only the portable identity and authority boundary.
+
 ## Validation
 
 Run:

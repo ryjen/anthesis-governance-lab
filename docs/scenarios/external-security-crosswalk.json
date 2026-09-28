@@ -56,13 +56,14 @@
       ],
       "proves": [
         "Dependency changes and networked acquisition can be separated from read-only inventory and placed behind approval.",
-        "Evidence mutation is denied and inference-integrity re-verification preserves immutable source evidence."
+        "Evidence mutation is denied and inference-integrity re-verification preserves immutable source evidence.",
+        "Provider-neutral fixtures separate evidence state from action authority and distinguish declared, resolved, and loaded artifact identity."
       ],
       "does_not_prove": [
         "A signed SBOM, model signature, attestation, or AIBOM was independently verified.",
         "Verified artifact provenance authorizes a runtime invocation."
       ],
-      "next_gap": "Add provider-neutral verified/missing/stale/mismatch/contradictory/unverifiable evidence fixtures and a verified-artifact-plus-unauthorized-invocation denial."
+      "next_gap": "Bind the provider-neutral evidence and artifact-identity distinctions to real signed SBOM/AIBOM/attestation, source resolution, and loader evidence."
     },
     {
       "id": "cosai-agentic-iam-delegation",
@@ -169,13 +170,14 @@
       ],
       "proves": [
         "Dependency inventory, dependency mutation, and networked installation are distinct declared effects with different decisions.",
-        "Recorded inference evidence cannot be silently rewritten during re-verification."
+        "Recorded inference evidence cannot be silently rewritten during re-verification.",
+        "A provider-neutral fixture detects declared-to-resolved and resolved-to-loaded artifact identity substitution."
       ],
       "does_not_prove": [
         "Model, prompt, skill, MCP server, dataset, or runtime artifacts have valid supply-chain attestations.",
         "Artifact integrity implies authorization to use the artifact."
       ],
-      "next_gap": "Add AIBOM/model/prompt-context digest substitution and evidence-state fixtures."
+      "next_gap": "Integrate real supply-chain attestation/source resolution and loader evidence without treating verified identity as invocation authority."
     },
     {
       "id": "owasp-agentic-asi06-memory-context",
@@ -217,15 +219,19 @@
       "framework": "OWASP AIBOM / CycloneDX",
       "external_ref": "AI artifact identity and composition evidence",
       "topic": "Model, prompt/context, runtime, and tool artifact identity",
-      "coverage": "not-demonstrated",
+      "coverage": "partial",
       "scenario_refs": [],
       "inference_scenario_refs": [],
-      "proves": [],
+      "proves": [
+        "The provider-neutral artifact-resolution fixture distinguishes declared reference, resolved revision/tree identity, and actually loaded content identity.",
+        "Synthetic substitution, missing resolution, and unverifiable resolution states fail without turning verified artifact identity into action authority."
+      ],
       "does_not_prove": [
-        "The lab currently parses or verifies an AIBOM or CycloneDX ML-BOM.",
+        "The lab parses or verifies a real AIBOM or CycloneDX ML-BOM.",
+        "A real Git host, package registry, plugin loader, signature, or attestation mechanism produced the observed identities.",
         "Composition evidence authorizes an artifact to execute."
       ],
-      "next_gap": "Coordinate Invokrum #98 and Anthesis #187 to add a generic prompt/context artifact identity and digest-substitution fixture."
+      "next_gap": "Bind the same identity distinctions to real AIBOM/CycloneDX and source/loader evidence in a bounded integration."
     },
     {
       "id": "cosai-agent-manifest-action-binding",
