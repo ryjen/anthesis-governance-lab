@@ -56,13 +56,14 @@
       ],
       "proves": [
         "Dependency changes and networked acquisition can be separated from read-only inventory and placed behind approval.",
-        "Evidence mutation is denied and inference-integrity re-verification preserves immutable source evidence."
+        "Evidence mutation is denied and inference-integrity re-verification preserves immutable source evidence.",
+        "Provider-neutral fixtures separate evidence state from action authority and distinguish declared, resolved, and loaded artifact identity."
       ],
       "does_not_prove": [
         "A signed SBOM, model signature, attestation, or AIBOM was independently verified.",
         "Verified artifact provenance authorizes a runtime invocation."
       ],
-      "next_gap": "Add provider-neutral verified/missing/stale/mismatch/contradictory/unverifiable evidence fixtures and a verified-artifact-plus-unauthorized-invocation denial."
+      "next_gap": "Bind the provider-neutral evidence and artifact-identity distinctions to real signed SBOM/AIBOM/attestation, source resolution, and loader evidence."
     },
     {
       "id": "cosai-agentic-iam-delegation",
