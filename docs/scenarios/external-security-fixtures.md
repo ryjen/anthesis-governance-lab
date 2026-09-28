@@ -223,5 +223,3 @@ The fixtures are designed to be adaptable to:
 - research/tooling that evaluates indirect environmental influence through deterministic state and terminal-effect assertions.
 
 Before proposing them upstream, translate field names into the target project's vocabulary and retain the `does_not_prove` limitations rather than presenting synthetic structural validation as production assurance.
-
-[executed on device: 76a4bdf5fc1b (a7fd9f41-8002-4c03-ac43-498109dd9775)]
