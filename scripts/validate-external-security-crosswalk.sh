@@ -95,4 +95,13 @@ jq -e '
   any(.does_not_prove[]; contains("authorizes"))
 ' "$crosswalk" >/dev/null || fail "AIBOM row must preserve evidence-versus-authority limitation"
 
+
+jq -e '
+  .rows[] |
+  select(.id == "owasp-agentic-asi06-memory-context") |
+  .coverage == "partial" and
+  any(.proves[]; contains("cannot self-authorize")) and
+  any(.does_not_prove[]; contains("production memory database"))
+' "$crosswalk" >/dev/null || fail "ASI06 row must preserve durable-memory structural coverage limits"
+
 echo "External agent-security crosswalk validation passed"
