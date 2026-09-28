@@ -230,6 +230,7 @@ jq -e '
 ' "$execution_fixture" >/dev/null || fail "execution-correspondence derived mismatch invariants are not preserved"
 
 jq -e '
+  . as $root |
   .version == "anthesis-governance-lab.external-security-trace-integrity/v1" and
   .synthetic == true and
   .executes_effects == false and
@@ -241,45 +242,58 @@ jq -e '
   .evidence_plane.local_trace_authoritative == false and
   .evidence_plane.independent_capture_required_for_authoritative_claim == true and
   (.evidence_plane.required_bindings | sort == ["action_digest", "actor_id", "decision_ref", "effect_id", "observed_result_digest", "run_id"]) and
-  (.cases | length == 6) and
+  (.expected_record | keys | sort == ["action_digest", "actor_id", "decision_ref", "effect_id", "observed_result_digest", "run_id"]) and
+  (.expected_record.action_digest | test("^sha256:[0-9a-f]{64}$")) and
+  (.expected_record.observed_result_digest | test("^sha256:[0-9a-f]{64}$")) and
+  (.cases | length == 7) and
   ([.cases[].id] | length == (unique | length)) and
   all(.cases[];
     (.id | type == "string" and length > 0) and
     (.local_trace_state | IN("intact", "deleted", "rewritten")) and
     ((.local_trace_consistent == null) or (.local_trace_consistent | type == "boolean")) and
     (.independent_capture_present | type == "boolean") and
+    ((.independent_record == null) or ((.independent_record | keys | sort) == ["action_digest", "actor_id", "decision_ref", "effect_id", "observed_result_digest", "run_id"])) and
+    ((.local_record == null) or ((.local_record | keys | sort) == ["action_digest", "actor_id", "decision_ref", "effect_id", "observed_result_digest", "run_id"])) and
     (.independent_mutation_attempt | type == "boolean") and
     (.independent_mutation_succeeded | type == "boolean") and
     (.effect_path | IN("governed_adapter", "alternate_path")) and
     (.effect_path_covered | type == "boolean") and
     (.terminal_effect_observed | type == "boolean") and
     (.authoritative_effect_claim_supported | type == "boolean") and
-    (.expected_evidence_state | IN("verified", "verified_with_local_mismatch", "insufficient")) and
-    (.expected_reason | type == "string" and length > 0)
+    (.expected_evidence_state | IN("verified", "verified_with_local_mismatch", "mismatch", "insufficient")) and
+    (.expected_reason | type == "string" and length > 0) and
+    (.authoritative_effect_claim_supported == ((.independent_capture_present == true) and (.independent_record == $root.expected_record) and (.effect_path_covered == true)))
   ) and
   (.proves | type == "array" and length > 0) and
   (.does_not_prove | type == "array" and length > 0)
 ' "$trace_fixture" >/dev/null || fail "trace-integrity fixture contract is invalid"
 
 jq -e '
+  . as $root |
   any(.cases[];
     .id == "baseline-independent-capture" and
     .local_trace_state == "intact" and
     .local_trace_consistent == true and
     .independent_capture_present == true and
+    .independent_record == $root.expected_record and
+    .local_record == $root.expected_record and
     .effect_path_covered == true and
     .authoritative_effect_claim_supported == true and
     .expected_evidence_state == "verified") and
   any(.cases[];
     .id == "local-trace-deleted-after-effect" and
     .local_trace_state == "deleted" and
+    .local_record == null and
     .independent_capture_present == true and
+    .independent_record == $root.expected_record and
     .authoritative_effect_claim_supported == true and
     .expected_reason == "independent_capture_survives_local_trace_deletion") and
   any(.cases[];
     .id == "local-trace-rewritten-after-effect" and
     .local_trace_state == "rewritten" and
     .local_trace_consistent == false and
+    .local_record != .independent_record and
+    .independent_record == $root.expected_record and
     .authoritative_effect_claim_supported == true and
     .expected_evidence_state == "verified_with_local_mismatch") and
   any(.cases[];
@@ -287,6 +301,13 @@ jq -e '
     .independent_mutation_attempt == true and
     .independent_mutation_succeeded == false and
     .authoritative_effect_claim_supported == true) and
+  any(.cases[];
+    .id == "independent-capture-wrong-effect-binding" and
+    .independent_capture_present == true and
+    .independent_record.effect_id == "synthetic.effect.other" and
+    .authoritative_effect_claim_supported == false and
+    .expected_evidence_state == "mismatch" and
+    .expected_reason == "independent_capture_binding_mismatch") and
   any(.cases[];
     .id == "independent-capture-unavailable" and
     .independent_capture_present == false and
