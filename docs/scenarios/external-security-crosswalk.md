@@ -26,10 +26,10 @@ A `demonstrated` row still inherits the repository's integration boundary: Gover
 | OWASP GenAI LLM Top 10 2026 | Excessive agency | partial | unrestricted command denial; deploy/release denial; workflow approval | no live downstream complete-mediation proof |
 | OWASP Agentic ASI02 | Tool Misuse & Exploitation | partial | bounded test command vs unrestricted/capability-expanding command | no exact live tool/argument authorization binding |
 | OWASP Agentic ASI03 | Identity & Privilege Abuse | demonstrated | registered runtime allowed; unknown runtime read/write denied; missing resolved inference identity rejected | no production workload-identity issuance/authentication proof |
-| OWASP Agentic ASI04 | Agentic Supply Chain Vulnerabilities | partial | dependency inventory/mutation/install separation; immutable evidence | no AI artifact attestation/AIBOM verification |
+| OWASP Agentic ASI04 | Agentic Supply Chain Vulnerabilities | partial | dependency inventory/mutation/install separation; immutable evidence; [`artifact-resolution-identity-v1.json`](../../fixtures/external-security/artifact-resolution-identity-v1.json) substitution vector | no live supply-chain attestation/source-resolution/loader proof |
 | OWASP Agentic ASI06 | Memory & Context Poisoning | not-demonstrated | none | public contract does not yet express governed durable-memory/context writes |
 | OWASP Agentic ASI07 | Insecure Inter-Agent Communication | not-demonstrated | specialist/synthesis tamper localization is adjacent evidence | no authenticated/replay-resistant handoff or delegation-continuity vector |
-| OWASP AIBOM / CycloneDX | AI artifact identity/composition | not-demonstrated | none | no AIBOM/ML-BOM parser or prompt/context artifact fixture |
+| OWASP AIBOM / CycloneDX | AI artifact identity/composition | partial | provider-neutral [`artifact-resolution-identity-v1.json`](../../fixtures/external-security/artifact-resolution-identity-v1.json) declared/resolved/loaded identity vector | no real AIBOM/CycloneDX parser or source/loader attestation integration |
 | CoSAI Agent Manifest #149 | Manifest-version to action-time authority binding | not-demonstrated | route-change and re-verification mutation detection are adjacent | no exact action decision bound to admitted manifest version |
 
 ## Reused scenario inventory
@@ -61,6 +61,17 @@ These fixtures still **do not** demonstrate that a real operating system, networ
 - inference `reject-reverification-mutation`
 
 These establish that dependency mutation/acquisition can receive stronger decisions than inventory reads and that recorded evidence is protected from silent mutation. They do **not** establish that an external signature, SBOM, AIBOM, attestation, or vulnerability statement is valid.
+
+
+The provider-neutral [`artifact-resolution-identity-v1.json`](../../fixtures/external-security/artifact-resolution-identity-v1.json) vector additionally distinguishes:
+
+```text
+declared reference
+  -> resolved revision/tree
+  -> actually loaded content
+```
+
+It detects a pinned-looking reference resolving to a different revision/tree and a correct resolution followed by substituted loaded bytes. Verified identity remains separate from action authority. This is still structural evidence only; it does not validate a real Git host, package registry, plugin loader, signature, AIBOM, or CycloneDX document.
 
 ### Identity and capability narrowing
 
@@ -171,7 +182,7 @@ Initial targets:
 3. CoSAI MCP Security #26 — evidence-state and `verified artifact != authorized action` scenarios;
 4. CoSAI Agent Manifest #149 — manifest-version/action-time decision binding vector;
 5. OWASP Agentic — tool misuse, identity/privilege, supply-chain, memory/context, and inter-agent cases;
-6. OWASP AIBOM — provider-neutral AI artifact identity/substitution case after Invokrum/Anthesis work establishes the representation.
+6. OWASP AIBOM — reuse the provider-neutral declared/resolved/loaded identity substitution vector and map it to real AIBOM/CycloneDX source and loader evidence.
 
 ## Assurance boundary
 
