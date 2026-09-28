@@ -192,10 +192,11 @@ The fixture includes:
 - local trace deletion after the modeled effect;
 - local trace rewriting that conflicts with independent evidence;
 - an attempted mutation of the independent evidence sink that is blocked;
+- an independent record whose effect binding does not match the expected actor/run/effect/action/decision/result tuple, which yields a mismatch;
 - missing independent capture, which yields insufficient evidence;
 - an alternate effect path not covered by the recorder, which also yields insufficient evidence.
 
-The independent record binds the modeled actor/run, exact effect identity, action digest, decision reference, and observed result digest. A surviving independent record can support an effect claim even when the actor-local trace is gone, while a local mismatch remains visible rather than rewriting the independent record.
+Each case carries concrete actor/run, exact effect identity, action digest, decision reference, and observed-result bindings. The validator derives claim support only when the independent record exactly matches the expected tuple and the effect path is covered; the boolean claim field cannot override a missing or mismatched record. A surviving independent record can support an effect claim even when the actor-local trace is gone, while a local mismatch remains visible rather than rewriting the independent record.
 
 The fixture deliberately does **not** claim that an external collector, kernel, host, storage backend, or arbitrary telemetry pipeline is tamper-proof. It also does not prove complete mediation: if an equivalent effect path is not covered by the independent recorder, the evidence claim remains insufficient. That limitation composes with the separate effect-path-closure fixture rather than replacing it.
 
