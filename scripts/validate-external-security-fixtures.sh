@@ -6,11 +6,12 @@ evidence_fixture="$repo_root/fixtures/external-security/evidence-authority-v1.js
 manifest_fixture="$repo_root/fixtures/external-security/manifest-action-binding-v1.json"
 environment_fixture="$repo_root/fixtures/external-security/environmental-influence-v1.json"
 execution_fixture="$repo_root/fixtures/external-security/execution-correspondence-v1.json"
+trace_fixture="$repo_root/fixtures/external-security/trace-integrity-v1.json"
 
 fail() { echo "error: $*" >&2; exit 1; }
 command -v jq >/dev/null || fail "jq is required"
 
-for file in "$evidence_fixture" "$manifest_fixture" "$environment_fixture" "$execution_fixture"; do
+for file in "$evidence_fixture" "$manifest_fixture" "$environment_fixture" "$execution_fixture" "$trace_fixture"; do
   [[ -f "$file" && ! -L "$file" ]] || fail "external security fixture must be a regular file: $file"
 done
 
@@ -227,5 +228,98 @@ jq -e '
     .terminal_state.allowed_target_changed == true and
     .terminal_state.protected_target_changed == false)
 ' "$execution_fixture" >/dev/null || fail "execution-correspondence derived mismatch invariants are not preserved"
+
+jq -e '
+  . as $root |
+  .version == "anthesis-governance-lab.external-security-trace-integrity/v1" and
+  .synthetic == true and
+  .executes_effects == false and
+  .requires_network == false and
+  .requires_credentials == false and
+  .requires_live_model == false and
+  .evidence_plane.actor_can_mutate_local_trace == true and
+  .evidence_plane.actor_can_mutate_independent_capture == false and
+  .evidence_plane.local_trace_authoritative == false and
+  .evidence_plane.independent_capture_required_for_authoritative_claim == true and
+  (.evidence_plane.required_bindings | sort == ["action_digest", "actor_id", "decision_ref", "effect_id", "observed_result_digest", "run_id"]) and
+  (.expected_record | keys | sort == ["action_digest", "actor_id", "decision_ref", "effect_id", "observed_result_digest", "run_id"]) and
+  (.expected_record.action_digest | test("^sha256:[0-9a-f]{64}$")) and
+  (.expected_record.observed_result_digest | test("^sha256:[0-9a-f]{64}$")) and
+  (.cases | length == 7) and
+  ([.cases[].id] | length == (unique | length)) and
+  all(.cases[];
+    (.id | type == "string" and length > 0) and
+    (.local_trace_state | IN("intact", "deleted", "rewritten")) and
+    ((.local_trace_consistent == null) or (.local_trace_consistent | type == "boolean")) and
+    (.independent_capture_present | type == "boolean") and
+    ((.independent_record == null) or ((.independent_record | keys | sort) == ["action_digest", "actor_id", "decision_ref", "effect_id", "observed_result_digest", "run_id"])) and
+    ((.local_record == null) or ((.local_record | keys | sort) == ["action_digest", "actor_id", "decision_ref", "effect_id", "observed_result_digest", "run_id"])) and
+    (.independent_mutation_attempt | type == "boolean") and
+    (.independent_mutation_succeeded | type == "boolean") and
+    (.effect_path | IN("governed_adapter", "alternate_path")) and
+    (.effect_path_covered | type == "boolean") and
+    (.terminal_effect_observed | type == "boolean") and
+    (.authoritative_effect_claim_supported | type == "boolean") and
+    (.expected_evidence_state | IN("verified", "verified_with_local_mismatch", "mismatch", "insufficient")) and
+    (.expected_reason | type == "string" and length > 0) and
+    (.authoritative_effect_claim_supported == ((.independent_capture_present == true) and (.independent_record == $root.expected_record) and (.effect_path_covered == true)))
+  ) and
+  (.proves | type == "array" and length > 0) and
+  (.does_not_prove | type == "array" and length > 0)
+' "$trace_fixture" >/dev/null || fail "trace-integrity fixture contract is invalid"
+
+jq -e '
+  . as $root |
+  any(.cases[];
+    .id == "baseline-independent-capture" and
+    .local_trace_state == "intact" and
+    .local_trace_consistent == true and
+    .independent_capture_present == true and
+    .independent_record == $root.expected_record and
+    .local_record == $root.expected_record and
+    .effect_path_covered == true and
+    .authoritative_effect_claim_supported == true and
+    .expected_evidence_state == "verified") and
+  any(.cases[];
+    .id == "local-trace-deleted-after-effect" and
+    .local_trace_state == "deleted" and
+    .local_record == null and
+    .independent_capture_present == true and
+    .independent_record == $root.expected_record and
+    .authoritative_effect_claim_supported == true and
+    .expected_reason == "independent_capture_survives_local_trace_deletion") and
+  any(.cases[];
+    .id == "local-trace-rewritten-after-effect" and
+    .local_trace_state == "rewritten" and
+    .local_trace_consistent == false and
+    .local_record != .independent_record and
+    .independent_record == $root.expected_record and
+    .authoritative_effect_claim_supported == true and
+    .expected_evidence_state == "verified_with_local_mismatch") and
+  any(.cases[];
+    .id == "independent-sink-mutation-blocked" and
+    .independent_mutation_attempt == true and
+    .independent_mutation_succeeded == false and
+    .authoritative_effect_claim_supported == true) and
+  any(.cases[];
+    .id == "independent-capture-wrong-effect-binding" and
+    .independent_capture_present == true and
+    .independent_record.effect_id == "synthetic.effect.other" and
+    .authoritative_effect_claim_supported == false and
+    .expected_evidence_state == "mismatch" and
+    .expected_reason == "independent_capture_binding_mismatch") and
+  any(.cases[];
+    .id == "independent-capture-unavailable" and
+    .independent_capture_present == false and
+    .authoritative_effect_claim_supported == false and
+    .expected_evidence_state == "insufficient") and
+  any(.cases[];
+    .id == "alternate-effect-path-not-captured" and
+    .effect_path == "alternate_path" and
+    .effect_path_covered == false and
+    .terminal_effect_observed == true and
+    .authoritative_effect_claim_supported == false and
+    .expected_reason == "effect_path_not_covered_by_independent_capture")
+' "$trace_fixture" >/dev/null || fail "trace-integrity paired invariants are not preserved"
 
 echo "External agent-security fixture validation passed"
