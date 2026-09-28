@@ -154,7 +154,7 @@ The resulting Git diff and `reference-trial.json` make the allowed mutation and 
 
 The crosswalk is non-normative. It records what current synthetic fixtures prove and, equally importantly, what they do not prove. `scripts/validate-external-security-crosswalk.sh` verifies that mapped demo and inference scenario IDs actually exist and that required assurance limitations are retained.
 
-`fixtures/external-security/` contains provider-neutral structural test vectors for evidence-state-versus-authority and manifest-version-versus-action-time binding. They do not extend the current `anthesis-lab` evaluator contract or execute effects. `scripts/validate-external-security-fixtures.sh` checks the vector contracts and paired fail-closed invariants.
+`fixtures/external-security/` contains provider-neutral structural test vectors for evidence-state-versus-authority, manifest/action binding, authorization/execution correspondence, effect-path closure, and independent trace integrity. They do not extend the current `anthesis-lab` evaluator contract or execute effects. `scripts/validate-external-security-fixtures.sh` checks the vector contracts and paired fail-closed/evidence-isolation invariants.
 
 ## Integration boundary
 
@@ -190,3 +190,5 @@ Pull requests and `main` run the real Rust CLI without repository secrets. CI ve
 ## License
 
 Licensed under the Apache License 2.0. See [LICENSE](LICENSE).
+
+[executed on device: 76a4bdf5fc1b (a7fd9f41-8002-4c03-ac43-498109dd9775)]
