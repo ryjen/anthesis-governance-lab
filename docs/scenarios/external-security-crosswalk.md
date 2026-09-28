@@ -21,7 +21,7 @@ A `demonstrated` row still inherits the repository's integration boundary: Gover
 | External guidance | Topic | Coverage | Existing lab evidence | Main gap |
 | --- | --- | --- | --- | --- |
 | CoSAI MCP Security #22 | Complete mediation / bypass resistance | runtime-dependent | network/tool allow/approval/deny cases; unknown-runtime denial; inference direct-runtime-bypass and fail-closed verifier cases; provider-neutral [`effect-path-closure-v1.json`](../../fixtures/external-security/effect-path-closure-v1.json) structural vector | no proof that raw endpoints, credentials, network routes, or alternate registries are unreachable in production |
-| CoSAI MCP Security #26 | Supply-chain provenance and authority boundary | partial | dependency read/change/install separation; evidence-write denial; immutable re-verification cases | no provider-neutral SBOM/AIBOM/signature/attestation state model yet |
+| CoSAI MCP Security #26 | Supply-chain provenance and authority boundary | partial | dependency read/change/install separation; evidence-state/authority fixture; immutable re-verification; declared/resolved/loaded artifact identity fixture | no live signed SBOM/AIBOM/attestation, source-resolution, or loader proof |
 | CoSAI Agentic IAM | Delegation and least privilege | partial | capability-expansion denial; registered vs unknown runtime decisions | no authenticated delegation chain or child-scope attenuation vector |
 | OWASP GenAI LLM Top 10 2026 | Excessive agency | partial | unrestricted command denial; deploy/release denial; workflow approval | no live downstream complete-mediation proof |
 | OWASP Agentic ASI02 | Tool Misuse & Exploitation | partial | bounded test command vs unrestricted/capability-expanding command | no exact live tool/argument authorization binding |
@@ -87,9 +87,9 @@ These establish deterministic fail-closed behavior for unknown/missing runtime i
 
 The inventory shows that the next work should not be another broad demo pack. The smallest missing vectors are cross-boundary cases that the current declaration contract cannot fully express yet.
 
-### 1. Verified artifact does not grant action authority
+### 1. Artifact evidence and identity substitution
 
-Desired result:
+Provider-neutral vectors now cover both boundaries:
 
 ```text
 artifact evidence = verified
@@ -97,18 +97,15 @@ requested action = outside current authority
 result = deny
 ```
 
-The fixture should represent evidence state independently from the action authorization result. A valid signature, AIBOM, SBOM, model identity, or attestation must never become an implicit allow.
+and:
 
-Required evidence states for the eventual provider-neutral fixture:
+```text
+declared reference
+  -> resolved revision/tree
+  -> actually loaded content
+```
 
-- `verified`
-- `missing`
-- `stale`
-- `mismatch`
-- `contradictory`
-- `unverifiable`
-
-Operational/provider failure must remain distinguishable from negative evidence.
+`evidence-authority-v1.json` keeps verified/missing/stale/mismatch/contradictory/unverifiable evidence separate from action authority. `artifact-resolution-identity-v1.json` detects declared-to-resolved and resolved-to-loaded substitution. The remaining gap is binding these structural vectors to real signed SBOM/AIBOM/attestation, source-resolution, and loader evidence.
 
 ### 2. Exact action decision becomes stale after manifest drift
 
