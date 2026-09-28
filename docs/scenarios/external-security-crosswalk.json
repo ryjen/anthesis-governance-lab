@@ -191,15 +191,18 @@
         "Untrusted external or observed content cannot self-authorize a durable trusted-memory write.",
         "Explicit instruction, system-prompt inference, compaction, and experience-to-procedure writes remain candidates unless the applicable write/promotion requirements are satisfied.",
         "Approved retrieval-memory writes remain non-authoritative and preserve provenance.",
-        "Trusted guidance requires provenance, exact candidate identity, independent validation, and promotion approval in the synthetic vector."
+        "Trusted guidance requires provenance, exact candidate identity, independent validation, and promotion approval in the synthetic write vector.",
+        "Multi-record co-retrieval and context-triggered activation remain non-authoritative and cannot authorize a protected effect.",
+        "Retrieval conflicts with current structured state are surfaced rather than resolved by retrieval order or synthesized context."
       ],
       "does_not_prove": [
-        "A production memory database, retrieval pipeline, compaction engine, or skill store enforces these rules.",
+        "A production memory database, retrieval pipeline, compaction engine, skill store, or context assembler enforces these rules.",
+        "A production retriever detects malicious semantic composition or dormant triggers.",
         "All memory-poisoning attacks are detected.",
         "Retrieved or promoted content is semantically true or safe outside its evaluated scope.",
         "Production complete mediation, cross-agent isolation, expiry, or credential isolation."
       ],
-      "next_gap": "Bind the same write/promotion invariants to a real Dubnium memory write/retrieval path and verify provenance, isolation, currentness, and denial effects without treating the memory subsystem as authority."
+      "next_gap": "Bind the write/promotion and composition/trigger invariants to a real Dubnium memory write/retrieval/context-assembly path and verify provenance, isolation, currentness, conflict handling, and denial effects without treating memory as authority."
     },
     {
       "id": "owasp-agentic-asi07-inter-agent",

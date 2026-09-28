@@ -312,6 +312,35 @@ Positive controls show both permitted outcomes: an approved source may enter ret
 
 This fixture does not implement a production memory database, retrieval system, poisoning detector, or memory-policy engine. It demonstrates only the portable write/promotion boundary.
 
+## Compositional and dormant memory poisoning
+
+Fixture: [`../../fixtures/external-security/memory-composition-trigger-v1.json`](../../fixtures/external-security/memory-composition-trigger-v1.json)
+
+This vector covers the use-time gap that remains after pointwise write admission:
+
+```text
+individually plausible retrieval records
+        |
+        +-> joint retrieval / derived context
+        |      -> harmful candidate
+        |
+        +-> later natural trigger
+               -> dormant candidate activates
+
+candidate behavior != authority
+```
+
+The fixture keeps every contributing record as non-authoritative retrieval memory with explicit provenance. The validator derives:
+
+- whether retrieved records form a multi-record composition;
+- whether a dormant record's declared trigger is active;
+- whether retrieved content conflicts with current structured state;
+- whether an exact requested effect has independent current authority.
+
+The cases include individually inert L2 fragments, harmful co-retrieval without authority, dormant/no-trigger and triggered L3 cases, benign multi-record context, a positive exact-authority control, and retrieval conflicting with current structured state.
+
+This does not claim semantic poison detection, model behavior prediction, or live retrieval enforcement. It demonstrates the portable invariant that composition, repetition, synthesis, or trigger activation cannot upgrade retrieval memory into authority.
+
 ## Validation
 
 Run:
