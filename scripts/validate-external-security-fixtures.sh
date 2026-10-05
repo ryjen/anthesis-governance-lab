@@ -824,10 +824,13 @@ jq -e '
      $c.authorization.actor == $c.delegation.child_actor and
      $c.execution.actor == $c.delegation.child_actor);
   def freshness_ok($c):
-    ($c.authorization.context_revision == $c.context.revision and
-     $c.execution.context_revision == $c.context.revision and
-     $c.authorization.policy_revision == $c.execution.policy_revision and
-     $c.authorization.state_revision == $c.execution.state_revision);
+    ($c.context.revision == $c.effect_time.context_revision and
+     $c.authorization.context_revision == $c.effect_time.context_revision and
+     $c.execution.context_revision == $c.effect_time.context_revision and
+     $c.authorization.policy_revision == $c.effect_time.policy_revision and
+     $c.execution.policy_revision == $c.effect_time.policy_revision and
+     $c.authorization.state_revision == $c.effect_time.state_revision and
+     $c.execution.state_revision == $c.effect_time.state_revision);
   def action_ok($c):
     if $c.authorization.action_digest == $c.execution.action_digest then
       ($c.transform.mode == "identity" and
@@ -836,6 +839,7 @@ jq -e '
     else
       ($c.transform.mode == "declared" and
        $c.transform.relation_witness_valid == true and
+       ($c.transform.relation_witness_ref | type == "string" and length > 0) and
        $c.transform.before_action_digest == $c.authorization.action_digest and
        $c.transform.after_action_digest == $c.execution.action_digest)
     end;
@@ -892,6 +896,9 @@ jq -e '
     (.authorization.context_revision | type == "string" and length > 0) and
     (.authorization.policy_revision | type == "string" and length > 0) and
     (.authorization.state_revision | type == "string" and length > 0) and
+    (.effect_time.context_revision | type == "string" and length > 0) and
+    (.effect_time.policy_revision | type == "string" and length > 0) and
+    (.effect_time.state_revision | type == "string" and length > 0) and
     (.execution.action_digest | test("^sha256:[0-9a-f]{64}$")) and
     (.execution.context_revision | type == "string" and length > 0) and
     (.execution.policy_revision | type == "string" and length > 0) and
@@ -902,6 +909,10 @@ jq -e '
     (.execution.benign_effect_occurred | type == "boolean") and
     (.transform.mode | IN("identity", "declared", "undeclared")) and
     (.transform.relation_witness_valid | type == "boolean") and
+    (if .transform.mode == "declared" and .transform.relation_witness_valid == true
+     then (.transform.relation_witness_ref | type == "string" and length > 0)
+     else .transform.relation_witness_ref == null
+     end) and
     (.transform.before_action_digest | test("^sha256:[0-9a-f]{64}$")) and
     (.transform.after_action_digest | test("^sha256:[0-9a-f]{64}$")) and
     (.detection.suspicious | type == "boolean") and
