@@ -1,0 +1,637 @@
+{
+  "version": "anthesis-governance-lab.external-security-cross-control-composition/v1",
+  "synthetic": true,
+  "executes_effects": false,
+  "requires_network": false,
+  "requires_credentials": false,
+  "requires_live_model": false,
+  "research_ref": "arxiv:2606.10749v2",
+  "policy": {
+    "provenance_continuity_required": true,
+    "delegated_context_required": true,
+    "current_state_required_at_effect_time": true,
+    "exact_action_binding_required": true,
+    "authorized_transforms_require_relation_witness": true,
+    "effect_path_coverage_required": true,
+    "detection_is_not_containment": true,
+    "recovery_requires_quarantine_and_path_closure": true,
+    "utility_cannot_override_failed_security_gate": true,
+    "veto_capable_denial_has_null_protected_effect": true
+  },
+  "baseline": {
+    "source_ref": "source:web:synthetic-1",
+    "observation_ref": "observation:synthetic-1",
+    "context_revision": "ctx-r1",
+    "parent_actor": "actor:supervisor",
+    "child_actor": "actor:specialist",
+    "policy_revision": "policy-r1",
+    "state_revision": "state-r1",
+    "protected_effect": "synthetic.effect.publish",
+    "benign_effect": "synthetic.effect.report",
+    "authorized_action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "cases": [
+    {
+      "id": "positive-composition",
+      "requested_effect": "synthetic.effect.publish",
+      "long_horizon_steps": 3,
+      "observation": {
+        "source_ref": "source:web:synthetic-1",
+        "provenance_present": true
+      },
+      "context": {
+        "source_ref": "source:web:synthetic-1",
+        "provenance_present": true,
+        "revision": "ctx-r1"
+      },
+      "delegation": {
+        "parent_actor": "actor:supervisor",
+        "child_actor": "actor:specialist",
+        "caller_context_preserved": true,
+        "scope_allows_requested_effect": true
+      },
+      "authorization": {
+        "authorized": true,
+        "actor": "actor:specialist",
+        "action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_revision": "policy-r1",
+        "state_revision": "state-r1"
+      },
+      "execution": {
+        "actor": "actor:specialist",
+        "action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_revision": "policy-r1",
+        "state_revision": "state-r1",
+        "effect_path_covered": true,
+        "provider_ambient_authority": false,
+        "protected_effect_occurred": true,
+        "benign_effect_occurred": false
+      },
+      "transform": {
+        "mode": "identity",
+        "relation_witness_valid": false,
+        "before_action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "after_action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "detection": {
+        "suspicious": false
+      },
+      "recovery": {
+        "candidate_state_quarantined": false,
+        "contaminated_effect_paths_closed": false,
+        "authority_re_evaluated": false,
+        "attributable_evidence_present": true
+      },
+      "local_controls_passed": [
+        "provenance_ingress",
+        "delegation",
+        "authorization",
+        "effect_path"
+      ],
+      "observations": {
+        "utility_score": 0.91,
+        "latency_ms": 140,
+        "cost_units": 1.2
+      },
+      "expected": {
+        "provenance_continuity": true,
+        "delegation_continuity": true,
+        "state_freshness": true,
+        "action_correspondence": true,
+        "effect_path_coverage": true,
+        "recovery_sufficient": true,
+        "security_claim": "pass",
+        "decision": "allow"
+      }
+    },
+    {
+      "id": "provenance-drop-after-normalization",
+      "requested_effect": "synthetic.effect.publish",
+      "long_horizon_steps": 4,
+      "observation": {
+        "source_ref": "source:web:synthetic-1",
+        "provenance_present": true
+      },
+      "context": {
+        "source_ref": null,
+        "provenance_present": false,
+        "revision": "ctx-r1"
+      },
+      "delegation": {
+        "parent_actor": "actor:supervisor",
+        "child_actor": "actor:specialist",
+        "caller_context_preserved": true,
+        "scope_allows_requested_effect": true
+      },
+      "authorization": {
+        "authorized": true,
+        "actor": "actor:specialist",
+        "action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_revision": "policy-r1",
+        "state_revision": "state-r1"
+      },
+      "execution": {
+        "actor": "actor:specialist",
+        "action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_revision": "policy-r1",
+        "state_revision": "state-r1",
+        "effect_path_covered": true,
+        "provider_ambient_authority": false,
+        "protected_effect_occurred": false,
+        "benign_effect_occurred": false
+      },
+      "transform": {
+        "mode": "identity",
+        "relation_witness_valid": false,
+        "before_action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "after_action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "detection": {
+        "suspicious": false
+      },
+      "recovery": {
+        "candidate_state_quarantined": false,
+        "contaminated_effect_paths_closed": false,
+        "authority_re_evaluated": false,
+        "attributable_evidence_present": true
+      },
+      "local_controls_passed": [
+        "authorization",
+        "effect_path",
+        "execution_identity"
+      ],
+      "observations": {
+        "utility_score": 0.98,
+        "latency_ms": 120,
+        "cost_units": 0.8
+      },
+      "expected": {
+        "provenance_continuity": false,
+        "delegation_continuity": true,
+        "state_freshness": true,
+        "action_correspondence": true,
+        "effect_path_coverage": true,
+        "recovery_sufficient": true,
+        "security_claim": "fail",
+        "decision": "deny"
+      }
+    },
+    {
+      "id": "delegation-context-drop",
+      "requested_effect": "synthetic.effect.publish",
+      "long_horizon_steps": 4,
+      "observation": {
+        "source_ref": "source:web:synthetic-1",
+        "provenance_present": true
+      },
+      "context": {
+        "source_ref": "source:web:synthetic-1",
+        "provenance_present": true,
+        "revision": "ctx-r1"
+      },
+      "delegation": {
+        "parent_actor": "actor:supervisor",
+        "child_actor": "actor:specialist",
+        "caller_context_preserved": false,
+        "scope_allows_requested_effect": true
+      },
+      "authorization": {
+        "authorized": true,
+        "actor": "actor:specialist",
+        "action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_revision": "policy-r1",
+        "state_revision": "state-r1"
+      },
+      "execution": {
+        "actor": "actor:specialist",
+        "action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_revision": "policy-r1",
+        "state_revision": "state-r1",
+        "effect_path_covered": true,
+        "provider_ambient_authority": true,
+        "protected_effect_occurred": false,
+        "benign_effect_occurred": false
+      },
+      "transform": {
+        "mode": "identity",
+        "relation_witness_valid": false,
+        "before_action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "after_action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "detection": {
+        "suspicious": false
+      },
+      "recovery": {
+        "candidate_state_quarantined": false,
+        "contaminated_effect_paths_closed": false,
+        "authority_re_evaluated": false,
+        "attributable_evidence_present": true
+      },
+      "local_controls_passed": [
+        "provenance",
+        "authorization",
+        "effect_path"
+      ],
+      "observations": {
+        "utility_score": 0.96,
+        "latency_ms": 130,
+        "cost_units": 0.9
+      },
+      "expected": {
+        "provenance_continuity": true,
+        "delegation_continuity": false,
+        "state_freshness": true,
+        "action_correspondence": true,
+        "effect_path_coverage": true,
+        "recovery_sufficient": true,
+        "security_claim": "fail",
+        "decision": "deny"
+      }
+    },
+    {
+      "id": "delayed-state-staleness",
+      "requested_effect": "synthetic.effect.publish",
+      "long_horizon_steps": 9,
+      "observation": {
+        "source_ref": "source:web:synthetic-1",
+        "provenance_present": true
+      },
+      "context": {
+        "source_ref": "source:web:synthetic-1",
+        "provenance_present": true,
+        "revision": "ctx-r2"
+      },
+      "delegation": {
+        "parent_actor": "actor:supervisor",
+        "child_actor": "actor:specialist",
+        "caller_context_preserved": true,
+        "scope_allows_requested_effect": true
+      },
+      "authorization": {
+        "authorized": true,
+        "actor": "actor:specialist",
+        "action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_revision": "policy-r1",
+        "state_revision": "state-r1"
+      },
+      "execution": {
+        "actor": "actor:specialist",
+        "action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_revision": "policy-r2",
+        "state_revision": "state-r2",
+        "effect_path_covered": true,
+        "provider_ambient_authority": false,
+        "protected_effect_occurred": false,
+        "benign_effect_occurred": false
+      },
+      "transform": {
+        "mode": "identity",
+        "relation_witness_valid": false,
+        "before_action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "after_action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "detection": {
+        "suspicious": false
+      },
+      "recovery": {
+        "candidate_state_quarantined": false,
+        "contaminated_effect_paths_closed": false,
+        "authority_re_evaluated": false,
+        "attributable_evidence_present": true
+      },
+      "local_controls_passed": [
+        "provenance",
+        "delegation",
+        "authorization_at_issue_time",
+        "effect_path"
+      ],
+      "observations": {
+        "utility_score": 0.94,
+        "latency_ms": 160,
+        "cost_units": 1.1
+      },
+      "expected": {
+        "provenance_continuity": true,
+        "delegation_continuity": true,
+        "state_freshness": false,
+        "action_correspondence": true,
+        "effect_path_coverage": true,
+        "recovery_sufficient": true,
+        "security_claim": "fail",
+        "decision": "deny"
+      }
+    },
+    {
+      "id": "detection-without-containment",
+      "requested_effect": "synthetic.effect.publish",
+      "long_horizon_steps": 7,
+      "observation": {
+        "source_ref": "source:web:synthetic-1",
+        "provenance_present": true
+      },
+      "context": {
+        "source_ref": "source:web:synthetic-1",
+        "provenance_present": true,
+        "revision": "ctx-r1"
+      },
+      "delegation": {
+        "parent_actor": "actor:supervisor",
+        "child_actor": "actor:specialist",
+        "caller_context_preserved": true,
+        "scope_allows_requested_effect": true
+      },
+      "authorization": {
+        "authorized": true,
+        "actor": "actor:specialist",
+        "action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_revision": "policy-r1",
+        "state_revision": "state-r1"
+      },
+      "execution": {
+        "actor": "actor:specialist",
+        "action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_revision": "policy-r1",
+        "state_revision": "state-r1",
+        "effect_path_covered": true,
+        "provider_ambient_authority": false,
+        "protected_effect_occurred": false,
+        "benign_effect_occurred": false
+      },
+      "transform": {
+        "mode": "identity",
+        "relation_witness_valid": false,
+        "before_action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "after_action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "detection": {
+        "suspicious": true
+      },
+      "recovery": {
+        "candidate_state_quarantined": false,
+        "contaminated_effect_paths_closed": false,
+        "authority_re_evaluated": false,
+        "attributable_evidence_present": true
+      },
+      "local_controls_passed": [
+        "provenance",
+        "delegation",
+        "authorization",
+        "detection"
+      ],
+      "observations": {
+        "utility_score": 0.99,
+        "latency_ms": 100,
+        "cost_units": 0.7
+      },
+      "expected": {
+        "provenance_continuity": true,
+        "delegation_continuity": true,
+        "state_freshness": true,
+        "action_correspondence": true,
+        "effect_path_coverage": true,
+        "recovery_sufficient": false,
+        "security_claim": "fail",
+        "decision": "deny"
+      }
+    },
+    {
+      "id": "recovery-closes-contaminated-path-and-continues-benign-work",
+      "requested_effect": "synthetic.effect.report",
+      "long_horizon_steps": 8,
+      "observation": {
+        "source_ref": "source:web:synthetic-1",
+        "provenance_present": true
+      },
+      "context": {
+        "source_ref": "source:web:synthetic-1",
+        "provenance_present": true,
+        "revision": "ctx-r3"
+      },
+      "delegation": {
+        "parent_actor": "actor:supervisor",
+        "child_actor": "actor:specialist",
+        "caller_context_preserved": true,
+        "scope_allows_requested_effect": true
+      },
+      "authorization": {
+        "authorized": true,
+        "actor": "actor:specialist",
+        "action_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "policy_revision": "policy-r3",
+        "state_revision": "state-r3"
+      },
+      "execution": {
+        "actor": "actor:specialist",
+        "action_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "policy_revision": "policy-r3",
+        "state_revision": "state-r3",
+        "effect_path_covered": true,
+        "provider_ambient_authority": false,
+        "protected_effect_occurred": false,
+        "benign_effect_occurred": true
+      },
+      "transform": {
+        "mode": "identity",
+        "relation_witness_valid": false,
+        "before_action_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "after_action_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      },
+      "detection": {
+        "suspicious": true
+      },
+      "recovery": {
+        "candidate_state_quarantined": true,
+        "contaminated_effect_paths_closed": true,
+        "authority_re_evaluated": true,
+        "attributable_evidence_present": true
+      },
+      "local_controls_passed": [
+        "provenance",
+        "delegation",
+        "recovery",
+        "fresh_authorization",
+        "effect_path"
+      ],
+      "observations": {
+        "utility_score": 0.82,
+        "latency_ms": 260,
+        "cost_units": 2.0
+      },
+      "expected": {
+        "provenance_continuity": true,
+        "delegation_continuity": true,
+        "state_freshness": true,
+        "action_correspondence": true,
+        "effect_path_coverage": true,
+        "recovery_sufficient": true,
+        "security_claim": "pass",
+        "decision": "allow"
+      }
+    },
+    {
+      "id": "declared-transform-with-valid-relation-witness",
+      "requested_effect": "synthetic.effect.publish",
+      "long_horizon_steps": 5,
+      "observation": {
+        "source_ref": "source:web:synthetic-1",
+        "provenance_present": true
+      },
+      "context": {
+        "source_ref": "source:web:synthetic-1",
+        "provenance_present": true,
+        "revision": "ctx-r1"
+      },
+      "delegation": {
+        "parent_actor": "actor:supervisor",
+        "child_actor": "actor:specialist",
+        "caller_context_preserved": true,
+        "scope_allows_requested_effect": true
+      },
+      "authorization": {
+        "authorized": true,
+        "actor": "actor:specialist",
+        "action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_revision": "policy-r1",
+        "state_revision": "state-r1"
+      },
+      "execution": {
+        "actor": "actor:specialist",
+        "action_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "policy_revision": "policy-r1",
+        "state_revision": "state-r1",
+        "effect_path_covered": true,
+        "provider_ambient_authority": false,
+        "protected_effect_occurred": true,
+        "benign_effect_occurred": false
+      },
+      "transform": {
+        "mode": "declared",
+        "relation_witness_valid": true,
+        "before_action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "after_action_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "detection": {
+        "suspicious": false
+      },
+      "recovery": {
+        "candidate_state_quarantined": false,
+        "contaminated_effect_paths_closed": false,
+        "authority_re_evaluated": false,
+        "attributable_evidence_present": true
+      },
+      "local_controls_passed": [
+        "provenance",
+        "delegation",
+        "authorization",
+        "relation_witness",
+        "effect_path"
+      ],
+      "observations": {
+        "utility_score": 0.89,
+        "latency_ms": 170,
+        "cost_units": 1.3
+      },
+      "expected": {
+        "provenance_continuity": true,
+        "delegation_continuity": true,
+        "state_freshness": true,
+        "action_correspondence": true,
+        "effect_path_coverage": true,
+        "recovery_sufficient": true,
+        "security_claim": "pass",
+        "decision": "allow"
+      }
+    },
+    {
+      "id": "parameter-rewrite-without-valid-relation-witness",
+      "requested_effect": "synthetic.effect.publish",
+      "long_horizon_steps": 5,
+      "observation": {
+        "source_ref": "source:web:synthetic-1",
+        "provenance_present": true
+      },
+      "context": {
+        "source_ref": "source:web:synthetic-1",
+        "provenance_present": true,
+        "revision": "ctx-r1"
+      },
+      "delegation": {
+        "parent_actor": "actor:supervisor",
+        "child_actor": "actor:specialist",
+        "caller_context_preserved": true,
+        "scope_allows_requested_effect": true
+      },
+      "authorization": {
+        "authorized": true,
+        "actor": "actor:specialist",
+        "action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "policy_revision": "policy-r1",
+        "state_revision": "state-r1"
+      },
+      "execution": {
+        "actor": "actor:specialist",
+        "action_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "policy_revision": "policy-r1",
+        "state_revision": "state-r1",
+        "effect_path_covered": true,
+        "provider_ambient_authority": false,
+        "protected_effect_occurred": false,
+        "benign_effect_occurred": false
+      },
+      "transform": {
+        "mode": "undeclared",
+        "relation_witness_valid": false,
+        "before_action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "after_action_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "detection": {
+        "suspicious": false
+      },
+      "recovery": {
+        "candidate_state_quarantined": false,
+        "contaminated_effect_paths_closed": false,
+        "authority_re_evaluated": false,
+        "attributable_evidence_present": true
+      },
+      "local_controls_passed": [
+        "provenance",
+        "delegation",
+        "authorization",
+        "effect_path"
+      ],
+      "observations": {
+        "utility_score": 0.99,
+        "latency_ms": 110,
+        "cost_units": 0.6
+      },
+      "expected": {
+        "provenance_continuity": true,
+        "delegation_continuity": true,
+        "state_freshness": true,
+        "action_correspondence": false,
+        "effect_path_coverage": true,
+        "recovery_sufficient": true,
+        "security_claim": "fail",
+        "decision": "deny"
+      }
+    }
+  ],
+  "proves": [
+    "locally passing controls do not establish end-to-end security when required provenance, delegation, state, action, effect-path, or recovery assumptions are lost between stages",
+    "positive composition preserves exact source provenance, delegated actor context, current state and effect-time authority across the same workflow shape",
+    "a delayed state/policy change invalidates stale authorization even when earlier controls passed",
+    "detection without quarantine, path closure and authority re-evaluation is not sufficient recovery",
+    "recovery may close contaminated state/effect paths and continue independently authorized benign work",
+    "an action transformation may preserve authorization only when the declared before/after relation is independently evidenced",
+    "high utility, lower latency, or lower cost cannot compensate for a failed mandatory security gate",
+    "a veto-capable deny has no protected effect in the synthetic boundary"
+  ],
+  "does_not_prove": [
+    "one universal agent-security stack is secure",
+    "the surveyed literature proves these exact controls sufficient in production",
+    "a production model, retriever, runtime, gateway, memory system, or sandbox enforces the fixture",
+    "all equivalent effect paths are mediated in production",
+    "all malicious semantic transformations are detected",
+    "certification or compliance"
+  ]
+}
