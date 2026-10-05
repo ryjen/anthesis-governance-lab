@@ -341,6 +341,47 @@ The cases include individually inert L2 fragments, harmful co-retrieval without 
 
 This does not claim semantic poison detection, model behavior prediction, or live retrieval enforcement. It demonstrates the portable invariant that composition, repetition, synthesis, or trigger activation cannot upgrade retrieval memory into authority.
 
+## Cross-control composition
+
+Fixture: [`../../fixtures/external-security/cross-control-composition-v1.json`](../../fixtures/external-security/cross-control-composition-v1.json)
+
+Ling et al., *Toward Secure LLM Agents: Threat Surfaces, Attacks, Defenses, and Evaluation* (arXiv:2606.10749v2), surveys 247 papers and identifies a recurring systems gap: useful defenses are often evaluated in isolation while long-horizon state, delegation, recovery, and deployment-sensitive composition receive less coverage. The survey synthesizes prior evidence; it does **not** prove one universal security stack.
+
+This fixture therefore tests continuity across a compact governed workflow rather than introducing another control:
+
+```text
+untrusted observation
+  -> provenance-bearing context
+  -> delegated specialist
+  -> current exact authorization
+  -> bounded effect path
+  -> detection / recovery
+```
+
+The validator derives these mandatory properties independently:
+
+- provenance continuity from source observation into transformed context;
+- caller/delegation continuity into the acting specialist;
+- context, policy, and state freshness at effect time;
+- exact action correspondence, with an explicit relation-witness exception for declared authorized transformations;
+- effect-path coverage;
+- recovery sufficiency when suspicious state is detected.
+
+The paired cases show:
+
+- a positive end-to-end composition;
+- provenance loss even though downstream authorization and effect-path controls pass locally;
+- delegated-context loss despite a privileged provider having ambient authority;
+- delayed policy/state/context drift after earlier authorization;
+- detection without quarantine/path closure/re-authorization;
+- recovery that closes contaminated paths and permits separately authorized benign work;
+- a declared before/after action transform with a valid relation witness;
+- a parameter rewrite without such a witness.
+
+Utility, latency, and cost remain observations. High utility or low cost cannot compensate for a failed mandatory security gate.
+
+The fixture is deterministic and synthetic: it does not run a live model, issue credentials, access a network, or perform production effects. It does not claim that the surveyed literature establishes production assurance or that these controls are sufficient for every deployment.
+
 ## Validation
 
 Run:
