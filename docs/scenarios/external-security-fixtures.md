@@ -362,7 +362,7 @@ The validator derives these mandatory properties independently:
 
 - provenance continuity from source observation into transformed context;
 - caller/delegation continuity into the acting specialist;
-- context, policy, and state freshness at effect time;
+- context, policy, and state freshness against separately modeled authoritative effect-time revisions;
 - exact action correspondence, with an explicit relation-witness exception for declared authorized transformations;
 - effect-path coverage;
 - recovery sufficiency when suspicious state is detected.
