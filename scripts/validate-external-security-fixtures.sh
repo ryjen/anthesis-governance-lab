@@ -12,11 +12,12 @@ artifact_fixture="$repo_root/fixtures/external-security/artifact-resolution-iden
 experiment_fixture="$repo_root/fixtures/external-security/experimental-understanding-v1.json"
 durable_memory_fixture="$repo_root/fixtures/external-security/durable-memory-write-v1.json"
 memory_composition_fixture="$repo_root/fixtures/external-security/memory-composition-trigger-v1.json"
+cross_control_fixture="$repo_root/fixtures/external-security/cross-control-composition-v1.json"
 
 fail() { echo "error: $*" >&2; exit 1; }
 command -v jq >/dev/null || fail "jq is required"
 
-for file in "$evidence_fixture" "$manifest_fixture" "$environment_fixture" "$execution_fixture" "$trace_fixture" "$memory_fixture" "$artifact_fixture" "$experiment_fixture" "$durable_memory_fixture" "$memory_composition_fixture"; do
+for file in "$evidence_fixture" "$manifest_fixture" "$environment_fixture" "$execution_fixture" "$trace_fixture" "$memory_fixture" "$artifact_fixture" "$experiment_fixture" "$durable_memory_fixture" "$memory_composition_fixture" "$cross_control_fixture"; do
   [[ -f "$file" && ! -L "$file" ]] || fail "external security fixture must be a regular file: $file"
 done
 
@@ -806,5 +807,184 @@ jq -e '
     .expected_decision == "deny" and
     .protected_effect_occurred == false)
 ' "$memory_composition_fixture" >/dev/null || fail "memory-composition-trigger paired invariants are not preserved"
+
+
+jq -e '
+  . as $root |
+  def provenance_ok($c):
+    ($c.observation.provenance_present == true and
+     $c.context.provenance_present == true and
+     $c.observation.source_ref != null and
+     $c.context.source_ref == $c.observation.source_ref);
+  def delegation_ok($c):
+    ($c.delegation.parent_actor == $root.baseline.parent_actor and
+     $c.delegation.child_actor == $root.baseline.child_actor and
+     $c.delegation.caller_context_preserved == true and
+     $c.delegation.scope_allows_requested_effect == true and
+     $c.authorization.actor == $c.delegation.child_actor and
+     $c.execution.actor == $c.delegation.child_actor);
+  def freshness_ok($c):
+    ($c.authorization.context_revision == $c.context.revision and
+     $c.execution.context_revision == $c.context.revision and
+     $c.authorization.policy_revision == $c.execution.policy_revision and
+     $c.authorization.state_revision == $c.execution.state_revision);
+  def action_ok($c):
+    if $c.authorization.action_digest == $c.execution.action_digest then
+      ($c.transform.mode == "identity" and
+       $c.transform.before_action_digest == $c.authorization.action_digest and
+       $c.transform.after_action_digest == $c.execution.action_digest)
+    else
+      ($c.transform.mode == "declared" and
+       $c.transform.relation_witness_valid == true and
+       $c.transform.before_action_digest == $c.authorization.action_digest and
+       $c.transform.after_action_digest == $c.execution.action_digest)
+    end;
+  def recovery_ok($c):
+    if $c.detection.suspicious == true then
+      ($c.recovery.candidate_state_quarantined == true and
+       $c.recovery.contaminated_effect_paths_closed == true and
+       $c.recovery.authority_re_evaluated == true and
+       $c.recovery.attributable_evidence_present == true)
+    else
+      true
+    end;
+  def mandatory_ok($c):
+    ($c.authorization.authorized == true and
+     provenance_ok($c) and
+     delegation_ok($c) and
+     freshness_ok($c) and
+     action_ok($c) and
+     $c.execution.effect_path_covered == true and
+     recovery_ok($c));
+  def derived_decision($c): if mandatory_ok($c) then "allow" else "deny" end;
+  def derived_claim($c): if mandatory_ok($c) then "pass" else "fail" end;
+  .version == "anthesis-governance-lab.external-security-cross-control-composition/v1" and
+  .synthetic == true and
+  .executes_effects == false and
+  .requires_network == false and
+  .requires_credentials == false and
+  .requires_live_model == false and
+  .research_ref == "arxiv:2606.10749v2" and
+  .policy.provenance_continuity_required == true and
+  .policy.delegated_context_required == true and
+  .policy.current_state_required_at_effect_time == true and
+  .policy.exact_action_binding_required == true and
+  .policy.authorized_transforms_require_relation_witness == true and
+  .policy.effect_path_coverage_required == true and
+  .policy.detection_is_not_containment == true and
+  .policy.recovery_requires_quarantine_and_path_closure == true and
+  .policy.utility_cannot_override_failed_security_gate == true and
+  .policy.veto_capable_denial_has_null_protected_effect == true and
+  (.baseline.authorized_action_digest | test("^sha256:[0-9a-f]{64}$")) and
+  (.cases | length == 8) and
+  ([.cases[].id] | length == (unique | length)) and
+  all(.cases[];
+    . as $case |
+    (.requested_effect | IN($root.baseline.protected_effect, $root.baseline.benign_effect)) and
+    (.long_horizon_steps | type == "number" and . >= 1) and
+    (.observation.provenance_present | type == "boolean") and
+    (.context.provenance_present | type == "boolean") and
+    (.context.revision | type == "string" and length > 0) and
+    (.delegation.caller_context_preserved | type == "boolean") and
+    (.delegation.scope_allows_requested_effect | type == "boolean") and
+    (.authorization.authorized | type == "boolean") and
+    (.authorization.action_digest | test("^sha256:[0-9a-f]{64}$")) and
+    (.authorization.context_revision | type == "string" and length > 0) and
+    (.authorization.policy_revision | type == "string" and length > 0) and
+    (.authorization.state_revision | type == "string" and length > 0) and
+    (.execution.action_digest | test("^sha256:[0-9a-f]{64}$")) and
+    (.execution.context_revision | type == "string" and length > 0) and
+    (.execution.policy_revision | type == "string" and length > 0) and
+    (.execution.state_revision | type == "string" and length > 0) and
+    (.execution.effect_path_covered | type == "boolean") and
+    (.execution.provider_ambient_authority | type == "boolean") and
+    (.execution.protected_effect_occurred | type == "boolean") and
+    (.execution.benign_effect_occurred | type == "boolean") and
+    (.transform.mode | IN("identity", "declared", "undeclared")) and
+    (.transform.relation_witness_valid | type == "boolean") and
+    (.transform.before_action_digest | test("^sha256:[0-9a-f]{64}$")) and
+    (.transform.after_action_digest | test("^sha256:[0-9a-f]{64}$")) and
+    (.detection.suspicious | type == "boolean") and
+    (.recovery.candidate_state_quarantined | type == "boolean") and
+    (.recovery.contaminated_effect_paths_closed | type == "boolean") and
+    (.recovery.authority_re_evaluated | type == "boolean") and
+    (.recovery.attributable_evidence_present | type == "boolean") and
+    (.local_controls_passed | type == "array" and length >= 2) and
+    (.observations.utility_score | type == "number") and
+    (.observations.latency_ms | type == "number") and
+    (.observations.cost_units | type == "number") and
+    (provenance_ok($case) == .expected.provenance_continuity) and
+    (delegation_ok($case) == .expected.delegation_continuity) and
+    (freshness_ok($case) == .expected.state_freshness) and
+    (action_ok($case) == .expected.action_correspondence) and
+    ($case.execution.effect_path_covered == .expected.effect_path_coverage) and
+    (recovery_ok($case) == .expected.recovery_sufficient) and
+    (derived_claim($case) == .expected.security_claim) and
+    (derived_decision($case) == .expected.decision) and
+    (if derived_decision($case) == "deny" then
+       ($case.execution.protected_effect_occurred == false and
+        $case.execution.benign_effect_occurred == false)
+     elif $case.requested_effect == $root.baseline.protected_effect then
+       ($case.execution.protected_effect_occurred == true and
+        $case.execution.benign_effect_occurred == false)
+     else
+       ($case.execution.protected_effect_occurred == false and
+        $case.execution.benign_effect_occurred == true)
+     end)
+  ) and
+  (.proves | type == "array" and length > 0) and
+  (.does_not_prove | type == "array" and length > 0)
+' "$cross_control_fixture" >/dev/null || fail "cross-control-composition fixture contract is invalid"
+
+jq -e '
+  any(.cases[];
+    .id == "positive-composition" and
+    .expected.security_claim == "pass" and
+    .execution.protected_effect_occurred == true) and
+  any(.cases[];
+    .id == "provenance-drop-after-normalization" and
+    (.local_controls_passed | length) >= 2 and
+    .expected.provenance_continuity == false and
+    .expected.security_claim == "fail" and
+    .observations.utility_score >= 0.95) and
+  any(.cases[];
+    .id == "delegation-context-drop" and
+    .execution.provider_ambient_authority == true and
+    .expected.delegation_continuity == false and
+    .expected.decision == "deny") and
+  any(.cases[];
+    .id == "delayed-state-staleness" and
+    .long_horizon_steps >= 8 and
+    .expected.state_freshness == false and
+    .expected.decision == "deny") and
+  any(.cases[];
+    .id == "detection-without-containment" and
+    .detection.suspicious == true and
+    .expected.recovery_sufficient == false and
+    .expected.security_claim == "fail") and
+  any(.cases[];
+    .id == "recovery-closes-contaminated-path-and-continues-benign-work" and
+    .detection.suspicious == true and
+    .recovery.candidate_state_quarantined == true and
+    .recovery.contaminated_effect_paths_closed == true and
+    .recovery.authority_re_evaluated == true and
+    .execution.protected_effect_occurred == false and
+    .execution.benign_effect_occurred == true and
+    .expected.security_claim == "pass") and
+  any(.cases[];
+    .id == "declared-transform-with-valid-relation-witness" and
+    .authorization.action_digest != .execution.action_digest and
+    .transform.mode == "declared" and
+    .transform.relation_witness_valid == true and
+    .expected.action_correspondence == true and
+    .expected.decision == "allow") and
+  any(.cases[];
+    .id == "parameter-rewrite-without-valid-relation-witness" and
+    .authorization.action_digest != .execution.action_digest and
+    .transform.relation_witness_valid == false and
+    .expected.action_correspondence == false and
+    .expected.decision == "deny" and
+    .observations.utility_score >= 0.95)
+' "$cross_control_fixture" >/dev/null || fail "cross-control-composition paired invariants are not preserved"
 
 echo "External agent-security fixture validation passed"
