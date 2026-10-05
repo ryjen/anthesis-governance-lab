@@ -73,7 +73,8 @@
         "mode": "identity",
         "relation_witness_valid": false,
         "before_action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "after_action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        "after_action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "relation_witness_ref": null
       },
       "detection": {
         "suspicious": false
@@ -104,6 +105,11 @@
         "recovery_sufficient": true,
         "security_claim": "pass",
         "decision": "allow"
+      },
+      "effect_time": {
+        "context_revision": "ctx-r1",
+        "policy_revision": "policy-r1",
+        "state_revision": "state-r1"
       }
     },
     {
@@ -148,7 +154,8 @@
         "mode": "identity",
         "relation_witness_valid": false,
         "before_action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "after_action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        "after_action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "relation_witness_ref": null
       },
       "detection": {
         "suspicious": false
@@ -178,6 +185,11 @@
         "recovery_sufficient": true,
         "security_claim": "fail",
         "decision": "deny"
+      },
+      "effect_time": {
+        "context_revision": "ctx-r1",
+        "policy_revision": "policy-r1",
+        "state_revision": "state-r1"
       }
     },
     {
@@ -222,7 +234,8 @@
         "mode": "identity",
         "relation_witness_valid": false,
         "before_action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "after_action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        "after_action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "relation_witness_ref": null
       },
       "detection": {
         "suspicious": false
@@ -252,6 +265,11 @@
         "recovery_sufficient": true,
         "security_claim": "fail",
         "decision": "deny"
+      },
+      "effect_time": {
+        "context_revision": "ctx-r1",
+        "policy_revision": "policy-r1",
+        "state_revision": "state-r1"
       }
     },
     {
@@ -296,7 +314,8 @@
         "mode": "identity",
         "relation_witness_valid": false,
         "before_action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "after_action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        "after_action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "relation_witness_ref": null
       },
       "detection": {
         "suspicious": false
@@ -327,6 +346,11 @@
         "recovery_sufficient": true,
         "security_claim": "fail",
         "decision": "deny"
+      },
+      "effect_time": {
+        "context_revision": "ctx-r2",
+        "policy_revision": "policy-r2",
+        "state_revision": "state-r2"
       }
     },
     {
@@ -371,7 +395,8 @@
         "mode": "identity",
         "relation_witness_valid": false,
         "before_action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "after_action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        "after_action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "relation_witness_ref": null
       },
       "detection": {
         "suspicious": true
@@ -402,6 +427,11 @@
         "recovery_sufficient": false,
         "security_claim": "fail",
         "decision": "deny"
+      },
+      "effect_time": {
+        "context_revision": "ctx-r1",
+        "policy_revision": "policy-r1",
+        "state_revision": "state-r1"
       }
     },
     {
@@ -446,7 +476,8 @@
         "mode": "identity",
         "relation_witness_valid": false,
         "before_action_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-        "after_action_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+        "after_action_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "relation_witness_ref": null
       },
       "detection": {
         "suspicious": true
@@ -478,6 +509,11 @@
         "recovery_sufficient": true,
         "security_claim": "pass",
         "decision": "allow"
+      },
+      "effect_time": {
+        "context_revision": "ctx-r3",
+        "policy_revision": "policy-r3",
+        "state_revision": "state-r3"
       }
     },
     {
@@ -522,7 +558,8 @@
         "mode": "declared",
         "relation_witness_valid": true,
         "before_action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "after_action_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        "after_action_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "relation_witness_ref": "relation:synthetic-transform-1"
       },
       "detection": {
         "suspicious": false
@@ -554,6 +591,11 @@
         "recovery_sufficient": true,
         "security_claim": "pass",
         "decision": "allow"
+      },
+      "effect_time": {
+        "context_revision": "ctx-r1",
+        "policy_revision": "policy-r1",
+        "state_revision": "state-r1"
       }
     },
     {
@@ -598,7 +640,8 @@
         "mode": "undeclared",
         "relation_witness_valid": false,
         "before_action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "after_action_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        "after_action_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "relation_witness_ref": null
       },
       "detection": {
         "suspicious": false
@@ -629,6 +672,11 @@
         "recovery_sufficient": true,
         "security_claim": "fail",
         "decision": "deny"
+      },
+      "effect_time": {
+        "context_revision": "ctx-r1",
+        "policy_revision": "policy-r1",
+        "state_revision": "state-r1"
       }
     }
   ],
