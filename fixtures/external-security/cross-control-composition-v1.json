@@ -55,7 +55,8 @@
         "actor": "actor:specialist",
         "action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "policy_revision": "policy-r1",
-        "state_revision": "state-r1"
+        "state_revision": "state-r1",
+        "context_revision": "ctx-r1"
       },
       "execution": {
         "actor": "actor:specialist",
@@ -65,7 +66,8 @@
         "effect_path_covered": true,
         "provider_ambient_authority": false,
         "protected_effect_occurred": true,
-        "benign_effect_occurred": false
+        "benign_effect_occurred": false,
+        "context_revision": "ctx-r1"
       },
       "transform": {
         "mode": "identity",
@@ -128,7 +130,8 @@
         "actor": "actor:specialist",
         "action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "policy_revision": "policy-r1",
-        "state_revision": "state-r1"
+        "state_revision": "state-r1",
+        "context_revision": "ctx-r1"
       },
       "execution": {
         "actor": "actor:specialist",
@@ -138,7 +141,8 @@
         "effect_path_covered": true,
         "provider_ambient_authority": false,
         "protected_effect_occurred": false,
-        "benign_effect_occurred": false
+        "benign_effect_occurred": false,
+        "context_revision": "ctx-r1"
       },
       "transform": {
         "mode": "identity",
@@ -200,7 +204,8 @@
         "actor": "actor:specialist",
         "action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "policy_revision": "policy-r1",
-        "state_revision": "state-r1"
+        "state_revision": "state-r1",
+        "context_revision": "ctx-r1"
       },
       "execution": {
         "actor": "actor:specialist",
@@ -210,7 +215,8 @@
         "effect_path_covered": true,
         "provider_ambient_authority": true,
         "protected_effect_occurred": false,
-        "benign_effect_occurred": false
+        "benign_effect_occurred": false,
+        "context_revision": "ctx-r1"
       },
       "transform": {
         "mode": "identity",
@@ -272,7 +278,8 @@
         "actor": "actor:specialist",
         "action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "policy_revision": "policy-r1",
-        "state_revision": "state-r1"
+        "state_revision": "state-r1",
+        "context_revision": "ctx-r1"
       },
       "execution": {
         "actor": "actor:specialist",
@@ -282,7 +289,8 @@
         "effect_path_covered": true,
         "provider_ambient_authority": false,
         "protected_effect_occurred": false,
-        "benign_effect_occurred": false
+        "benign_effect_occurred": false,
+        "context_revision": "ctx-r2"
       },
       "transform": {
         "mode": "identity",
@@ -345,7 +353,8 @@
         "actor": "actor:specialist",
         "action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "policy_revision": "policy-r1",
-        "state_revision": "state-r1"
+        "state_revision": "state-r1",
+        "context_revision": "ctx-r1"
       },
       "execution": {
         "actor": "actor:specialist",
@@ -355,7 +364,8 @@
         "effect_path_covered": true,
         "provider_ambient_authority": false,
         "protected_effect_occurred": false,
-        "benign_effect_occurred": false
+        "benign_effect_occurred": false,
+        "context_revision": "ctx-r1"
       },
       "transform": {
         "mode": "identity",
@@ -418,7 +428,8 @@
         "actor": "actor:specialist",
         "action_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
         "policy_revision": "policy-r3",
-        "state_revision": "state-r3"
+        "state_revision": "state-r3",
+        "context_revision": "ctx-r3"
       },
       "execution": {
         "actor": "actor:specialist",
@@ -428,7 +439,8 @@
         "effect_path_covered": true,
         "provider_ambient_authority": false,
         "protected_effect_occurred": false,
-        "benign_effect_occurred": true
+        "benign_effect_occurred": true,
+        "context_revision": "ctx-r3"
       },
       "transform": {
         "mode": "identity",
@@ -455,7 +467,7 @@
       "observations": {
         "utility_score": 0.82,
         "latency_ms": 260,
-        "cost_units": 2.0
+        "cost_units": 2
       },
       "expected": {
         "provenance_continuity": true,
@@ -492,7 +504,8 @@
         "actor": "actor:specialist",
         "action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "policy_revision": "policy-r1",
-        "state_revision": "state-r1"
+        "state_revision": "state-r1",
+        "context_revision": "ctx-r1"
       },
       "execution": {
         "actor": "actor:specialist",
@@ -502,7 +515,8 @@
         "effect_path_covered": true,
         "provider_ambient_authority": false,
         "protected_effect_occurred": true,
-        "benign_effect_occurred": false
+        "benign_effect_occurred": false,
+        "context_revision": "ctx-r1"
       },
       "transform": {
         "mode": "declared",
@@ -566,7 +580,8 @@
         "actor": "actor:specialist",
         "action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "policy_revision": "policy-r1",
-        "state_revision": "state-r1"
+        "state_revision": "state-r1",
+        "context_revision": "ctx-r1"
       },
       "execution": {
         "actor": "actor:specialist",
@@ -576,7 +591,8 @@
         "effect_path_covered": true,
         "provider_ambient_authority": false,
         "protected_effect_occurred": false,
-        "benign_effect_occurred": false
+        "benign_effect_occurred": false,
+        "context_revision": "ctx-r1"
       },
       "transform": {
         "mode": "undeclared",
