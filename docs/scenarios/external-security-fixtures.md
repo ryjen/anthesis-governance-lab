@@ -365,3 +365,17 @@ The fixtures are designed to be adaptable to:
 - research/tooling that evaluates indirect environmental influence through deterministic state and terminal-effect assertions.
 
 Before proposing them upstream, translate field names into the target project's vocabulary and retain the `does_not_prove` limitations rather than presenting synthetic structural validation as production assurance.
+
+## Source/interface injection coverage (research evaluation slice)
+
+Fixture: [`../../fixtures/external-security/injection-surface-coverage-v1.json`](../../fixtures/external-security/injection-surface-coverage-v1.json).
+
+This tiny, **synthetic and non-executing** scenario set complements the existing [environmental-influence fixture](../../fixtures/external-security/environmental-influence-v1.json) and the pending [AgentDrift-derived step-level trajectory fixture pack](https://github.com/ryjen/anthesis-governance-lab/issues/61). It is informed by [PI-Hunter](https://arxiv.org/abs/2606.12737), but runs no model, detector, attacker-search algorithm, mutation, network request, or external effect.
+
+For each case the fixture retains the source-state reference, acquisition-interface class, observation reference, step labels, candidate effect, synthetic host authorization, expected decision, detector finding and terminal-effect evidence. The validator derives the expected decision from the **host authorization fixture input**, not from the source text, detector flag or step labels.
+
+The matched hostile cases hold the synthetic task and source-state revision constant while changing acquisition between repository reading and tool-result ingestion. A `hijacked` step label in this static test denotes a modeled attacker-serving **tool-call attempt**, not a committed external effect; a denied attempt retains `terminal_effect_recorded: false`. The labels are not themselves an authorization result. Their candidate protected effects remain denied even when a simulated detector misses one path. Controls show that (1) a suspicious-looking issue comment may be benign and independently authorized, (2) the same hostile source may coexist with an allowed benign report, and (3) an unsupported interface remains explicit rather than silently counted as observed coverage.
+
+The `source_state_ref` strings are synthetic identity labels, **not measured content digests** or claims of authenticity. Step labels are static evaluation inputs, not inferred model behavior. The nine cases are an intentionally small selection: the **coverage denominator is only the declared set of supported synthetic cases**, never all source interfaces, agents, tool routes, or production attack paths. They distinguish a hostile observation with **no proposed action**, a modeled attempted request, an **authorized request without observed execution**, and a permitted report with synthetic terminal-effect evidence. Authorization is not execution; neither is a detector finding. Do not compute an attack-success rate, detector F1, or full-mediation claim from this fixture.
+
+Run `bash scripts/validate-external-security-fixtures.sh` through the repository's existing structural CI gate. This validation protects the declared fixture structure and paired security outcomes; it does not establish production prompt-injection immunity.
