@@ -155,7 +155,7 @@
       "task_id": "task-report-1",
       "source_state_ref": "synthetic-source:unavailable@rev-unknown",
       "acquisition_interface": "unavailable",
-      "observation_ref": "observation:unsupported-interface-explicit/read-1",
+      "observation_ref": null,
       "attack_present": false,
       "detector_finding": false,
       "trajectory_step_labels": [],
