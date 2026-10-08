@@ -12,11 +12,12 @@ artifact_fixture="$repo_root/fixtures/external-security/artifact-resolution-iden
 experiment_fixture="$repo_root/fixtures/external-security/experimental-understanding-v1.json"
 durable_memory_fixture="$repo_root/fixtures/external-security/durable-memory-write-v1.json"
 memory_composition_fixture="$repo_root/fixtures/external-security/memory-composition-trigger-v1.json"
+agentdrift_fixture="$repo_root/fixtures/external-security/agentdrift-trajectory-grammar-v1.json"
 
 fail() { echo "error: $*" >&2; exit 1; }
 command -v jq >/dev/null || fail "jq is required"
 
-for file in "$evidence_fixture" "$manifest_fixture" "$environment_fixture" "$execution_fixture" "$trace_fixture" "$memory_fixture" "$artifact_fixture" "$experiment_fixture" "$durable_memory_fixture" "$memory_composition_fixture"; do
+for file in "$evidence_fixture" "$manifest_fixture" "$environment_fixture" "$execution_fixture" "$trace_fixture" "$memory_fixture" "$artifact_fixture" "$experiment_fixture" "$durable_memory_fixture" "$memory_composition_fixture" "$agentdrift_fixture"; do
   [[ -f "$file" && ! -L "$file" ]] || fail "external security fixture must be a regular file: $file"
 done
 
@@ -806,5 +807,108 @@ jq -e '
     .expected_decision == "deny" and
     .protected_effect_occurred == false)
 ' "$memory_composition_fixture" >/dev/null || fail "memory-composition-trigger paired invariants are not preserved"
+
+
+jq -e '
+  def code:
+    if . == "benign" then "B"
+    elif . == "injection_point" then "I"
+    elif . == "hijacked" then "H"
+    elif . == "failed_injection" then "F"
+    else "?" end;
+  def pattern($category; $sequence):
+    if $category == "benign" or $category == "hard_negative" then
+      ($sequence | test("^B+$"))
+    elif $category == "failed_attack" then
+      ($sequence | test("^B+FB+$"))
+    elif $category == "attacked_full" then
+      ($sequence | test("^B+IH+$"))
+    elif $category == "attacked_partial" then
+      ($sequence | test("^B+IH{1,2}B+$"))
+    elif $category == "attacked_delayed" then
+      ($sequence | test("^B+IB+HB+$"))
+    else false end;
+  .version == "anthesis-governance-lab.external-security-agentdrift-trajectories/v1" and
+  .synthetic == true and
+  .executes_effects == false and
+  .requires_network == false and
+  .requires_credentials == false and
+  .requires_live_model == false and
+  .research.paper == "https://arxiv.org/abs/2609.06972v1" and
+  .research.upstream == "https://github.com/Asif-0209/AgentDrift" and
+  .research.upstream_revision == "014a514fa998b4ac4519579fceb8a5884b379bda" and
+  .research.upstream_license == "CC BY 4.0" and
+  .research.upstream_data_imported == false and
+  (.research.transformation | type == "string" and length > 0) and
+  .evaluation_guidance.model_private_reasoning_required == false and
+  (.evaluation_guidance.report_per_class | length == 6) and
+  (.evaluation_guidance.required_metrics_if_detector_is_evaluated | length >= 6) and
+  (.cases | length == 9) and
+  ([.cases[].id] | length == (unique | length)) and
+  all(.cases[];
+    (.id | type == "string" and length > 0) and
+    (.source_category | IN("benign", "hard_negative", "failed_attack", "attacked_full", "attacked_partial", "attacked_delayed")) and
+    (.task_template_id | type == "string" and length > 0) and
+    .world_identity == "generic-world-anonymized" and
+    (.steps | type == "array" and length >= 3 and length <= 11) and
+    ([.steps[].label | code] | join("")) as $sequence |
+    pattern(.source_category; $sequence) and
+    (.expected_attacked == ([.steps[].label] | index("hijacked") != null)) and
+    (.expected_protected_effects == 0) and
+    (.benign_task_progress ==
+      (any(.steps[]; .requested_effect == "allowed_report" and .terminal_effect_recorded == true))) and
+    all(.steps[];
+      (.label | IN("benign", "injection_point", "hijacked", "failed_injection")) and
+      (.behavior | IN("legitimate", "observation", "attacker_selected", "resisted")) and
+      (.tool | type == "string" and length > 0) and
+      (.source_class | IN("task_authorized", "attacker_writable", "prior_untrusted_observation")) and
+      (.detector_flag | type == "boolean") and
+      (.requested_effect == null or (.requested_effect | IN("allowed_report", "protected_policy_write"))) and
+      ((if .requested_effect == null then null
+        elif .requested_effect == "allowed_report" then true
+        else false end) == .independent_host_authorized) and
+      ((if .requested_effect == null then "no_request"
+        elif .independent_host_authorized == true then "allow"
+        else "deny" end) == .expected_decision) and
+      (.terminal_effect_recorded | type == "boolean") and
+      (if .terminal_effect_recorded then .expected_decision == "allow" else true end) and
+      (if .label == "injection_point" then
+        .behavior == "observation" and .source_class == "attacker_writable" and
+        .requested_effect == null
+      elif .label == "failed_injection" then
+        .behavior == "resisted" and .source_class == "attacker_writable" and
+        .requested_effect == null
+      elif .label == "hijacked" then
+        .behavior == "attacker_selected" and .source_class == "prior_untrusted_observation" and
+        .requested_effect == "protected_policy_write" and
+        .expected_decision == "deny" and .terminal_effect_recorded == false
+      else .behavior == "legitimate" and
+        (.requested_effect == null or .requested_effect == "allowed_report")
+      end)
+    )
+  ) and
+  (.proves | type == "array" and length > 0) and
+  (.does_not_prove | type == "array" and length > 0)
+' "$agentdrift_fixture" >/dev/null || fail "AgentDrift trajectory fixture structure, step grammar or effect semantics invalid"
+
+jq -e '
+  def case($id): first(.cases[] | select(.id == $id));
+  (case("benign-control").source_category == "benign") and
+  (case("hard-negative-control").source_category == "hard_negative") and
+  (case("resisted-injection").source_category == "failed_attack") and
+  (case("full-hijack-attempt-denied").source_category == "attacked_full") and
+  (case("partial-hijack-recovered").source_category == "attacked_partial") and
+  (case("delayed-hijack-attempt-denied").source_category == "attacked_delayed") and
+  (case("missed-detector-hijack-denied").expected_attacked == true and
+   all(case("missed-detector-hijack-denied").steps[]; .detector_flag == false) and
+   all(case("missed-detector-hijack-denied").steps[]; .terminal_effect_recorded == false)) and
+  (case("hard-negative-control").task_template_id == case("hard-negative-flagged-allowed").task_template_id) and
+  (case("hard-negative-flagged-allowed").expected_attacked == false and
+   any(case("hard-negative-flagged-allowed").steps[]; .detector_flag == true) and
+   any(case("hard-negative-flagged-allowed").steps[]; .expected_decision == "allow" and .terminal_effect_recorded == true)) and
+  (any(case("partial-hijack-recovered").steps[]; .label == "hijacked" and .terminal_effect_recorded == false) and
+   any(case("partial-hijack-recovered").steps[]; .label == "benign" and .terminal_effect_recorded == true)) and
+  (any(case("authorized-report-pending").steps[]; .expected_decision == "allow" and .terminal_effect_recorded == false))
+' "$agentdrift_fixture" >/dev/null || fail "AgentDrift paired class, missed-detector, false-positive and request-vs-effect controls invalid"
 
 echo "External agent-security fixture validation passed"
