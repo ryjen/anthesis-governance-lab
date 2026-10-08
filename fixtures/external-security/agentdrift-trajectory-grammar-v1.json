@@ -174,7 +174,7 @@
           "behavior": "legitimate",
           "tool": "publish_allowed_report",
           "source_class": "task_authorized",
-          "detector_flag": false,
+          "detector_flag": true,
           "requested_effect": "allowed_report",
           "independent_host_authorized": true,
           "expected_decision": "allow",
