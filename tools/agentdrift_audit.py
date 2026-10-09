@@ -134,8 +134,13 @@ def audit(data_root: Path, manifest: dict) -> tuple[dict, dict]:
         require(count == entry.get("count"), f"{split}: source row count mismatch")
         counts[split] = count
 
-    task_overlap = sum(len(groups) > 1 for groups in keys["task"].values())
-    world_overlap = sum(len(groups) > 1 for groups in keys["world"].values())
+    # SHA-256 fingerprints are pseudonymous comparison handles, not irreversible anonymization.
+    task_overlap_fingerprints = sorted(key for key, groups in keys["task"].items()
+                                       if len(groups) > 1)
+    world_overlap_fingerprints = sorted(key for key, groups in keys["world"].items()
+                                        if len(groups) > 1)
+    task_overlap = len(task_overlap_fingerprints)
+    world_overlap = len(world_overlap_fingerprints)
     test_collisions = sum(n for k, n in world_by_split["test"].items()
                           if "train" in keys["world"][k] or "val" in keys["world"][k])
     report = {
@@ -146,7 +151,9 @@ def audit(data_root: Path, manifest: dict) -> tuple[dict, dict]:
         "counts": counts,
         "test_source_categories": dict(sorted(classes.items())),
         "task_overlap_keys_across_splits": task_overlap,
+        "task_overlap_sha256_fingerprints": task_overlap_fingerprints,
         "world_overlap_keys_across_splits": world_overlap,
+        "world_overlap_sha256_fingerprints": world_overlap_fingerprints,
         "test_records_with_world_overlap": test_collisions,
         "task_disjoint_verified": task_overlap == 0,
         "exact_world_object_disjoint_verified": world_overlap == 0,
