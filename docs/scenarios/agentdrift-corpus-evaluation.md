@@ -19,7 +19,7 @@ The auditor uses only the Python standard library and performs no network activi
 
 ## Leakage controls and assurance
 
-The audit reports normalized task hashes shared across train/validation/test, exact canonical world-object hashes shared between partitions, and how many test records reuse a train/validation world. A shared task blocks scoring. **Even if no exact world objects overlap, world-identity and template leakage are not ruled out.** The upstream datasheet documents strong category/world correlations, concentrated templates, and early injection positions. Source-locked input authenticity does not prove that a trained detector was shielded from those shortcuts.
+The audit reports counts **and sorted SHA-256 fingerprints** for normalized `(agent, task)` identities shared across train/validation/test, and for canonical `(agent, world object)` identities shared between partitions; it separately counts test records reusing train/validation worlds. The fingerprint lists allow deterministic cross-run comparison and focused follow-up without printing source text. **They are pseudonymous identifiers, not anonymization**: anyone with the source corpus can recompute a fingerprint and potentially recover the corresponding world/task. Do not publish the report as if those hashes were private. A shared task blocks scoring. **Even if no exact world objects overlap, world-identity and template leakage are not ruled out.** The upstream datasheet documents strong category/world correlations, concentrated templates, and early injection positions. Source-locked input authenticity does not prove that a trained detector was shielded from those shortcuts.
 
 ## Optional detector predictions
 
