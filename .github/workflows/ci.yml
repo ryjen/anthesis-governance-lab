@@ -118,6 +118,9 @@ jobs:
           set -e
           test "$status" -eq 3
           grep -Fq 'cosign is required for the pinned signed release' /tmp/signature.err
+      
+      - name: Validate offline AgentDrift source-lock audit and metrics
+        run: python3 -m unittest discover -s tests -p 'test_agentdrift_audit.py' -v
 
   executable-validation:
     needs: structural-validation
