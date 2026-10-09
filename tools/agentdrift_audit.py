@@ -85,7 +85,7 @@ def parse_trajectory(raw: dict, split: str) -> dict:
     require(all(label in LABELS for label in labels), "invalid step label")
     sequence = "".join(SYMBOLS[label] for label in labels)
     require(re.fullmatch(PATTERNS[cat], sequence) is not None, "step grammar/category mismatch")
-    return {"id": ident, "category": cat, "labels": labels,
+    return {"id": ident, "agent": raw["agent"], "category": cat, "labels": labels,
             "task_key": task_key(raw), "world_key": world_key(raw)}
 
 
@@ -97,6 +97,73 @@ def parse_jsonl(data: bytes, label: str):
         except (ValueError, UnicodeDecodeError) as exc:
             raise AuditError(f"{label}: invalid JSONL line {line_no}") from exc
         yield raw
+
+
+
+def task_world_components(records: list[dict]) -> dict:
+    """Connected components under both exact task and world equality.
+
+    Records sharing either key must remain in one partition if *both* keys
+    are to be disjoint across partitions. This is feasibility evidence,
+    not a proposed train/validation/test allocation or model assessment.
+    """
+    parent: dict[str, str] = {}
+
+    def find(key: str) -> str:
+        parent.setdefault(key, key)
+        if parent[key] != key:
+            parent[key] = find(parent[key])
+        return parent[key]
+
+    def union(a: str, b: str) -> None:
+        ra, rb = find(a), find(b)
+        if ra != rb:
+            parent[rb] = ra
+
+    for sample in records:
+        union("task:" + sample["task_key"], "world:" + sample["world_key"])
+
+    groups: dict[str, dict] = {}
+    for sample in records:
+        component = find("task:" + sample["task_key"])
+        group = groups.setdefault(component, {
+            "agent": sample["agent"], "record_count": 0, "tasks": set(), "worlds": set()
+        })
+        require(group["agent"] == sample["agent"], "cross-domain connected component")
+        group["record_count"] += 1
+        group["tasks"].add(sample["task_key"])
+        group["worlds"].add(sample["world_key"])
+
+    domains: dict[str, dict] = {}
+    for group in groups.values():
+        entry = domains.setdefault(group["agent"], {
+            "component_count": 0, "record_count": 0, "largest_component_records": 0
+        })
+        entry["component_count"] += 1
+        entry["record_count"] += group["record_count"]
+        entry["largest_component_records"] = max(
+            entry["largest_component_records"], group["record_count"]
+        )
+
+    for entry in domains.values():
+        entry["joint_task_and_world_disjoint_within_domain_split_structurally_possible"] = (
+            entry["component_count"] >= 2
+        )
+
+    return {
+        "connected_component_count": len(groups),
+        "by_domain": dict(sorted(domains.items())),
+        "all_domains_single_component": bool(domains) and all(
+            entry["component_count"] == 1 for entry in domains.values()
+        ),
+        "interpretation": (
+            "If a domain has one connected task/world component, no nonempty "
+            "within-domain split can simultaneously hold out exact task and "
+            "world identities. Holding out the entire domain instead tests "
+            "cross-domain transfer; components do not establish class balance "
+            "or remove identity/template leakage."
+        ),
+    }
 
 
 def audit(data_root: Path, manifest: dict) -> tuple[dict, dict]:
@@ -111,6 +178,7 @@ def audit(data_root: Path, manifest: dict) -> tuple[dict, dict]:
     seen_ids = set()
     world_by_split = defaultdict(Counter)
     classes = Counter()
+    all_rows = []
     for split in SPLITS:
         entry = files[split]
         expected_path = f"data_taskdisjoint/{split}.jsonl"
@@ -124,6 +192,7 @@ def audit(data_root: Path, manifest: dict) -> tuple[dict, dict]:
             sample = parse_trajectory(record, split)
             require(sample["id"] not in seen_ids, "duplicate trajectory id")
             seen_ids.add(sample["id"])
+            all_rows.append(sample)
             for dimension in ("task", "world"):
                 keys[dimension][sample[dimension + "_key"]].add(split)
             world_by_split[split][sample["world_key"]] += 1
@@ -158,6 +227,7 @@ def audit(data_root: Path, manifest: dict) -> tuple[dict, dict]:
         "task_disjoint_verified": task_overlap == 0,
         "exact_world_object_disjoint_verified": world_overlap == 0,
         "world_identity_leakage_ruled_out": False,
+        "joint_task_world_connectivity": task_world_components(all_rows),
         "detector_scores_present": False,
         "assurance": "Synthetic source corpus; exact world equality cannot eliminate category/identity/template leakage.",
     }
