@@ -124,12 +124,18 @@ class AgentDriftAuditTest(unittest.TestCase):
         self.rows["test"][0]["task"] = self.rows["train"][0]["task"]
         report, _ = audit.audit(self.root, self.create_source())
         self.assertEqual(report["task_overlap_keys_across_splits"], 1)
+        self.assertEqual(report["task_overlap_sha256_fingerprints"],
+                         [audit.task_key(self.rows["train"][0])])
+        self.assertRegex(report["task_overlap_sha256_fingerprints"][0], r"^[0-9a-f]{64}$")
         self.assertFalse(report["task_disjoint_verified"])
 
     def test_cross_split_world_overlap_is_reported_without_raw_identity(self):
         self.rows["test"][0]["world"] = self.rows["train"][0]["world"]
         report, _ = audit.audit(self.root, self.create_source())
         self.assertEqual(report["world_overlap_keys_across_splits"], 1)
+        self.assertEqual(report["world_overlap_sha256_fingerprints"],
+                         [audit.world_key(self.rows["train"][0])])
+        self.assertRegex(report["world_overlap_sha256_fingerprints"][0], r"^[0-9a-f]{64}$")
         self.assertEqual(report["test_records_with_world_overlap"], 1)
         self.assertNotIn("world-train", json.dumps(report))
 
