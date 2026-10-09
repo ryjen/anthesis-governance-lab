@@ -113,6 +113,45 @@ class AgentDriftAuditTest(unittest.TestCase):
         self.assertEqual(score["recall_by_attack_pattern"]["attacked_full"]["rate"], 1)
         self.assertLess(score["macro_step_label_f1"], 1)
 
+    def test_task_world_joint_partition_graph(self):
+        report, _ = audit.audit(self.root, self.create_source())
+        connectivity = report["joint_task_world_connectivity"]
+        self.assertEqual(connectivity["connected_component_count"], 8)
+        self.assertFalse(connectivity["all_domains_single_component"])
+        self.assertTrue(connectivity["by_domain"]["coding"][
+            "joint_task_and_world_disjoint_within_domain_split_structurally_possible"])
+
+        # Every record has its own task but all reuse one world, so even
+        # a task-disjoint partition cannot also be world-disjoint.
+        shared_world = {"company": "shared-unit-test-world"}
+        for records in self.rows.values():
+            for record in records:
+                record["world"] = shared_world
+        linked, _ = audit.audit(self.root, self.create_source())
+        graph = linked["joint_task_world_connectivity"]
+        self.assertEqual(graph["connected_component_count"], 1)
+        self.assertEqual(graph["by_domain"]["coding"]["record_count"], 8)
+        self.assertEqual(graph["by_domain"]["coding"]["largest_component_records"], 8)
+        self.assertTrue(graph["all_domains_single_component"])
+        self.assertFalse(graph["by_domain"]["coding"][
+            "joint_task_and_world_disjoint_within_domain_split_structurally_possible"])
+
+    def test_task_world_transitive_connectivity(self):
+        # A bridges B via the same world; B bridges C via the same task,
+        # so all three must remain in one component, not just paired rows.
+        rows = [
+            {"agent": "coding", "task_key": "task-a", "world_key": "world-1"},
+            {"agent": "coding", "task_key": "task-b", "world_key": "world-1"},
+            {"agent": "coding", "task_key": "task-b", "world_key": "world-2"},
+            {"agent": "medical", "task_key": "task-m", "world_key": "world-m"},
+        ]
+        graph = audit.task_world_components(rows)
+        self.assertEqual(graph["connected_component_count"], 2)
+        self.assertEqual(graph["by_domain"]["coding"]["largest_component_records"], 3)
+        self.assertEqual(graph["by_domain"]["coding"]["component_count"], 1)
+        self.assertEqual(graph["by_domain"]["medical"]["component_count"], 1)
+        self.assertTrue(graph["all_domains_single_component"])
+
     def test_source_tamper_fails_closed(self):
         manifest = self.create_source()
         test = self.root / "data_taskdisjoint" / "test.jsonl"
