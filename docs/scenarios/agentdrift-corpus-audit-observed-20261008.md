@@ -56,6 +56,30 @@ These six source categories must remain separate in any subsequent detector scor
 
 These are *per-matched-record* rates for the coarse `category` label, **not binary attacked precision/recall/F1**. The 12 test records with no matching training world are outside that denominator. World templates and correlated company/person/email strings can leak labels even if an exact world object is absent. The high banking/web/coding/medical rates are consistent with the upstream published world-identity leakage warning; email is a useful contrasting control.
 
+## Joint task/world holdout feasibility (observed)
+
+To test whether **both** exact task and exact world identities can be held out in a nonempty *within-domain* split, construct a bipartite graph. Each unique whitespace-normalized, case-insensitive `(agent, task)` identity is a task vertex. Each sorted-key canonical `(agent, world)` object is a world vertex. Every trajectory connects its task and world vertices. Any two records linked transitively through either dimension must be placed in **the same partition** to avoid leaking one of those exact identities across partitions.
+
+| Domain | Records | Task vertices | World vertices | Connected components | Largest component |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Banking | 2,136 | 50 | 287 | **1** | 2,136 |
+| Coding | 2,600 | 50 | 271 | **1** | 2,600 |
+| Email | 2,600 | 50 | 47 | **1** | 2,600 |
+| Web | 2,600 | 50 | 271 | **1** | 2,600 |
+| Medical | 2,600 | 50 | 293 | **1** | 2,600 |
+| **Total** | **12,536** | **250** | **1,169** | **5** | **2,600** |
+
+This calculation used **all three pinned source JSONL blobs**, not the nine manually authored fixtures. All records within each domain belong to one connected component. Hence **there is no nonempty within-domain train/test split of these records in which both exact task identity and exact world identity are fully disjoint**, even if a different random seed or stratification procedure is used.
+
+It would be possible to allocate the five whole domain components to different splits and preserve exact task/world separation, but that would evaluate **cross-domain transfer**, not within-domain task/world generalization. It would also change the language/tool-distribution and subject mix, making it a different research question.
+
+For within-domain evaluation, choose and disclose one principal control and quantify the remaining confound:
+
+- **Task-disjoint + independently validated world anonymization** (without treating mere world hashing as anonymization); or
+- **World-held-out + reported task-template overlap**, avoiding claims that it is also task-disjoint.
+
+The graph proves a constraint about **these exact task/world keys and the pinned corpus**, not impossibility for any newly generated dataset, semantic task equivalence, partial identity overlap, or robust prompt-injection detection. The `agentdrift_audit.py` structural audit now computes component count and per-domain maximal component size from source-locked data; its CI tests include transitive connectivity cases.
+
 ## Research interpretation and limitations
 
 **Supported:** the pinned task-disjoint corpus preserves disjoint normalized tasks but strongly reuses world identities across splits. This can allow a memorization/lookup shortcut unrelated to understanding prompt injection. A task-disjoint split alone is **not** adequate evidence that a detector will generalize to unseen world identities.
