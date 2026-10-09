@@ -29,6 +29,20 @@
 | Test records with exact (agent, world) overlap in train **or** val | **1,715 / 1,722** |
 | Test records with exact (agent, world) overlap in **train** | **1,710 / 1,722** |
 
+## Test-set denominators (source categories)
+
+| Source category | Test records |
+| --- | ---: |
+| Benign | 525 |
+| Hard negative | 204 |
+| Resisted / failed attack | 218 |
+| Full hijack | 450 |
+| Partial hijack | 208 |
+| Delayed hijack | 117 |
+| **Total** | **1,722** |
+
+These six source categories must remain separate in any subsequent detector scoring. The four-category training-world lookup below deliberately uses the upstream coarse `category` field rather than masquerading as a six-class or step-level detector.
+
 ## Exact-world train-lookup shortcut diagnostic
 
 | Domain | Test records | Exact training-world matches | Correct coarse-category lookups | Accuracy among matched |
