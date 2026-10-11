@@ -200,6 +200,29 @@ Each case carries concrete actor/run, exact effect identity, action digest, deci
 
 The fixture deliberately does **not** claim that an external collector, kernel, host, storage backend, or arbitrary telemetry pipeline is tamper-proof. It also does not prove complete mediation: if an equivalent effect path is not covered by the independent recorder, the evidence claim remains insufficient. That limitation composes with the separate effect-path-closure fixture rather than replacing it.
 
+### Planned: forged lookup history versus observed call/response provenance
+
+[Governance Lab #87](https://github.com/ryjen/anthesis-governance-lab/issues/87)
+tracks a **not-yet-implemented** fixture distinct from
+`trace-integrity-v1.json`. Trace integrity tests whether actor-controlled
+local logs can rewrite independently captured evidence; #87 will test whether
+untrusted tool content can instead *invent* a historical lookup or approval,
+or substitute a real response from a different call.
+
+The proposed positive control uses host-owned call/response association;
+negatives use forged lookup text, cross-call substitution, and absent capture.
+A separate benign control must remain authorized. The fixture will report
+provenance correspondence and effect/no-effect evidence separately from
+detector alarms. It will not claim that a post-hoc alarm prevented an effect,
+nor that the synthetic case proves arbitrary runtime mediation.
+
+Evidence: [Kekatos et al., *Formal Runtime Verification for Tool-Using LLM
+Agents* (2026)](https://arxiv.org/abs/2610.09793). The study operates
+offline on benchmark traces: 70.1% of successful AgentDojo attacks flagged,
+29.3% benign firings; 94–99% of naive provenance detections bypassed by a
+forged lookup-like line in the tested subset. Its call/answer binding
+eliminated that tested evasion; results are not production assurance.
+
 ## Stale remembered authority versus current effect-time authority
 
 Fixture: [`../../fixtures/external-security/stale-memory-authority-v1.json`](../../fixtures/external-security/stale-memory-authority-v1.json)
