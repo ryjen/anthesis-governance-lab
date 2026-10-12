@@ -807,4 +807,6 @@ jq -e '
     .protected_effect_occurred == false)
 ' "$memory_composition_fixture" >/dev/null || fail "memory-composition-trigger paired invariants are not preserved"
 
+bash "$repo_root/scripts/validate-effect-path-closure.sh"
+
 echo "External agent-security fixture validation passed"
