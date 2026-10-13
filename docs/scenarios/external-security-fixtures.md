@@ -377,3 +377,8 @@ Upstream contribution targets, in order:
 3. [ACS #199](https://github.com/GenAI-Security-Project/agent-control-standard/issues/199): review [PR #223](https://github.com/GenAI-Security-Project/agent-control-standard/pull/223) for chain-head correspondence and signed response coverage.
 
 Do not present this synthetic fixture as ACS certification, a complete production bypass inventory, or a demonstration of production credential/network isolation. Upstream [CONTRIBUTING](https://github.com/GenAI-Security-Project/agent-control-standard/blob/integration/CONTRIBUTING.md) places current Guardian and requirement-ledger work in focus and broader negative vectors in a later milestone; coordinate scope before PRs.
+
+
+### Computed synthetic witness (2026-10-13)
+
+`scripts/test-effect-path-witness.py` independently derives modeled effects from declared path reachability, authorization state/effect/executor and enforcement availability. It compares the computed in-memory journal against fixture expectations. All 11 cases passed on a fresh checkout via the canonical validator. This is a **second computational oracle over the same fixture inputs**, not independent real-world observation: it cannot verify whether an actual credential, network route or alternate tool remains reachable. For ACS #33, a later adapter harness must capture independently observable terminal effects under a pinned implementation, including denied-effect and lost-response cases.
