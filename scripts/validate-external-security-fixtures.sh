@@ -808,5 +808,6 @@ jq -e '
 ' "$memory_composition_fixture" >/dev/null || fail "memory-composition-trigger paired invariants are not preserved"
 
 bash "$repo_root/scripts/validate-effect-path-closure.sh"
+python3 "$repo_root/scripts/test-effect-path-witness.py"
 
 echo "External agent-security fixture validation passed"
