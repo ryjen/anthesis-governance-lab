@@ -365,3 +365,20 @@ The fixtures are designed to be adaptable to:
 - research/tooling that evaluates indirect environmental influence through deterministic state and terminal-effect assertions.
 
 Before proposing them upstream, translate field names into the target project's vocabulary and retain the `does_not_prove` limitations rather than presenting synthetic structural validation as production assurance.
+
+## OWASP ACS contribution evidence and limits (2026-10-13)
+
+The synthetic effect-path closure fixture is checked by `scripts/validate-effect-path-closure.sh`, invoked by `scripts/validate-external-security-fixtures.sh` on [PR #89](https://github.com/ryjen/anthesis-governance-lab/pull/89). A fresh checkout passed both scripts, and changing the raw API bypass effect count from zero to one was rejected by the standalone validator. This is **fixture consistency testing**, not independent runtime evidence: the recorded effect counts remain declarative. A physical executor/terminal-state oracle and alternate-path reachability evidence are still required for a stronger complete-mediation claim.
+
+Upstream contribution targets, in order:
+
+1. [ACS #33](https://github.com/GenAI-Security-Project/agent-control-standard/issues/33): ask maintainers for the accepted requirement-ledger slot for a positive exact-action correspondence vector and a negative authorized-A/observed-B vector. A provider-neutral example should preserve authorization, dispatch, provider result and independent terminal state as distinct observations.
+2. [ACS #70](https://github.com/GenAI-Security-Project/agent-control-standard/issues/70): review existing [PR #229](https://github.com/GenAI-Security-Project/agent-control-standard/pull/229) for wire authentication, request/response signing, session-key derivation, tampering and replay negatives before proposing code.
+3. [ACS #199](https://github.com/GenAI-Security-Project/agent-control-standard/issues/199): review [PR #223](https://github.com/GenAI-Security-Project/agent-control-standard/pull/223) for chain-head correspondence and signed response coverage.
+
+Do not present this synthetic fixture as ACS certification, a complete production bypass inventory, or a demonstration of production credential/network isolation. Upstream [CONTRIBUTING](https://github.com/GenAI-Security-Project/agent-control-standard/blob/integration/CONTRIBUTING.md) places current Guardian and requirement-ledger work in focus and broader negative vectors in a later milestone; coordinate scope before PRs.
+
+
+### Computed synthetic witness (2026-10-13)
+
+`scripts/test-effect-path-witness.py` independently derives modeled effects from declared path reachability, authorization state/effect/executor and enforcement availability. It compares the computed in-memory journal against fixture expectations. All 11 cases passed on a fresh checkout via the canonical validator. This is a **second computational oracle over the same fixture inputs**, not independent real-world observation: it cannot verify whether an actual credential, network route or alternate tool remains reachable. For ACS #33, a later adapter harness must capture independently observable terminal effects under a pinned implementation, including denied-effect and lost-response cases.
