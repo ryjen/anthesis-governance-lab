@@ -17,7 +17,7 @@ reject_mutation() {
   local candidate="$work/$id.json"
   jq "$filter" "$fixture" > "$candidate"
   [[ -s "$candidate" ]] || { echo "mutation empty: $id" >&2; exit 1; }
-  if cmp -s "$fixture" "$candidate"; then
+  if [[ "$(jq -S -c . "$fixture")" == "$(jq -S -c . "$candidate")" ]]; then
     echo "mutation not applied: $id" >&2
     exit 1
   fi
