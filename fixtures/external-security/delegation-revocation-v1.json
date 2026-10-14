@@ -138,6 +138,19 @@
       "expected_dispatch_eligible": true
     },
     {
+      "id": "cached-deny-current-grant-wins",
+      "world": "shared",
+      "revoked_grants": [
+        "g-a-c"
+      ],
+      "actor": "C",
+      "proof_state": "verified",
+      "observed_epoch": "epoch-2",
+      "cached_claim": "deny",
+      "expected_decision": "allow",
+      "expected_dispatch_eligible": true
+    },
+    {
       "id": "single-edge-b-retains-descendant",
       "world": "shared",
       "revoked_grants": [
