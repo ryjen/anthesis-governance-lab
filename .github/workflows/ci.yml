@@ -38,6 +38,7 @@ jobs:
             scripts/validate-external-security-crosswalk.sh \
             scripts/validate-external-security-fixtures.sh \
             scripts/validate-effect-path-closure-fixture.sh \
+            scripts/validate-delegation-revocation-fixture.sh \
             scripts/validate-inference-integrity-fixtures.sh \
             scripts/validate-inference-capacity-fixtures.sh \
             scripts/validate-inference-final-catalog.sh \
