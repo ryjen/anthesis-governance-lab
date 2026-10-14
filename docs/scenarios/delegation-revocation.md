@@ -5,9 +5,10 @@ Validator: [`validate-delegation-revocation-fixture.sh`](../../scripts/validate-
 
 ```bash
 bash scripts/validate-delegation-revocation-fixture.sh
+bash scripts/test-delegation-revocation-oracle.sh
 ```
 
-This is a portable **test specification**, not a new Anthesis policy or Testule adapter. The shell/`jq` validator independently computes modeled decisions from the declared grant edges, the **joint** revoked-grant set, proof state, and current epoch, then compares them with the expected verdicts. A model's `cached_claim` never determines authority. No protected effects are executed.
+This is a portable **test specification**, not a new Anthesis policy or Testule adapter. The shell/`jq` validator independently computes modeled decisions from the declared grant edges, the **joint** revoked-grant set, proof state, and current epoch, then compares them with the expected verdicts. It also binds each named case to the required graph, cut, actor, proof state, epoch, and verdict so a changed scenario plus a collusively changed expected label cannot silently pass. Seven mutation regressions exercise that boundary. A model's `cached_claim` never determines authority. No protected effects are executed.
 
 ## Disjunctive multi-parent cut
 
@@ -18,6 +19,8 @@ The root independently grants authority to `A` and `B`; each grants to `C`, whic
 | `A→C` alone | allow | allow | allow | Independent B path remains |
 | `B→C` alone | allow | allow | allow | Independent A path remains |
 | Both edges, **one batch** | deny | deny | allow | No surviving path to C or descendants; F unaffected |
+
+A separate **cached-denial positive control** demonstrates that an outdated model-supplied `deny` cannot override independently verified current authority, just as a cached `allow` cannot authorize a revoked effect.
 
 The invalid shortcut—unioning two separately computed single-edge revoke target sets—fails for this graph. Each individual cut leaves C reachable, while the **joint** cut removes both supports.
 
