@@ -341,12 +341,22 @@ The cases include individually inert L2 fragments, harmful co-retrieval without 
 
 This does not claim semantic poison detection, model behavior prediction, or live retrieval enforcement. It demonstrates the portable invariant that composition, repetition, synthesis, or trigger activation cannot upgrade retrieval memory into authority.
 
+## Multi-parent revocation and residual grant support
+
+Fixture: [`../../fixtures/external-security/delegation-revocation-v1.json`](../../fixtures/external-security/delegation-revocation-v1.json)  
+Contract: [`delegation-revocation.md`](delegation-revocation.md)
+
+This **synthetic, non-normative** fixture tests a disjunctive grant graph. It derives current authorization from the **joint** set of surviving grants rather than unioning individually revoked target sets. One positive control preserves an independently authorized path and another preserves an unrelated actor; a simultaneous cut of both parent grants denies shared and cross-domain descendants. Two counterfactual histories have identical present reachability but opposite outcomes after the same grant is revoked. Stale, missing, untrusted or incomplete current authority evidence makes modeled dispatch ineligible.
+
+The graph oracle is a portable Testule #30 example consuming Anthesis #56/#203 semantics, **not** an implementation of either, and it does not test physical revocation propagation, a signed roster, cryptographic proof, or a provider effect. It does not change the accepted Anthesis v1 single-hop delegation contract. See the dedicated document for exact cases, acceptance boundaries, and known limitations.
+
 ## Validation
 
 Run:
 
 ```bash
 bash scripts/validate-external-security-fixtures.sh
+bash scripts/validate-delegation-revocation-fixture.sh
 bash scripts/validate-effect-path-closure-fixture.sh
 ```
 
