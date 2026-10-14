@@ -25,6 +25,17 @@ jq -e '
     then "allow" else "deny" end;
   . as $root |
   def world($id): first($root.worlds[] | select(.id == $id));
+  # Scenario labels have binding obligations. A validator must not accept
+  # a renamed test whose inputs and expected verdict were changed together.
+  def required_case($id; $world; $cuts; $actor; $proof; $epoch; $verdict):
+    any($root.cases[];
+      .id == $id and
+      .world == $world and
+      .revoked_grants == $cuts and
+      .actor == $actor and
+      .proof_state == $proof and
+      .observed_epoch == $epoch and
+      .expected_decision == $verdict);
   .version == "anthesis-governance-lab.external-security-delegation-revocation/v1" and
   .synthetic == true and .non_normative == true and
   .executes_effects == false and .requires_network == false and
@@ -45,7 +56,7 @@ jq -e '
       (.from as $from | .to as $to |
        ($w.nodes | index($from) != null and index($to) != null)))
   ) and
-  (.cases | length == 11) and
+  (.cases | length == 12) and
   ([.cases[].id] | length == (unique | length)) and
   all(.cases[];
     . as $case |
@@ -78,13 +89,19 @@ jq -e '
   (authorized(world("shared"); ["g-a-c", "g-b-c"]; "D") == false) and
   (authorized(world("shared"); ["g-a-c", "g-b-c"]; "E") == false) and
   (authorized(world("shared"); ["g-a-c", "g-b-c"]; "F") == true) and
-  (all(["single-edge-a-retains-c", "single-edge-b-retains-descendant",
-        "joint-edge-batch-revokes-shared", "joint-edge-batch-revokes-cross-domain-child",
-        "joint-edge-batch-retains-unrelated-actor", "stale-cached-allow-after-batch",
-        "incomplete-survivor-edge-inventory", "forged-authority-observation",
-        "authority-owner-unavailable", "single-grant-future-deny",
-        "parallel-grant-future-allow"][];
-    . as $id | any($root.cases[]; .id == $id))) and
+  required_case("single-edge-a-retains-c"; "shared"; ["g-a-c"]; "C"; "verified"; "epoch-2"; "allow") and
+  required_case("cached-deny-current-grant-wins"; "shared"; ["g-a-c"]; "C"; "verified"; "epoch-2"; "allow") and
+  (first($root.cases[] | select(.id == "cached-deny-current-grant-wins")).cached_claim == "deny") and
+  required_case("single-edge-b-retains-descendant"; "shared"; ["g-b-c"]; "D"; "verified"; "epoch-2"; "allow") and
+  required_case("joint-edge-batch-revokes-shared"; "shared"; ["g-a-c", "g-b-c"]; "C"; "verified"; "epoch-2"; "deny") and
+  required_case("joint-edge-batch-revokes-cross-domain-child"; "shared"; ["g-a-c", "g-b-c"]; "E"; "verified"; "epoch-2"; "deny") and
+  required_case("joint-edge-batch-retains-unrelated-actor"; "shared"; ["g-a-c", "g-b-c"]; "F"; "verified"; "epoch-2"; "allow") and
+  required_case("stale-cached-allow-after-batch"; "shared"; ["g-a-c", "g-b-c"]; "D"; "verified"; "epoch-1"; "indeterminate") and
+  required_case("incomplete-survivor-edge-inventory"; "shared"; ["g-a-c"]; "C"; "incomplete"; "epoch-2"; "indeterminate") and
+  required_case("forged-authority-observation"; "shared"; ["g-a-c"]; "C"; "untrusted"; "epoch-2"; "indeterminate") and
+  required_case("authority-owner-unavailable"; "shared"; ["g-a-c", "g-b-c"]; "C"; "unavailable"; "epoch-2"; "indeterminate") and
+  required_case("single-grant-future-deny"; "single-support"; ["g-a-c-primary"]; "C"; "verified"; "epoch-2"; "deny") and
+  required_case("parallel-grant-future-allow"; "parallel-support"; ["g-a-c-primary"]; "C"; "verified"; "epoch-2"; "allow") and
   (.proves | type == "array" and length >= 3) and
   (.does_not_prove | type == "array" and length >= 3)
 ' "$fixture" >/dev/null || fail "delegation-revocation derived graph and evidence invariants are not preserved"
