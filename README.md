@@ -22,6 +22,7 @@ This repository is an independent public consumer of the accepted Anthesis Gover
 - [External agent-security crosswalk](docs/scenarios/external-security-crosswalk.md)
 - [Machine-readable external security crosswalk](docs/scenarios/external-security-crosswalk.json)
 - [External agent-security test vectors](docs/scenarios/external-security-fixtures.md)
+- [Synthetic multi-parent revocation verification](docs/scenarios/delegation-revocation.md)
 - [Inference-integrity fixtures and executable contract](docs/scenarios/inference-integrity-fixtures.md)
 - [Scenario authoring guide](docs/scenarios/authoring.md)
 - [Decision and report interpretation](docs/scenarios/interpretation.md)
