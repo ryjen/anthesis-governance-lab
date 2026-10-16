@@ -27,7 +27,7 @@ jq -e '
   def world($id): first($root.worlds[] | select(.id == $id));
   # Scenario labels have binding obligations. A validator must not accept
   # a renamed test whose inputs and expected verdict were changed together.
-  def required_case($id; $world; $cuts; $actor; $proof; $epoch; $verdict):
+  def required_case($id; $world; $cuts; $actor; $proof; $epoch; $cached; $verdict):
     any($root.cases[];
       .id == $id and
       .world == $world and
@@ -35,6 +35,7 @@ jq -e '
       .actor == $actor and
       .proof_state == $proof and
       .observed_epoch == $epoch and
+      .cached_claim == $cached and
       .expected_decision == $verdict);
   # A grant ID alone is not provenance. Lock each synthetic world to the
   # exact grant identity and endpoints, not merely graph reachability.
@@ -112,19 +113,18 @@ jq -e '
   (authorized(world("shared"); ["g-a-c", "g-b-c"]; "D") == false) and
   (authorized(world("shared"); ["g-a-c", "g-b-c"]; "E") == false) and
   (authorized(world("shared"); ["g-a-c", "g-b-c"]; "F") == true) and
-  required_case("single-edge-a-retains-c"; "shared"; ["g-a-c"]; "C"; "verified"; "epoch-2"; "allow") and
-  required_case("cached-deny-current-grant-wins"; "shared"; ["g-a-c"]; "C"; "verified"; "epoch-2"; "allow") and
-  (first($root.cases[] | select(.id == "cached-deny-current-grant-wins")).cached_claim == "deny") and
-  required_case("single-edge-b-retains-descendant"; "shared"; ["g-b-c"]; "D"; "verified"; "epoch-2"; "allow") and
-  required_case("joint-edge-batch-revokes-shared"; "shared"; ["g-a-c", "g-b-c"]; "C"; "verified"; "epoch-2"; "deny") and
-  required_case("joint-edge-batch-revokes-cross-domain-child"; "shared"; ["g-a-c", "g-b-c"]; "E"; "verified"; "epoch-2"; "deny") and
-  required_case("joint-edge-batch-retains-unrelated-actor"; "shared"; ["g-a-c", "g-b-c"]; "F"; "verified"; "epoch-2"; "allow") and
-  required_case("stale-cached-allow-after-batch"; "shared"; ["g-a-c", "g-b-c"]; "D"; "verified"; "epoch-1"; "indeterminate") and
-  required_case("incomplete-survivor-edge-inventory"; "shared"; ["g-a-c"]; "C"; "incomplete"; "epoch-2"; "indeterminate") and
-  required_case("forged-authority-observation"; "shared"; ["g-a-c"]; "C"; "untrusted"; "epoch-2"; "indeterminate") and
-  required_case("authority-owner-unavailable"; "shared"; ["g-a-c", "g-b-c"]; "C"; "unavailable"; "epoch-2"; "indeterminate") and
-  required_case("single-grant-future-deny"; "single-support"; ["g-a-c-primary"]; "C"; "verified"; "epoch-2"; "deny") and
-  required_case("parallel-grant-future-allow"; "parallel-support"; ["g-a-c-primary"]; "C"; "verified"; "epoch-2"; "allow") and
+  required_case("single-edge-a-retains-c"; "shared"; ["g-a-c"]; "C"; "verified"; "epoch-2"; "allow"; "allow") and
+  required_case("cached-deny-current-grant-wins"; "shared"; ["g-a-c"]; "C"; "verified"; "epoch-2"; "deny"; "allow") and
+  required_case("single-edge-b-retains-descendant"; "shared"; ["g-b-c"]; "D"; "verified"; "epoch-2"; "allow"; "allow") and
+  required_case("joint-edge-batch-revokes-shared"; "shared"; ["g-a-c", "g-b-c"]; "C"; "verified"; "epoch-2"; "allow"; "deny") and
+  required_case("joint-edge-batch-revokes-cross-domain-child"; "shared"; ["g-a-c", "g-b-c"]; "E"; "verified"; "epoch-2"; "allow"; "deny") and
+  required_case("joint-edge-batch-retains-unrelated-actor"; "shared"; ["g-a-c", "g-b-c"]; "F"; "verified"; "epoch-2"; "allow"; "allow") and
+  required_case("stale-cached-allow-after-batch"; "shared"; ["g-a-c", "g-b-c"]; "D"; "verified"; "epoch-1"; "allow"; "indeterminate") and
+  required_case("incomplete-survivor-edge-inventory"; "shared"; ["g-a-c"]; "C"; "incomplete"; "epoch-2"; "deny"; "indeterminate") and
+  required_case("forged-authority-observation"; "shared"; ["g-a-c"]; "C"; "untrusted"; "epoch-2"; "allow"; "indeterminate") and
+  required_case("authority-owner-unavailable"; "shared"; ["g-a-c", "g-b-c"]; "C"; "unavailable"; "epoch-2"; "allow"; "indeterminate") and
+  required_case("single-grant-future-deny"; "single-support"; ["g-a-c-primary"]; "C"; "verified"; "epoch-2"; "allow"; "deny") and
+  required_case("parallel-grant-future-allow"; "parallel-support"; ["g-a-c-primary"]; "C"; "verified"; "epoch-2"; "allow"; "allow") and
   (.proves | type == "array" and length >= 3) and
   (.does_not_prove | type == "array" and length >= 3)
 ' "$fixture" >/dev/null || fail "delegation-revocation derived graph and evidence invariants are not preserved"
