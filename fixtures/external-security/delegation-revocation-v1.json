@@ -1,0 +1,303 @@
+{
+  "version": "anthesis-governance-lab.external-security-delegation-revocation/v1",
+  "synthetic": true,
+  "non_normative": true,
+  "executes_effects": false,
+  "requires_network": false,
+  "requires_credentials": false,
+  "requires_live_model": false,
+  "model": {
+    "root": "root",
+    "grant_semantics": "disjunctive-independent-paths",
+    "authority_epoch": "epoch-2",
+    "dispatch_requires_verified_current_authority": true,
+    "effect_observation": "not_evaluated"
+  },
+  "worlds": [
+    {
+      "id": "shared",
+      "nodes": [
+        "root",
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
+      "edges": [
+        {
+          "id": "g-root-a",
+          "from": "root",
+          "to": "A"
+        },
+        {
+          "id": "g-root-b",
+          "from": "root",
+          "to": "B"
+        },
+        {
+          "id": "g-root-f",
+          "from": "root",
+          "to": "F"
+        },
+        {
+          "id": "g-a-c",
+          "from": "A",
+          "to": "C"
+        },
+        {
+          "id": "g-b-c",
+          "from": "B",
+          "to": "C"
+        },
+        {
+          "id": "g-c-d",
+          "from": "C",
+          "to": "D"
+        },
+        {
+          "id": "g-c-e",
+          "from": "C",
+          "to": "E"
+        }
+      ]
+    },
+    {
+      "id": "single-support",
+      "nodes": [
+        "root",
+        "A",
+        "C"
+      ],
+      "edges": [
+        {
+          "id": "g-root-a",
+          "from": "root",
+          "to": "A"
+        },
+        {
+          "id": "g-a-c-primary",
+          "from": "A",
+          "to": "C"
+        }
+      ]
+    },
+    {
+      "id": "parallel-support",
+      "nodes": [
+        "root",
+        "A",
+        "C"
+      ],
+      "edges": [
+        {
+          "id": "g-root-a",
+          "from": "root",
+          "to": "A"
+        },
+        {
+          "id": "g-a-c-primary",
+          "from": "A",
+          "to": "C"
+        },
+        {
+          "id": "g-a-c-backup",
+          "from": "A",
+          "to": "C"
+        }
+      ]
+    }
+  ],
+  "matched_present_pair": {
+    "worlds": [
+      "single-support",
+      "parallel-support"
+    ],
+    "revoked_grants": [
+      "g-a-c-primary"
+    ],
+    "actor": "C",
+    "expected_post_revocation": [
+      "deny",
+      "allow"
+    ]
+  },
+  "cases": [
+    {
+      "id": "single-edge-a-retains-c",
+      "world": "shared",
+      "revoked_grants": [
+        "g-a-c"
+      ],
+      "actor": "C",
+      "proof_state": "verified",
+      "observed_epoch": "epoch-2",
+      "cached_claim": "allow",
+      "expected_decision": "allow",
+      "expected_dispatch_eligible": true
+    },
+    {
+      "id": "cached-deny-current-grant-wins",
+      "world": "shared",
+      "revoked_grants": [
+        "g-a-c"
+      ],
+      "actor": "C",
+      "proof_state": "verified",
+      "observed_epoch": "epoch-2",
+      "cached_claim": "deny",
+      "expected_decision": "allow",
+      "expected_dispatch_eligible": true
+    },
+    {
+      "id": "single-edge-b-retains-descendant",
+      "world": "shared",
+      "revoked_grants": [
+        "g-b-c"
+      ],
+      "actor": "D",
+      "proof_state": "verified",
+      "observed_epoch": "epoch-2",
+      "cached_claim": "allow",
+      "expected_decision": "allow",
+      "expected_dispatch_eligible": true
+    },
+    {
+      "id": "joint-edge-batch-revokes-shared",
+      "world": "shared",
+      "revoked_grants": [
+        "g-a-c",
+        "g-b-c"
+      ],
+      "actor": "C",
+      "proof_state": "verified",
+      "observed_epoch": "epoch-2",
+      "cached_claim": "allow",
+      "expected_decision": "deny",
+      "expected_dispatch_eligible": false
+    },
+    {
+      "id": "joint-edge-batch-revokes-cross-domain-child",
+      "world": "shared",
+      "revoked_grants": [
+        "g-a-c",
+        "g-b-c"
+      ],
+      "actor": "E",
+      "proof_state": "verified",
+      "observed_epoch": "epoch-2",
+      "cached_claim": "allow",
+      "expected_decision": "deny",
+      "expected_dispatch_eligible": false
+    },
+    {
+      "id": "joint-edge-batch-retains-unrelated-actor",
+      "world": "shared",
+      "revoked_grants": [
+        "g-a-c",
+        "g-b-c"
+      ],
+      "actor": "F",
+      "proof_state": "verified",
+      "observed_epoch": "epoch-2",
+      "cached_claim": "allow",
+      "expected_decision": "allow",
+      "expected_dispatch_eligible": true
+    },
+    {
+      "id": "stale-cached-allow-after-batch",
+      "world": "shared",
+      "revoked_grants": [
+        "g-a-c",
+        "g-b-c"
+      ],
+      "actor": "D",
+      "proof_state": "verified",
+      "observed_epoch": "epoch-1",
+      "cached_claim": "allow",
+      "expected_decision": "indeterminate",
+      "expected_dispatch_eligible": false
+    },
+    {
+      "id": "incomplete-survivor-edge-inventory",
+      "world": "shared",
+      "revoked_grants": [
+        "g-a-c"
+      ],
+      "actor": "C",
+      "proof_state": "incomplete",
+      "observed_epoch": "epoch-2",
+      "cached_claim": "deny",
+      "expected_decision": "indeterminate",
+      "expected_dispatch_eligible": false
+    },
+    {
+      "id": "forged-authority-observation",
+      "world": "shared",
+      "revoked_grants": [
+        "g-a-c"
+      ],
+      "actor": "C",
+      "proof_state": "untrusted",
+      "observed_epoch": "epoch-2",
+      "cached_claim": "allow",
+      "expected_decision": "indeterminate",
+      "expected_dispatch_eligible": false
+    },
+    {
+      "id": "authority-owner-unavailable",
+      "world": "shared",
+      "revoked_grants": [
+        "g-a-c",
+        "g-b-c"
+      ],
+      "actor": "C",
+      "proof_state": "unavailable",
+      "observed_epoch": "epoch-2",
+      "cached_claim": "allow",
+      "expected_decision": "indeterminate",
+      "expected_dispatch_eligible": false
+    },
+    {
+      "id": "single-grant-future-deny",
+      "world": "single-support",
+      "revoked_grants": [
+        "g-a-c-primary"
+      ],
+      "actor": "C",
+      "proof_state": "verified",
+      "observed_epoch": "epoch-2",
+      "cached_claim": "allow",
+      "expected_decision": "deny",
+      "expected_dispatch_eligible": false
+    },
+    {
+      "id": "parallel-grant-future-allow",
+      "world": "parallel-support",
+      "revoked_grants": [
+        "g-a-c-primary"
+      ],
+      "actor": "C",
+      "proof_state": "verified",
+      "observed_epoch": "epoch-2",
+      "cached_claim": "allow",
+      "expected_decision": "allow",
+      "expected_dispatch_eligible": true
+    }
+  ],
+  "proves": [
+    "a disjunctive multi-parent batch cut cannot be computed by unioning independent single-edge cuts",
+    "one surviving independent path preserves eligible delegation under the synthetic policy",
+    "present reachability alone cannot determine future revocation of duplicate independent grants",
+    "stale, forged, incomplete, or unavailable authority evidence cannot permit modeled dispatch",
+    "a modeled denied or indeterminate request is not dispatch-eligible"
+  ],
+  "does_not_prove": [
+    "Anthesis currently supports or should adopt multi-parent transitive delegation in v1",
+    "revocation propagation to workers or physical protection of any downstream effect",
+    "the authenticity or completeness of a real signer, roster, audit log, or effect observer",
+    "authorization under conjunctive or threshold delegation policies",
+    "a production authorization engine, Testule implementation, or cryptographic proof"
+  ]
+}
