@@ -66,6 +66,14 @@ reject_mutation rerouted-parallel-backup '
   (.worlds[] | select(.id == "parallel-support") | .edges[] |
     select(.id == "g-a-c-backup") | .from) = "root"
 '
+# Cached claims are scenario identity, not merely inert model data: removing
+# an allow from either named stale/history counterexample must fail closed.
+reject_mutation stale-cached-allow-relabeled '
+  (.cases[] | select(.id == "stale-cached-allow-after-batch") | .cached_claim) = "deny"
+'
+reject_mutation future-single-grant-cached-allow-relabeled '
+  (.cases[] | select(.id == "single-grant-future-deny") | .cached_claim) = "deny"
+'
 reject_mutation cached-deny-positive-removed '
   (.cases[] | select(.id == "cached-deny-current-grant-wins") | .cached_claim) = "allow"
 '
@@ -74,4 +82,4 @@ reject_mutation false-result '
   (.cases[] | select(.id == "joint-edge-batch-revokes-shared") | .expected_dispatch_eligible) = true
 '
 
-echo "delegation-revocation oracle mutation regressions passed (9 rejected)"
+echo "delegation-revocation oracle mutation regressions passed (11 rejected)"
