@@ -54,6 +54,18 @@ reject_mutation dropped-alternate-grant '
   (.cases[] | select(.id == "parallel-grant-future-allow") | .expected_decision) = "deny" |
   (.cases[] | select(.id == "parallel-grant-future-allow") | .expected_dispatch_eligible) = false
 '
+# Mutations preserve modeled reachability and decisions, but falsify
+# the named grant's provenance. The original graph-only oracle accepted them.
+reject_mutation swapped-shared-edge-origins '
+  (.worlds[] | select(.id == "shared") | .edges) |=
+    map(if .id == "g-a-c" then .from = "B"
+        elif .id == "g-b-c" then .from = "A"
+        else . end)
+'
+reject_mutation rerouted-parallel-backup '
+  (.worlds[] | select(.id == "parallel-support") | .edges[] |
+    select(.id == "g-a-c-backup") | .from) = "root"
+'
 reject_mutation cached-deny-positive-removed '
   (.cases[] | select(.id == "cached-deny-current-grant-wins") | .cached_claim) = "allow"
 '
@@ -62,4 +74,4 @@ reject_mutation false-result '
   (.cases[] | select(.id == "joint-edge-batch-revokes-shared") | .expected_dispatch_eligible) = true
 '
 
-echo "delegation-revocation oracle mutation regressions passed (7 rejected)"
+echo "delegation-revocation oracle mutation regressions passed (9 rejected)"
