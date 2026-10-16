@@ -8,7 +8,7 @@ bash scripts/validate-delegation-revocation-fixture.sh
 bash scripts/test-delegation-revocation-oracle.sh
 ```
 
-This is a portable **test specification**, not a new Anthesis policy or Testule adapter. The shell/`jq` validator independently computes modeled decisions from the declared grant edges, the **joint** revoked-grant set, proof state, and current epoch, then compares them with the expected verdicts. It also binds each named case to the required graph, cut, actor, proof state, epoch, and verdict so a changed scenario plus a collusively changed expected label cannot silently pass. Seven mutation regressions exercise that boundary. A model's `cached_claim` never determines authority. No protected effects are executed.
+This is a portable **test specification**, not a new Anthesis policy or Testule adapter. The shell/`jq` validator independently computes modeled decisions from the declared grant edges, the **joint** revoked-grant set, proof state, and current epoch, then compares them with the expected verdicts. It binds each named case to the required world, cut, actor, proof state, epoch, and verdict **and pins every synthetic grant ID to its expected source and destination in that world**. A swapped `A→C` / `B→C` grant ID or a rerouted parallel grant must fail even when graph reachability and every expected decision are unchanged. The complete edge set is checked exactly, rejecting undeclared grants. Nine mutation regressions exercise the case-label and grant-provenance bindings. A model's `cached_claim` never determines authority. No protected effects are executed.
 
 ## Disjunctive multi-parent cut
 
