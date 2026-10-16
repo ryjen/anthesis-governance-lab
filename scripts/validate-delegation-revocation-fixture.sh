@@ -36,6 +36,11 @@ jq -e '
       .proof_state == $proof and
       .observed_epoch == $epoch and
       .expected_decision == $verdict);
+  # A grant ID alone is not provenance. Lock each synthetic world to the
+  # exact grant identity and endpoints, not merely graph reachability.
+  # Comparing exact, sorted edge objects also rejects extra or unknown grants.
+  def exact_edges($world; $expected):
+    (world($world).edges | sort_by(.id)) == ($expected | sort_by(.id));
   .version == "anthesis-governance-lab.external-security-delegation-revocation/v1" and
   .synthetic == true and .non_normative == true and
   .executes_effects == false and .requires_network == false and
@@ -46,6 +51,24 @@ jq -e '
   .model.dispatch_requires_verified_current_authority == true and
   .model.effect_observation == "not_evaluated" and
   ([.worlds[].id] | sort == ["parallel-support", "shared", "single-support"]) and
+  exact_edges("shared"; [
+    {"id": "g-root-a", "from": "root", "to": "A"},
+    {"id": "g-root-b", "from": "root", "to": "B"},
+    {"id": "g-root-f", "from": "root", "to": "F"},
+    {"id": "g-a-c", "from": "A", "to": "C"},
+    {"id": "g-b-c", "from": "B", "to": "C"},
+    {"id": "g-c-d", "from": "C", "to": "D"},
+    {"id": "g-c-e", "from": "C", "to": "E"}
+  ]) and
+  exact_edges("single-support"; [
+    {"id": "g-root-a", "from": "root", "to": "A"},
+    {"id": "g-a-c-primary", "from": "A", "to": "C"}
+  ]) and
+  exact_edges("parallel-support"; [
+    {"id": "g-root-a", "from": "root", "to": "A"},
+    {"id": "g-a-c-primary", "from": "A", "to": "C"},
+    {"id": "g-a-c-backup", "from": "A", "to": "C"}
+  ]) and
   all(.worlds[];
     (.nodes | length >= 3 and (index("root") != null) and length == (unique | length)) and
     ([.edges[].id] | length == (unique | length)) and
