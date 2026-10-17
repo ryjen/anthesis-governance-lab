@@ -20,6 +20,8 @@ reject "known-bad oracle corrupted" '(.cases[] | select(.id == "always-pass-know
 reject "abstain collapsed to pass" '(.cases[] | select(.id == "anchored-abstain") | .actual_verdict) = "pass"'
 reject "generic auditor promoted" '(.cases[] | select(.id == "generic-auditor-rejects-valid-tag") | .expected_validity) = "VALID"'
 reject "missing numeric tag accepted" '(.cases[] | select(.id == "contract-aware-rejects-missing-value") | .actual_verdict) = "pass"'
+reject "correct generic auditor mislabeled invalid" '(.cases[] | select(.id == "generic-auditor-correctly-rejects-malformed-tag") | .expected_validity) = "INVALID"'
+reject "generic auditor malformed tag incorrectly accepted" '(.cases[] | select(.id == "generic-auditor-correctly-rejects-malformed-tag") | .actual_verdict) = "pass"'
 reject "oracle exposed for selection" '.grader_selection_feedback_exposes_oracle = true'
 reject "required control removed" 'del(.cases[] | select(.id == "always-pass-abstain"))'
 echo "Verifier-control mutation oracle: $count negative mutations rejected"
