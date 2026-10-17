@@ -350,6 +350,20 @@ This **synthetic, non-normative** fixture tests a disjunctive grant graph. It de
 
 The graph oracle is a portable Testule #30 example consuming Anthesis #56/#203 semantics, **not** an implementation of either, and it does not test physical revocation propagation, a signed roster, cryptographic proof, or a provider effect. It does not change the accepted Anthesis v1 single-hop delegation contract. See the dedicated document for exact cases, acceptance boundaries, and known limitations.
 
+## Proof of execution, trace completeness, replay, and fresh authority
+
+Fixture: [`../../fixtures/external-security/proof-execution-replay-v1.json`](../../fixtures/external-security/proof-execution-replay-v1.json)  
+Validator: [`../../scripts/validate-proof-execution-fixtures.sh`](../../scripts/validate-proof-execution-fixtures.sh)  
+Negative oracle: [`../../scripts/test-proof-execution-oracle.sh`](../../scripts/test-proof-execution-oracle.sh)
+
+This 19-case **synthetic, provider-neutral** pack is a bounded first execution slice of [Governance Lab #72](https://github.com/ryjen/anthesis-governance-lab/issues/72), informed by [Rhodes & Kang, *Proof of Execution*, arXiv:2607.05397v1](https://arxiv.org/abs/2607.05397v1). The paper's single-logical-Gateway, recorder and deployment assumptions are *not* established by passing this fixture.
+
+It derives `VERIFIED`, `REJECTED`, and `UNRESOLVED` evidence states independently from modeled input observations. A claimed sealed trace is insufficient when an independent effect disagrees, the order/commit event differs, a deny led to mutation, or an unmediated effect path exists. Missing witness, path coverage or precommit recorder evidence remains **UNRESOLVED**, never silently `VERIFIED`. Replay independently rejects live-world drift and preserves an unresolved missing-dependency state, without retroactively revoking a historically valid proof.
+
+The protected *follow-on* action requires fresh authority bound to the **same modeled principal and exact follow-on action**. Cross-action and cross-principal fresh approval attempts are denied independently of the historical proof. The historically valid record cannot authorize a new operation, and a freshly authorized but subsequently revoked context is denied. The modeled principal/action strings are **not authenticated credentials or real approval artifacts**. Mutation tests intentionally corrupt the modeled observations and assert the validator fails.
+
+**Limitations:** The independent witness, seal, capture-path inventory, provider timing and world equivalence are declared fixture assumptions, not validated cryptographic or physical-host properties. The pack does not execute effects, establish all reachable production paths, verify external recorder durability, implement the paper's wire format, or grant authorization. It supplements (does not replace) the existing independent trace-integrity and execution-correspondence fixtures. Anthesis owns semantic authority; Dubnium owns actual runtime and recovery; Testule owns portable evidence representation. A passing synthetic oracle is **not** production compliance or complete-mediation evidence.
+
 ## Validation
 
 Run:
@@ -357,6 +371,8 @@ Run:
 ```bash
 bash scripts/validate-external-security-fixtures.sh
 bash scripts/validate-delegation-revocation-fixture.sh
+bash scripts/validate-proof-execution-fixtures.sh
+bash scripts/test-proof-execution-oracle.sh
 bash scripts/validate-effect-path-closure-fixture.sh
 ```
 
