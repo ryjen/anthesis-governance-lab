@@ -1,0 +1,112 @@
+{
+  "version": "anthesis-governance-lab.verifier-controls/v1",
+  "synthetic": true,
+  "executes_effects": false,
+  "requires_network": false,
+  "requires_credentials": false,
+  "requires_live_model": false,
+  "reference_oracle": "fixture:locked-reference-v1",
+  "grader_selection_feedback_exposes_oracle": false,
+  "subject_revision": "fixture:subject-v1",
+  "harness_revision": "fixture:harness-v1",
+  "evaluator_profile": "fixture:evaluator-profile-v1",
+  "downstream_agent_score": 0.94,
+  "assumptions": [
+    "reference labels and contract semantics are fixed synthetic inputs, not attested real-world truth",
+    "downstream agent score is intentionally independent of verifier validity",
+    "same report and tag input are used for generic and contract-aware auditor cases",
+    "evaluator and contract revisions are distinct evidence identities, not an approved-claim reinterpretation"
+  ],
+  "cases": [
+    {
+      "id": "anchored-known-good",
+      "kind": "grader",
+      "candidate": "anchored-v1",
+      "expected_verdict": "pass",
+      "actual_verdict": "pass",
+      "anchor_available": true,
+      "expected_validity": "VALID"
+    },
+    {
+      "id": "anchored-known-bad",
+      "kind": "grader",
+      "candidate": "anchored-v1",
+      "expected_verdict": "fail",
+      "actual_verdict": "fail",
+      "anchor_available": true,
+      "expected_validity": "VALID"
+    },
+    {
+      "id": "anchored-abstain",
+      "kind": "grader",
+      "candidate": "anchored-v1",
+      "expected_verdict": "abstain",
+      "actual_verdict": "abstain",
+      "anchor_available": true,
+      "expected_validity": "VALID"
+    },
+    {
+      "id": "always-pass-known-bad",
+      "kind": "grader",
+      "candidate": "always-pass-v1",
+      "expected_verdict": "fail",
+      "actual_verdict": "pass",
+      "anchor_available": true,
+      "expected_validity": "INVALID"
+    },
+    {
+      "id": "always-pass-abstain",
+      "kind": "grader",
+      "candidate": "always-pass-v1",
+      "expected_verdict": "abstain",
+      "actual_verdict": "pass",
+      "anchor_available": true,
+      "expected_validity": "INVALID"
+    },
+    {
+      "id": "generic-auditor-rejects-valid-tag",
+      "kind": "auditor",
+      "candidate": "generic-v1",
+      "contract_revision": "task-contract-v1",
+      "required_tag": "EVIDENCE:42",
+      "actual_tag": "EVIDENCE:42",
+      "actual_verdict": "fail",
+      "expected_validity": "INVALID"
+    },
+    {
+      "id": "contract-aware-accepts-valid-tag",
+      "kind": "auditor",
+      "candidate": "contract-aware-v1",
+      "contract_revision": "task-contract-v1",
+      "required_tag": "EVIDENCE:42",
+      "actual_tag": "EVIDENCE:42",
+      "actual_verdict": "pass",
+      "expected_validity": "VALID"
+    },
+    {
+      "id": "contract-aware-rejects-missing-value",
+      "kind": "auditor",
+      "candidate": "contract-aware-v1",
+      "contract_revision": "task-contract-v1",
+      "required_tag": "EVIDENCE:42",
+      "actual_tag": "EVIDENCE:",
+      "actual_verdict": "fail",
+      "expected_validity": "VALID"
+    },
+    {
+      "id": "generic-auditor-correctly-rejects-malformed-tag",
+      "kind": "auditor",
+      "candidate": "generic-v1",
+      "contract_revision": "task-contract-v1",
+      "required_tag": "EVIDENCE:42",
+      "actual_tag": "EVIDENCE:",
+      "actual_verdict": "fail",
+      "expected_validity": "VALID"
+    }
+  ],
+  "does_not_prove": [
+    "real-world grader quality, evaluator independence or model behavior",
+    "external cryptographic evidence identity or authorization",
+    "statistical validity of downstream agent score"
+  ]
+}
