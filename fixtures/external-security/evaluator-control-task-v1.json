@@ -9,7 +9,8 @@
     "locked synthetic labels are the control oracle in this fixture only; no real model is evaluated",
     "matched treatment/control conditions are a declared fixture assumption",
     "ten discrete toy predictions are not an empirical statistical confidence bound",
-    "mechanism-active and source-requirement-covered flags are modeled, not attested"
+    "mechanism-active and source-requirement-covered flags are modeled, not attested",
+    "validity of the matched-control oracle is modeled and must be independently established in any real evaluation"
   ],
   "cases": [
     {
@@ -73,7 +74,8 @@
         "control_correct": 5,
         "differential": 5,
         "attribution": "SUPPORTED"
-      }
+      },
+      "control_oracle_valid": true
     },
     {
       "id": "mechanism-absent",
@@ -136,7 +138,8 @@
         "control_correct": 5,
         "differential": 0,
         "attribution": "NOT_SUPPORTED"
-      }
+      },
+      "control_oracle_valid": true
     },
     {
       "id": "placebo-irrelevant-mechanism",
@@ -199,7 +202,8 @@
         "control_correct": 10,
         "differential": 0,
         "attribution": "NOT_SUPPORTED"
-      }
+      },
+      "control_oracle_valid": true
     },
     {
       "id": "overcapable-evaluator-confounder",
@@ -262,7 +266,8 @@
         "control_correct": 10,
         "differential": 0,
         "attribution": "NOT_SUPPORTED"
-      }
+      },
+      "control_oracle_valid": true
     },
     {
       "id": "missing-independent-control",
@@ -314,7 +319,8 @@
         "control_correct": null,
         "differential": null,
         "attribution": "UNRESOLVED"
-      }
+      },
+      "control_oracle_valid": true
     },
     {
       "id": "unmatched-control-population",
@@ -377,7 +383,8 @@
         "control_correct": 5,
         "differential": 5,
         "attribution": "UNRESOLVED"
-      }
+      },
+      "control_oracle_valid": true
     },
     {
       "id": "always-pass-imbalanced-task",
@@ -440,7 +447,8 @@
         "control_correct": 9,
         "differential": 0,
         "attribution": "NOT_SUPPORTED"
-      }
+      },
+      "control_oracle_valid": true
     },
     {
       "id": "proof-of-weakened-specification",
@@ -503,7 +511,72 @@
         "control_correct": 5,
         "differential": 5,
         "attribution": "NOT_SUPPORTED"
-      }
+      },
+      "control_oracle_valid": true
+    },
+    {
+      "id": "invalid-control-oracle",
+      "candidate_revision": "fixture:candidate-v1",
+      "evaluator_revision": "fixture:evaluator-v1",
+      "harness_revision": "fixture:harness-v1",
+      "mechanism_active": true,
+      "conditions_matched": true,
+      "source_requirement_covered": true,
+      "task_labels": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false
+      ],
+      "control_labels": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false
+      ],
+      "task_predictions": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false
+      ],
+      "control_predictions": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "expected": {
+        "raw_correct": 10,
+        "control_correct": 5,
+        "differential": 5,
+        "attribution": "UNRESOLVED"
+      },
+      "control_oracle_valid": false
     }
   ],
   "proves": [
