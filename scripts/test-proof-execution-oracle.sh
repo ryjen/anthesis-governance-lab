@@ -29,6 +29,8 @@ expect_rejected "unobserved alternate credential mutation" '(.cases[] | select(.
 expect_rejected "deleted commit receipt" '(.cases[] | select(.id == "governed-exact-effect") | .recorded_events) = ["allow:alpha", "dispatch:alpha"]'
 expect_rejected "missing declared replay dependency hidden" '(.cases[] | select(.id == "declared-replay-dependency-missing") | .available_dependencies) = ["policy:v1", "runtime:v1"]'
 expect_rejected "revoked fresh authorization" '(.cases[] | select(.id == "new-authority-required-for-followon") | .current_authority_revoked) = true'
+expect_rejected "wrong follow-on action" '(.cases[] | select(.id == "new-authority-required-for-followon") | .fresh_authorized_action) = "alpha"'
+expect_rejected "wrong approval principal" '(.cases[] | select(.id == "new-authority-required-for-followon") | .fresh_authorized_principal) = "principal_other"'
 expect_rejected "absent required case" 'del(.cases[] | select(.id == "independent-witness-unavailable"))'
 
 echo "Proof-of-execution mutation oracle: $case_index negative mutations rejected"
