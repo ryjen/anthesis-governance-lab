@@ -28,5 +28,6 @@ expect_rejected "unmatched comparator relabeled as matched" '(.cases[] | select(
 expect_rejected "missing control silently omitted" '(.cases[] | select(.id == "real-mechanism-treatment") | .control_predictions) = null'
 expect_rejected "weakened specification promoted" '(.cases[] | select(.id == "proof-of-weakened-specification") | .source_requirement_covered) = true'
 expect_rejected "always-pass mistaken for valid evaluator" '(.cases[] | select(.id == "always-pass-imbalanced-task") | .expected.attribution) = "SUPPORTED"'
+expect_rejected "invalid control oracle falsely trusted" '(.cases[] | select(.id == "real-mechanism-treatment") | .control_oracle_valid) = false'
 expect_rejected "required case deleted" 'del(.cases[] | select(.id == "missing-independent-control"))'
 echo "Evaluator control-task mutation oracle: $case_index negative mutations rejected"
