@@ -376,6 +376,20 @@ The positive treatment has ten correct raw labels but only five correct matched-
 
 **Trust limits:** The synthetic labels are the fixture's declared reference oracle, not an attested real dataset; the control-oracle-valid field is a modeled precondition, not a verified credential or certification; the activity/mechanism and requirement-coverage flags are modeled assumptions. Matching condition identifiers alone do not establish actual experimental matching. A raw/control count is not a statistical causal estimate, verifier attestation, policy decision, agent capability grant, or deployment qualification. The derived `SUPPORTED` label is evidence only under this declared toy experiment; no consumer may treat it as Anthesis authorization. Extended grader-collapse and contract-aware auditor controls remain tracked on #62 and should be added only without broadening this first slice.
 
+## Verifier collapse and task-contract-aware auditor controls
+
+Fixture: [`../../fixtures/external-security/verifier-collapse-controls-v1.json`](../../fixtures/external-security/verifier-collapse-controls-v1.json)  
+Validator: [`../../scripts/validate-verifier-collapse-controls.sh`](../../scripts/validate-verifier-collapse-controls.sh)  
+Negative oracle: [`../../scripts/test-verifier-collapse-controls.sh`](../../scripts/test-verifier-collapse-controls.sh)
+
+This eight-case **synthetic, no-effect** extension of [#62](https://github.com/ryjen/anthesis-governance-lab/issues/62) models the verifier-collapse and contract-blind auditor failure modes described in [*Who Verifies the Verifier?* (arXiv:2610.11464v1)](https://arxiv.org/abs/2610.11464). Paper outcomes are author-reported and are **not** independently reproduced here.
+
+The locked oracle includes known-good, known-bad, and abstain labels. An anchored candidate matches each; an always-pass candidate incorrectly accepts bad and abstain examples. The fixture's plausible downstream agent score of 0.94 cannot override these invalid verifier results. The oracle is declared unavailable as grader-selection feedback, although this is a synthetic assumption rather than an enforceable information-flow guarantee.
+
+A generic auditor incorrectly rejects a report containing the task-contract-required `EVIDENCE:42` tag; a contract-aware auditor accepts that report but rejects `EVIDENCE:` without a numeric value. Each case binds a synthetic subject, evaluator profile, harness, candidate, and task-contract revision. The verdict and validity are separately checked. Distinct evaluator/contract revisions must be recorded as distinct evidence identities in any real integration; this pack does not implement an identity signer, new schema or retroactive reinterpretation.
+
+These tests are *evidence checks*, not authorization or promotion decisions. They neither run models nor demonstrate real evaluator independence, model-training dynamics, statistical validity, or a trustworthy external grader.
+
 ## Validation
 
 Run:
@@ -387,6 +401,8 @@ bash scripts/validate-proof-execution-fixtures.sh
 bash scripts/test-proof-execution-oracle.sh
 bash scripts/validate-evaluator-control-fixtures.sh
 bash scripts/test-evaluator-control-oracle.sh
+bash scripts/validate-verifier-collapse-controls.sh
+bash scripts/test-verifier-collapse-controls.sh
 bash scripts/validate-effect-path-closure-fixture.sh
 ```
 
