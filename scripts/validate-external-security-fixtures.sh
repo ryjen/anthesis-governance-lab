@@ -814,5 +814,7 @@ bash "$repo_root/scripts/validate-evaluator-control-fixtures.sh"
 bash "$repo_root/scripts/test-evaluator-control-oracle.sh"
 bash "$repo_root/scripts/validate-verifier-collapse-controls.sh"
 bash "$repo_root/scripts/test-verifier-collapse-controls.sh"
+bash "$repo_root/scripts/validate-root-revocation-quiescence.sh"
+bash "$repo_root/scripts/test-root-revocation-quiescence.sh"
 
 echo "External agent-security fixture validation passed"
