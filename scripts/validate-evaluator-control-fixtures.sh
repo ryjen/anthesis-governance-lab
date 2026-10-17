@@ -20,7 +20,7 @@ jq -e '
     (control) as $ctrl |
     if $ctrl == null then null else raw - $ctrl end;
   def attribution:
-    if (control) == null or (.conditions_matched | not) then "UNRESOLVED"
+    if (control) == null or (.conditions_matched | not) or (.control_oracle_valid | not) then "UNRESOLVED"
     elif (.mechanism_active | not) or (.source_requirement_covered | not) then "NOT_SUPPORTED"
     elif raw >= 8 and differential >= 4 then "SUPPORTED"
     else "NOT_SUPPORTED" end;
@@ -33,7 +33,7 @@ jq -e '
   (.assumptions | type == "array" and length >= 3) and
   (.does_not_prove | type == "array" and length >= 3) and
   (.proves | type == "array" and length >= 3) and
-  (.cases | type == "array" and length == 8) and
+  (.cases | type == "array" and length == 9) and
   ([.cases[].id] | length == (unique | length)) and
   all(.cases[];
     (.id | type == "string" and length > 0) and
@@ -42,6 +42,7 @@ jq -e '
     (.harness_revision | type == "string" and startswith("fixture:")) and
     (.mechanism_active | type == "boolean") and
     (.conditions_matched | type == "boolean") and
+    (.control_oracle_valid | type == "boolean") and
     (.source_requirement_covered | type == "boolean") and
     (.task_labels | type == "array" and length == 10 and all(.[]; type == "boolean")) and
     (.control_labels | type == "array" and length == 10 and all(.[]; type == "boolean")) and
@@ -68,7 +69,8 @@ jq -e '
     ["missing-independent-control", 10, null, null, "UNRESOLVED"],
     ["unmatched-control-population", 10, 5, 5, "UNRESOLVED"],
     ["always-pass-imbalanced-task", 9, 9, 0, "NOT_SUPPORTED"],
-    ["proof-of-weakened-specification", 10, 5, 5, "NOT_SUPPORTED"]
+    ["proof-of-weakened-specification", 10, 5, 5, "NOT_SUPPORTED"],
+    ["invalid-control-oracle", 10, 5, 5, "UNRESOLVED"]
   ] | all(.[]; . as $e | any($root.cases[];
     .id == $e[0] and
     .expected.raw_correct == $e[1] and
@@ -78,7 +80,8 @@ jq -e '
   ))) and
   any(.cases[]; .id == "overcapable-evaluator-confounder" and .mechanism_active == true) and
   any(.cases[]; .id == "always-pass-imbalanced-task" and ([.task_predictions[]] | all(. == true))) and
-  any(.cases[]; .id == "proof-of-weakened-specification" and .source_requirement_covered == false)
+  any(.cases[]; .id == "proof-of-weakened-specification" and .source_requirement_covered == false) and
+  any(.cases[]; .id == "invalid-control-oracle" and .control_oracle_valid == false)
 ' "$fixture" >/dev/null || fail "evaluator-control task fixture invariants failed"
 
-echo "Evaluator control-task fixture validation passed (8 synthetic cases)"
+echo "Evaluator control-task fixture validation passed (9 synthetic cases)"
