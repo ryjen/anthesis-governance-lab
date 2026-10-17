@@ -810,5 +810,7 @@ jq -e '
 bash "$repo_root/scripts/validate-delegation-revocation-fixture.sh"
 bash "$repo_root/scripts/validate-proof-execution-fixtures.sh"
 bash "$repo_root/scripts/test-proof-execution-oracle.sh"
+bash "$repo_root/scripts/validate-evaluator-control-fixtures.sh"
+bash "$repo_root/scripts/test-evaluator-control-oracle.sh"
 
 echo "External agent-security fixture validation passed"
