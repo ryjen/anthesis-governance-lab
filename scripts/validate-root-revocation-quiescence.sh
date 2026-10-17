@@ -58,6 +58,27 @@ jq -e '
     ["timeout-retry-exhaustion","INDETERMINATE"],
     ["unrelated-root-preserved","QUIESCENT"]
   ] | all(.[]; . as $pair | any($root.cases[]; .id == $pair[0] and .expected == $pair[1]))) and
+  ([.cases[] | {id,cut_durable,provider_enumerated,provider_fenced,frontier_known,old_root_new_commit,old_root_support_live,precut_accepted_late_settlement,retired_epoch_rejected,independent_root_preserved,handoff_matched,certificate_consistent,retries_exhausted}] | sort_by(.id)) ==
+  ([
+    ["cancellation-ack-only",false,true,false,true,true,false,false,true,true,true,true,false],
+    ["process-token-revocation-only",false,true,true,true,false,true,false,true,true,true,true,false],
+    ["durable-cut-unfenced-sink",true,true,false,true,true,false,false,true,true,true,true,false],
+    ["cut-plus-provider-fence",true,true,true,true,false,false,false,true,true,true,true,false],
+    ["precut-accepted-late-settlement",true,true,true,true,false,false,true,true,true,true,true,false],
+    ["stale-worker-retired-epoch",true,true,true,true,true,false,false,false,true,true,true,false],
+    ["shared-worker-exact-rebind",true,true,true,true,false,false,false,true,true,true,true,false],
+    ["provider-enumeration-missing",true,false,true,true,false,false,false,true,true,true,true,false],
+    ["duplicated-handoff-token",true,true,true,true,false,false,false,true,true,false,true,false],
+    ["conflicting-certificate-revision",true,true,true,true,false,false,false,true,true,true,false,false],
+    ["timeout-retry-exhaustion",true,true,true,true,false,false,false,true,true,true,true,true],
+    ["unrelated-root-preserved",true,true,true,true,false,false,false,true,true,true,true,false]
+  ] | map({
+    id:.[0],cut_durable:.[1],provider_enumerated:.[2],provider_fenced:.[3],
+    frontier_known:.[4],old_root_new_commit:.[5],old_root_support_live:.[6],
+    precut_accepted_late_settlement:.[7],retired_epoch_rejected:.[8],
+    independent_root_preserved:.[9],handoff_matched:.[10],
+    certificate_consistent:.[11],retries_exhausted:.[12]
+  }) | sort_by(.id)) and
   any(.cases[]; .id == "precut-accepted-late-settlement" and .precut_accepted_late_settlement == true and .old_root_new_commit == false) and
   any(.cases[]; .id == "shared-worker-exact-rebind" and .carrier == "carrier:shared-1" and .independent_root_preserved == true)
 ' "$fixture" >/dev/null || { echo "root quiescence fixture invariants failed" >&2; exit 1; }
