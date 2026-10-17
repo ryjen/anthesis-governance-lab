@@ -808,5 +808,7 @@ jq -e '
 ' "$memory_composition_fixture" >/dev/null || fail "memory-composition-trigger paired invariants are not preserved"
 
 bash "$repo_root/scripts/validate-delegation-revocation-fixture.sh"
+bash "$repo_root/scripts/validate-proof-execution-fixtures.sh"
+bash "$repo_root/scripts/test-proof-execution-oracle.sh"
 
 echo "External agent-security fixture validation passed"
