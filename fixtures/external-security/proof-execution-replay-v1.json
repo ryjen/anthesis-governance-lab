@@ -43,7 +43,8 @@
         "history": "VERIFIED",
         "replay": "VERIFIED",
         "dispatch": "deny"
-      }
+      },
+      "current_authority_revoked": false
     },
     {
       "id": "deny-with-zero-effect",
@@ -73,7 +74,8 @@
         "history": "VERIFIED",
         "replay": "VERIFIED",
         "dispatch": "deny"
-      }
+      },
+      "current_authority_revoked": false
     },
     {
       "id": "direct-provider-bypass",
@@ -105,7 +107,8 @@
         "history": "REJECTED",
         "replay": "REJECTED",
         "dispatch": "deny"
-      }
+      },
+      "current_authority_revoked": false
     },
     {
       "id": "deny-with-durable-effect",
@@ -135,7 +138,8 @@
         "history": "REJECTED",
         "replay": "REJECTED",
         "dispatch": "deny"
-      }
+      },
+      "current_authority_revoked": false
     },
     {
       "id": "sealed-trace-event-replacement",
@@ -167,7 +171,8 @@
         "history": "REJECTED",
         "replay": "REJECTED",
         "dispatch": "deny"
-      }
+      },
+      "current_authority_revoked": false
     },
     {
       "id": "sealed-trace-event-deletion",
@@ -198,7 +203,8 @@
         "history": "REJECTED",
         "replay": "REJECTED",
         "dispatch": "deny"
-      }
+      },
+      "current_authority_revoked": false
     },
     {
       "id": "sealed-trace-event-reordering",
@@ -230,7 +236,8 @@
         "history": "REJECTED",
         "replay": "REJECTED",
         "dispatch": "deny"
-      }
+      },
+      "current_authority_revoked": false
     },
     {
       "id": "alternate-credential-effect",
@@ -262,7 +269,8 @@
         "history": "REJECTED",
         "replay": "REJECTED",
         "dispatch": "deny"
-      }
+      },
+      "current_authority_revoked": false
     },
     {
       "id": "collector-acknowledges-after-commit",
@@ -294,7 +302,8 @@
         "history": "UNRESOLVED",
         "replay": "UNRESOLVED",
         "dispatch": "deny"
-      }
+      },
+      "current_authority_revoked": false
     },
     {
       "id": "independent-witness-unavailable",
@@ -326,7 +335,8 @@
         "history": "UNRESOLVED",
         "replay": "UNRESOLVED",
         "dispatch": "deny"
-      }
+      },
+      "current_authority_revoked": false
     },
     {
       "id": "capture-scope-unverified",
@@ -358,7 +368,8 @@
         "history": "UNRESOLVED",
         "replay": "UNRESOLVED",
         "dispatch": "deny"
-      }
+      },
+      "current_authority_revoked": false
     },
     {
       "id": "declared-replay-dependency-missing",
@@ -389,7 +400,8 @@
         "history": "VERIFIED",
         "replay": "UNRESOLVED",
         "dispatch": "deny"
-      }
+      },
+      "current_authority_revoked": false
     },
     {
       "id": "hidden-replay-dependency-drift",
@@ -421,7 +433,8 @@
         "history": "VERIFIED",
         "replay": "REJECTED",
         "dispatch": "deny"
-      }
+      },
+      "current_authority_revoked": false
     },
     {
       "id": "historical-valid-after-current-revocation",
@@ -453,7 +466,8 @@
         "history": "VERIFIED",
         "replay": "VERIFIED",
         "dispatch": "deny"
-      }
+      },
+      "current_authority_revoked": true
     },
     {
       "id": "new-authority-required-for-followon",
@@ -485,7 +499,8 @@
         "history": "VERIFIED",
         "replay": "VERIFIED",
         "dispatch": "allow"
-      }
+      },
+      "current_authority_revoked": false
     },
     {
       "id": "live-world-drift-despite-replay",
@@ -517,7 +532,41 @@
         "history": "VERIFIED",
         "replay": "REJECTED",
         "dispatch": "deny"
-      }
+      },
+      "current_authority_revoked": false
+    },
+    {
+      "id": "fresh-authorization-revoked",
+      "decision": "allow",
+      "recorded_action": "alpha",
+      "observed_action": "alpha",
+      "effect_path": "governed",
+      "recorded_events": [
+        "allow:alpha",
+        "dispatch:alpha",
+        "commit:alpha"
+      ],
+      "trace_seal_valid": true,
+      "capture_complete": true,
+      "recorder_before_commit": true,
+      "independent_witness": "observed",
+      "declared_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "available_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "replay_world_equivalent": true,
+      "new_protected_effect_requested": true,
+      "fresh_authorization": true,
+      "expected": {
+        "history": "VERIFIED",
+        "replay": "VERIFIED",
+        "dispatch": "deny"
+      },
+      "current_authority_revoked": true
     }
   ],
   "proves": [
