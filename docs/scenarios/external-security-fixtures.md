@@ -390,6 +390,18 @@ A generic auditor incorrectly rejects a report containing the task-contract-requ
 
 These tests are *evidence checks*, not authorization or promotion decisions. They neither run models nor demonstrate real evaluator independence, model-training dynamics, statistical validity, or a trustworthy external grader.
 
+## Root-scoped revocation and late-effect quiescence
+
+Fixture: [`../../fixtures/external-security/root-revocation-quiescence-v1.json`](../../fixtures/external-security/root-revocation-quiescence-v1.json)  
+Validator: [`../../scripts/validate-root-revocation-quiescence.sh`](../../scripts/validate-root-revocation-quiescence.sh)  
+Negative oracle: [`../../scripts/test-root-revocation-quiescence.sh`](../../scripts/test-root-revocation-quiescence.sh)
+
+This twelve-case, **synthetic, provider-neutral, no-effect** pack is a first executable slice of [#70](https://github.com/ryjen/anthesis-governance-lab/issues/70), based on [Zhu & Wang, *Authorization Revocation for Long-Running AI Agents*, arXiv:2609.21284v1](https://arxiv.org/abs/2609.21284v1). It tests cancellation acknowledgment, process/token revocation, durable cut without provider fence, cut plus fence, late settlement of pre-fence accepted commitments, stale restarted worker, exact shared-worker rebind, missing provider coverage, duplicated handoff, conflicting certificate, retry exhaustion and preservation of independent roots.
+
+Verdicts are derived from explicit modeled coverage, fence, cut, live-support and commitment facts as `QUIESCENT`, `NOT_QUIESCENT` or `INDETERMINATE`. A historical accepted commitment settling after the cut is not counted as a *new* protected commitment. A known new retired-root commitment or live retired-root support defeats quiescence; missing enumeration, fence, frontier, handoff, certificate or completed retry evidence remains indeterminate. The model does not assert global idleness, rollback or business completion.
+
+**Evidence boundary:** All provider coverage, ordering, epoch and certificate facts are declared **fixture assumptions**, not authenticated proofs. This is neither a complete implementation of the paper nor a deployed revocation protocol. Anthesis owns revocation semantics; Dubnium owns runtime cuts/fences/recovery; Testule owns portable evidence. The lab only owns deterministic negative cases. The initial model intentionally compresses carrier/support provenance and frontier ordering into flags; it must not be promoted to physical-host proof or runtime authorization.
+
 ## Validation
 
 Run:
@@ -403,6 +415,8 @@ bash scripts/validate-evaluator-control-fixtures.sh
 bash scripts/test-evaluator-control-oracle.sh
 bash scripts/validate-verifier-collapse-controls.sh
 bash scripts/test-verifier-collapse-controls.sh
+bash scripts/validate-root-revocation-quiescence.sh
+bash scripts/test-root-revocation-quiescence.sh
 bash scripts/validate-effect-path-closure-fixture.sh
 ```
 
