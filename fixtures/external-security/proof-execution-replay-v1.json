@@ -1,0 +1,535 @@
+{
+  "version": "anthesis-governance-lab.proof-execution-replay/v1",
+  "synthetic": true,
+  "executes_effects": false,
+  "requires_network": false,
+  "requires_credentials": false,
+  "requires_live_model": false,
+  "assumptions": [
+    "single logical mediation point; modeled state only",
+    "modeled independent effect witness is outside actor mutation authority",
+    "modeled trace seal and precommit recorder are assumed, not cryptographically tested",
+    "complete capture requires inventory of all effect paths",
+    "replay equivalence is explicitly modeled, not proven for a live world"
+  ],
+  "cases": [
+    {
+      "id": "governed-exact-effect",
+      "decision": "allow",
+      "recorded_action": "alpha",
+      "observed_action": "alpha",
+      "effect_path": "governed",
+      "recorded_events": [
+        "allow:alpha",
+        "dispatch:alpha",
+        "commit:alpha"
+      ],
+      "trace_seal_valid": true,
+      "capture_complete": true,
+      "recorder_before_commit": true,
+      "independent_witness": "observed",
+      "declared_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "available_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "replay_world_equivalent": true,
+      "new_protected_effect_requested": true,
+      "fresh_authorization": false,
+      "expected": {
+        "history": "VERIFIED",
+        "replay": "VERIFIED",
+        "dispatch": "deny"
+      }
+    },
+    {
+      "id": "deny-with-zero-effect",
+      "decision": "deny",
+      "recorded_action": "none",
+      "observed_action": "none",
+      "effect_path": "governed",
+      "recorded_events": [
+        "deny:alpha"
+      ],
+      "trace_seal_valid": true,
+      "capture_complete": true,
+      "recorder_before_commit": true,
+      "independent_witness": "observed",
+      "declared_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "available_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "replay_world_equivalent": true,
+      "new_protected_effect_requested": true,
+      "fresh_authorization": false,
+      "expected": {
+        "history": "VERIFIED",
+        "replay": "VERIFIED",
+        "dispatch": "deny"
+      }
+    },
+    {
+      "id": "direct-provider-bypass",
+      "decision": "allow",
+      "recorded_action": "alpha",
+      "observed_action": "alpha",
+      "effect_path": "unmediated",
+      "recorded_events": [
+        "allow:alpha",
+        "dispatch:alpha",
+        "commit:alpha"
+      ],
+      "trace_seal_valid": true,
+      "capture_complete": true,
+      "recorder_before_commit": true,
+      "independent_witness": "observed",
+      "declared_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "available_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "replay_world_equivalent": true,
+      "new_protected_effect_requested": true,
+      "fresh_authorization": false,
+      "expected": {
+        "history": "REJECTED",
+        "replay": "REJECTED",
+        "dispatch": "deny"
+      }
+    },
+    {
+      "id": "deny-with-durable-effect",
+      "decision": "deny",
+      "recorded_action": "alpha",
+      "observed_action": "alpha",
+      "effect_path": "governed",
+      "recorded_events": [
+        "deny:alpha"
+      ],
+      "trace_seal_valid": true,
+      "capture_complete": true,
+      "recorder_before_commit": true,
+      "independent_witness": "observed",
+      "declared_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "available_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "replay_world_equivalent": true,
+      "new_protected_effect_requested": true,
+      "fresh_authorization": false,
+      "expected": {
+        "history": "REJECTED",
+        "replay": "REJECTED",
+        "dispatch": "deny"
+      }
+    },
+    {
+      "id": "sealed-trace-event-replacement",
+      "decision": "allow",
+      "recorded_action": "alpha",
+      "observed_action": "alpha",
+      "effect_path": "governed",
+      "recorded_events": [
+        "allow:alpha",
+        "dispatch:alpha",
+        "commit:beta"
+      ],
+      "trace_seal_valid": true,
+      "capture_complete": true,
+      "recorder_before_commit": true,
+      "independent_witness": "observed",
+      "declared_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "available_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "replay_world_equivalent": true,
+      "new_protected_effect_requested": true,
+      "fresh_authorization": false,
+      "expected": {
+        "history": "REJECTED",
+        "replay": "REJECTED",
+        "dispatch": "deny"
+      }
+    },
+    {
+      "id": "sealed-trace-event-deletion",
+      "decision": "allow",
+      "recorded_action": "alpha",
+      "observed_action": "alpha",
+      "effect_path": "governed",
+      "recorded_events": [
+        "allow:alpha",
+        "dispatch:alpha"
+      ],
+      "trace_seal_valid": true,
+      "capture_complete": true,
+      "recorder_before_commit": true,
+      "independent_witness": "observed",
+      "declared_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "available_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "replay_world_equivalent": true,
+      "new_protected_effect_requested": true,
+      "fresh_authorization": false,
+      "expected": {
+        "history": "REJECTED",
+        "replay": "REJECTED",
+        "dispatch": "deny"
+      }
+    },
+    {
+      "id": "sealed-trace-event-reordering",
+      "decision": "allow",
+      "recorded_action": "alpha",
+      "observed_action": "alpha",
+      "effect_path": "governed",
+      "recorded_events": [
+        "dispatch:alpha",
+        "allow:alpha",
+        "commit:alpha"
+      ],
+      "trace_seal_valid": true,
+      "capture_complete": true,
+      "recorder_before_commit": true,
+      "independent_witness": "observed",
+      "declared_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "available_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "replay_world_equivalent": true,
+      "new_protected_effect_requested": true,
+      "fresh_authorization": false,
+      "expected": {
+        "history": "REJECTED",
+        "replay": "REJECTED",
+        "dispatch": "deny"
+      }
+    },
+    {
+      "id": "alternate-credential-effect",
+      "decision": "allow",
+      "recorded_action": "alpha",
+      "observed_action": "beta",
+      "effect_path": "governed",
+      "recorded_events": [
+        "allow:alpha",
+        "dispatch:alpha",
+        "commit:alpha"
+      ],
+      "trace_seal_valid": true,
+      "capture_complete": true,
+      "recorder_before_commit": true,
+      "independent_witness": "observed",
+      "declared_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "available_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "replay_world_equivalent": true,
+      "new_protected_effect_requested": true,
+      "fresh_authorization": false,
+      "expected": {
+        "history": "REJECTED",
+        "replay": "REJECTED",
+        "dispatch": "deny"
+      }
+    },
+    {
+      "id": "collector-acknowledges-after-commit",
+      "decision": "allow",
+      "recorded_action": "alpha",
+      "observed_action": "alpha",
+      "effect_path": "governed",
+      "recorded_events": [
+        "allow:alpha",
+        "dispatch:alpha",
+        "commit:alpha"
+      ],
+      "trace_seal_valid": true,
+      "capture_complete": true,
+      "recorder_before_commit": false,
+      "independent_witness": "observed",
+      "declared_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "available_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "replay_world_equivalent": true,
+      "new_protected_effect_requested": true,
+      "fresh_authorization": false,
+      "expected": {
+        "history": "UNRESOLVED",
+        "replay": "UNRESOLVED",
+        "dispatch": "deny"
+      }
+    },
+    {
+      "id": "independent-witness-unavailable",
+      "decision": "allow",
+      "recorded_action": "alpha",
+      "observed_action": "alpha",
+      "effect_path": "governed",
+      "recorded_events": [
+        "allow:alpha",
+        "dispatch:alpha",
+        "commit:alpha"
+      ],
+      "trace_seal_valid": true,
+      "capture_complete": true,
+      "recorder_before_commit": true,
+      "independent_witness": "unavailable",
+      "declared_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "available_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "replay_world_equivalent": true,
+      "new_protected_effect_requested": true,
+      "fresh_authorization": false,
+      "expected": {
+        "history": "UNRESOLVED",
+        "replay": "UNRESOLVED",
+        "dispatch": "deny"
+      }
+    },
+    {
+      "id": "capture-scope-unverified",
+      "decision": "allow",
+      "recorded_action": "alpha",
+      "observed_action": "alpha",
+      "effect_path": "governed",
+      "recorded_events": [
+        "allow:alpha",
+        "dispatch:alpha",
+        "commit:alpha"
+      ],
+      "trace_seal_valid": true,
+      "capture_complete": false,
+      "recorder_before_commit": true,
+      "independent_witness": "observed",
+      "declared_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "available_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "replay_world_equivalent": true,
+      "new_protected_effect_requested": true,
+      "fresh_authorization": false,
+      "expected": {
+        "history": "UNRESOLVED",
+        "replay": "UNRESOLVED",
+        "dispatch": "deny"
+      }
+    },
+    {
+      "id": "declared-replay-dependency-missing",
+      "decision": "allow",
+      "recorded_action": "alpha",
+      "observed_action": "alpha",
+      "effect_path": "governed",
+      "recorded_events": [
+        "allow:alpha",
+        "dispatch:alpha",
+        "commit:alpha"
+      ],
+      "trace_seal_valid": true,
+      "capture_complete": true,
+      "recorder_before_commit": true,
+      "independent_witness": "observed",
+      "declared_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "available_dependencies": [
+        "policy:v1"
+      ],
+      "replay_world_equivalent": true,
+      "new_protected_effect_requested": true,
+      "fresh_authorization": false,
+      "expected": {
+        "history": "VERIFIED",
+        "replay": "UNRESOLVED",
+        "dispatch": "deny"
+      }
+    },
+    {
+      "id": "hidden-replay-dependency-drift",
+      "decision": "allow",
+      "recorded_action": "alpha",
+      "observed_action": "alpha",
+      "effect_path": "governed",
+      "recorded_events": [
+        "allow:alpha",
+        "dispatch:alpha",
+        "commit:alpha"
+      ],
+      "trace_seal_valid": true,
+      "capture_complete": true,
+      "recorder_before_commit": true,
+      "independent_witness": "observed",
+      "declared_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "available_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "replay_world_equivalent": false,
+      "new_protected_effect_requested": true,
+      "fresh_authorization": false,
+      "expected": {
+        "history": "VERIFIED",
+        "replay": "REJECTED",
+        "dispatch": "deny"
+      }
+    },
+    {
+      "id": "historical-valid-after-current-revocation",
+      "decision": "allow",
+      "recorded_action": "alpha",
+      "observed_action": "alpha",
+      "effect_path": "governed",
+      "recorded_events": [
+        "allow:alpha",
+        "dispatch:alpha",
+        "commit:alpha"
+      ],
+      "trace_seal_valid": true,
+      "capture_complete": true,
+      "recorder_before_commit": true,
+      "independent_witness": "observed",
+      "declared_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "available_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "replay_world_equivalent": true,
+      "new_protected_effect_requested": true,
+      "fresh_authorization": false,
+      "expected": {
+        "history": "VERIFIED",
+        "replay": "VERIFIED",
+        "dispatch": "deny"
+      }
+    },
+    {
+      "id": "new-authority-required-for-followon",
+      "decision": "allow",
+      "recorded_action": "alpha",
+      "observed_action": "alpha",
+      "effect_path": "governed",
+      "recorded_events": [
+        "allow:alpha",
+        "dispatch:alpha",
+        "commit:alpha"
+      ],
+      "trace_seal_valid": true,
+      "capture_complete": true,
+      "recorder_before_commit": true,
+      "independent_witness": "observed",
+      "declared_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "available_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "replay_world_equivalent": true,
+      "new_protected_effect_requested": true,
+      "fresh_authorization": true,
+      "expected": {
+        "history": "VERIFIED",
+        "replay": "VERIFIED",
+        "dispatch": "allow"
+      }
+    },
+    {
+      "id": "live-world-drift-despite-replay",
+      "decision": "allow",
+      "recorded_action": "alpha",
+      "observed_action": "alpha",
+      "effect_path": "governed",
+      "recorded_events": [
+        "allow:alpha",
+        "dispatch:alpha",
+        "commit:alpha"
+      ],
+      "trace_seal_valid": true,
+      "capture_complete": true,
+      "recorder_before_commit": true,
+      "independent_witness": "observed",
+      "declared_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "available_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "replay_world_equivalent": false,
+      "new_protected_effect_requested": true,
+      "fresh_authorization": false,
+      "expected": {
+        "history": "VERIFIED",
+        "replay": "REJECTED",
+        "dispatch": "deny"
+      }
+    }
+  ],
+  "proves": [
+    "history integrity is different from capture completeness, replay fidelity and fresh authority in bounded synthetic cases",
+    "a denied action with an independently observed effect cannot qualify as compliant",
+    "a valid historical proof cannot authorize a later protected effect without fresh exact authorization"
+  ],
+  "does_not_prove": [
+    "production complete mediation or sealed evidence authenticity",
+    "real runtime collector timing or effect absence outside observed scope",
+    "reproducibility of a changed external world",
+    "current authorization, provider idempotency or recovery safety",
+    "conformance, certification or remote policy semantics"
+  ]
+}
