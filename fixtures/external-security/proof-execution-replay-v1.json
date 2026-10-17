@@ -44,7 +44,11 @@
         "replay": "VERIFIED",
         "dispatch": "deny"
       },
-      "current_authority_revoked": false
+      "current_authority_revoked": false,
+      "followon_action": "beta",
+      "requesting_principal": "principal_operator",
+      "fresh_authorized_action": null,
+      "fresh_authorized_principal": null
     },
     {
       "id": "deny-with-zero-effect",
@@ -75,7 +79,11 @@
         "replay": "VERIFIED",
         "dispatch": "deny"
       },
-      "current_authority_revoked": false
+      "current_authority_revoked": false,
+      "followon_action": "beta",
+      "requesting_principal": "principal_operator",
+      "fresh_authorized_action": null,
+      "fresh_authorized_principal": null
     },
     {
       "id": "direct-provider-bypass",
@@ -108,7 +116,11 @@
         "replay": "REJECTED",
         "dispatch": "deny"
       },
-      "current_authority_revoked": false
+      "current_authority_revoked": false,
+      "followon_action": "beta",
+      "requesting_principal": "principal_operator",
+      "fresh_authorized_action": null,
+      "fresh_authorized_principal": null
     },
     {
       "id": "deny-with-durable-effect",
@@ -139,7 +151,11 @@
         "replay": "REJECTED",
         "dispatch": "deny"
       },
-      "current_authority_revoked": false
+      "current_authority_revoked": false,
+      "followon_action": "beta",
+      "requesting_principal": "principal_operator",
+      "fresh_authorized_action": null,
+      "fresh_authorized_principal": null
     },
     {
       "id": "sealed-trace-event-replacement",
@@ -172,7 +188,11 @@
         "replay": "REJECTED",
         "dispatch": "deny"
       },
-      "current_authority_revoked": false
+      "current_authority_revoked": false,
+      "followon_action": "beta",
+      "requesting_principal": "principal_operator",
+      "fresh_authorized_action": null,
+      "fresh_authorized_principal": null
     },
     {
       "id": "sealed-trace-event-deletion",
@@ -204,7 +224,11 @@
         "replay": "REJECTED",
         "dispatch": "deny"
       },
-      "current_authority_revoked": false
+      "current_authority_revoked": false,
+      "followon_action": "beta",
+      "requesting_principal": "principal_operator",
+      "fresh_authorized_action": null,
+      "fresh_authorized_principal": null
     },
     {
       "id": "sealed-trace-event-reordering",
@@ -237,7 +261,11 @@
         "replay": "REJECTED",
         "dispatch": "deny"
       },
-      "current_authority_revoked": false
+      "current_authority_revoked": false,
+      "followon_action": "beta",
+      "requesting_principal": "principal_operator",
+      "fresh_authorized_action": null,
+      "fresh_authorized_principal": null
     },
     {
       "id": "alternate-credential-effect",
@@ -270,7 +298,11 @@
         "replay": "REJECTED",
         "dispatch": "deny"
       },
-      "current_authority_revoked": false
+      "current_authority_revoked": false,
+      "followon_action": "beta",
+      "requesting_principal": "principal_operator",
+      "fresh_authorized_action": null,
+      "fresh_authorized_principal": null
     },
     {
       "id": "collector-acknowledges-after-commit",
@@ -303,7 +335,11 @@
         "replay": "UNRESOLVED",
         "dispatch": "deny"
       },
-      "current_authority_revoked": false
+      "current_authority_revoked": false,
+      "followon_action": "beta",
+      "requesting_principal": "principal_operator",
+      "fresh_authorized_action": null,
+      "fresh_authorized_principal": null
     },
     {
       "id": "independent-witness-unavailable",
@@ -336,7 +372,11 @@
         "replay": "UNRESOLVED",
         "dispatch": "deny"
       },
-      "current_authority_revoked": false
+      "current_authority_revoked": false,
+      "followon_action": "beta",
+      "requesting_principal": "principal_operator",
+      "fresh_authorized_action": null,
+      "fresh_authorized_principal": null
     },
     {
       "id": "capture-scope-unverified",
@@ -369,7 +409,11 @@
         "replay": "UNRESOLVED",
         "dispatch": "deny"
       },
-      "current_authority_revoked": false
+      "current_authority_revoked": false,
+      "followon_action": "beta",
+      "requesting_principal": "principal_operator",
+      "fresh_authorized_action": null,
+      "fresh_authorized_principal": null
     },
     {
       "id": "declared-replay-dependency-missing",
@@ -401,7 +445,11 @@
         "replay": "UNRESOLVED",
         "dispatch": "deny"
       },
-      "current_authority_revoked": false
+      "current_authority_revoked": false,
+      "followon_action": "beta",
+      "requesting_principal": "principal_operator",
+      "fresh_authorized_action": null,
+      "fresh_authorized_principal": null
     },
     {
       "id": "hidden-replay-dependency-drift",
@@ -434,7 +482,11 @@
         "replay": "REJECTED",
         "dispatch": "deny"
       },
-      "current_authority_revoked": false
+      "current_authority_revoked": false,
+      "followon_action": "beta",
+      "requesting_principal": "principal_operator",
+      "fresh_authorized_action": null,
+      "fresh_authorized_principal": null
     },
     {
       "id": "historical-valid-after-current-revocation",
@@ -467,7 +519,11 @@
         "replay": "VERIFIED",
         "dispatch": "deny"
       },
-      "current_authority_revoked": true
+      "current_authority_revoked": true,
+      "followon_action": "beta",
+      "requesting_principal": "principal_operator",
+      "fresh_authorized_action": null,
+      "fresh_authorized_principal": null
     },
     {
       "id": "new-authority-required-for-followon",
@@ -500,7 +556,11 @@
         "replay": "VERIFIED",
         "dispatch": "allow"
       },
-      "current_authority_revoked": false
+      "current_authority_revoked": false,
+      "followon_action": "beta",
+      "requesting_principal": "principal_operator",
+      "fresh_authorized_action": "beta",
+      "fresh_authorized_principal": "principal_operator"
     },
     {
       "id": "live-world-drift-despite-replay",
@@ -533,7 +593,11 @@
         "replay": "REJECTED",
         "dispatch": "deny"
       },
-      "current_authority_revoked": false
+      "current_authority_revoked": false,
+      "followon_action": "beta",
+      "requesting_principal": "principal_operator",
+      "fresh_authorized_action": null,
+      "fresh_authorized_principal": null
     },
     {
       "id": "fresh-authorization-revoked",
@@ -566,7 +630,85 @@
         "replay": "VERIFIED",
         "dispatch": "deny"
       },
-      "current_authority_revoked": true
+      "current_authority_revoked": true,
+      "followon_action": "beta",
+      "requesting_principal": "principal_operator",
+      "fresh_authorized_action": "beta",
+      "fresh_authorized_principal": "principal_operator"
+    },
+    {
+      "id": "fresh-authorization-wrong-action",
+      "decision": "allow",
+      "recorded_action": "alpha",
+      "observed_action": "alpha",
+      "effect_path": "governed",
+      "recorded_events": [
+        "allow:alpha",
+        "dispatch:alpha",
+        "commit:alpha"
+      ],
+      "trace_seal_valid": true,
+      "capture_complete": true,
+      "recorder_before_commit": true,
+      "independent_witness": "observed",
+      "declared_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "available_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "replay_world_equivalent": true,
+      "new_protected_effect_requested": true,
+      "fresh_authorization": true,
+      "expected": {
+        "history": "VERIFIED",
+        "replay": "VERIFIED",
+        "dispatch": "deny"
+      },
+      "current_authority_revoked": false,
+      "followon_action": "beta",
+      "requesting_principal": "principal_operator",
+      "fresh_authorized_action": "alpha",
+      "fresh_authorized_principal": "principal_operator"
+    },
+    {
+      "id": "fresh-authorization-wrong-principal",
+      "decision": "allow",
+      "recorded_action": "alpha",
+      "observed_action": "alpha",
+      "effect_path": "governed",
+      "recorded_events": [
+        "allow:alpha",
+        "dispatch:alpha",
+        "commit:alpha"
+      ],
+      "trace_seal_valid": true,
+      "capture_complete": true,
+      "recorder_before_commit": true,
+      "independent_witness": "observed",
+      "declared_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "available_dependencies": [
+        "policy:v1",
+        "runtime:v1"
+      ],
+      "replay_world_equivalent": true,
+      "new_protected_effect_requested": true,
+      "fresh_authorization": true,
+      "expected": {
+        "history": "VERIFIED",
+        "replay": "VERIFIED",
+        "dispatch": "deny"
+      },
+      "current_authority_revoked": false,
+      "followon_action": "beta",
+      "requesting_principal": "principal_operator",
+      "fresh_authorized_action": "beta",
+      "fresh_authorized_principal": "principal_other"
     }
   ],
   "proves": [
