@@ -92,6 +92,16 @@
       "actual_tag": "EVIDENCE:",
       "actual_verdict": "fail",
       "expected_validity": "VALID"
+    },
+    {
+      "id": "generic-auditor-correctly-rejects-malformed-tag",
+      "kind": "auditor",
+      "candidate": "generic-v1",
+      "contract_revision": "task-contract-v1",
+      "required_tag": "EVIDENCE:42",
+      "actual_tag": "EVIDENCE:",
+      "actual_verdict": "fail",
+      "expected_validity": "VALID"
     }
   ],
   "does_not_prove": [
