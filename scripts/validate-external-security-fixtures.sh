@@ -812,5 +812,7 @@ bash "$repo_root/scripts/validate-proof-execution-fixtures.sh"
 bash "$repo_root/scripts/test-proof-execution-oracle.sh"
 bash "$repo_root/scripts/validate-evaluator-control-fixtures.sh"
 bash "$repo_root/scripts/test-evaluator-control-oracle.sh"
+bash "$repo_root/scripts/validate-verifier-collapse-controls.sh"
+bash "$repo_root/scripts/test-verifier-collapse-controls.sh"
 
 echo "External agent-security fixture validation passed"
