@@ -12,10 +12,8 @@ jq -e '
       elif .actual_verdict == .expected_verdict then "VALID"
       else "INVALID" end
     elif .kind == "auditor" then
-      if .candidate == "generic-v1" then "INVALID"
-      elif .candidate == "contract-aware-v1" and
-           ((valid_tag and .actual_verdict == "pass") or
-            ((valid_tag | not) and .actual_verdict == "fail"))
+      if ((valid_tag and .actual_verdict == "pass") or
+          ((valid_tag | not) and .actual_verdict == "fail"))
       then "VALID" else "INVALID" end
     else "INVALID" end;
   . as $root |
@@ -30,7 +28,7 @@ jq -e '
   .evaluator_profile == "fixture:evaluator-profile-v1" and
   .downstream_agent_score == 0.94 and
   (.assumptions | length >= 3) and (.does_not_prove | length >= 3) and
-  (.cases | length == 8) and
+  (.cases | length == 9) and
   ([.cases[].id] | length == (unique | length)) and
   all(.cases[];
     (.id | type == "string" and length > 0) and
@@ -47,7 +45,7 @@ jq -e '
       .required_tag == "EVIDENCE:42" and
       (.candidate | IN("generic-v1","contract-aware-v1")) and
       (.actual_tag | type == "string") and
-      (.actual_verdict == (if .candidate == "generic-v1" then "fail" elif valid_tag then "pass" else "fail" end))
+      (.actual_verdict | IN("pass", "fail"))
     end) and
     (.expected_validity | IN("VALID","INVALID","UNRESOLVED")) and
     .expected_validity == derived
@@ -56,9 +54,10 @@ jq -e '
     ["anchored-abstain","VALID"],["always-pass-known-bad","INVALID"],
     ["always-pass-abstain","INVALID"],["generic-auditor-rejects-valid-tag","INVALID"],
     ["contract-aware-accepts-valid-tag","VALID"],
-    ["contract-aware-rejects-missing-value","VALID"]] |
+    ["contract-aware-rejects-missing-value","VALID"],
+    ["generic-auditor-correctly-rejects-malformed-tag","VALID"]] |
     all(.[]; . as $pair | any($root.cases[]; .id == $pair[0] and .expected_validity == $pair[1]))) and
   ([.cases[] | select(.candidate == "always-pass-v1") | .expected_validity] | all(. == "INVALID")) and
   ([.cases[] | select(.kind == "auditor") | .contract_revision] | all(. == "task-contract-v1"))
 ' "$fixture" >/dev/null || { echo "verifier control fixture invariants failed" >&2; exit 1; }
-echo "Verifier-collapse and contract-aware auditor controls passed (8 synthetic cases)"
+echo "Verifier-collapse and contract-aware auditor controls passed (9 synthetic cases)"
