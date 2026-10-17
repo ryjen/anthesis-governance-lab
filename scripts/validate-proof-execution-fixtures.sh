@@ -37,6 +37,8 @@ jq -e '
   def dispatch:
     if .new_protected_effect_requested and
        .fresh_authorization and
+       (.fresh_authorized_action == .followon_action) and
+       (.fresh_authorized_principal == .requesting_principal) and
        (.current_authority_revoked | not) and
        history == "VERIFIED"
     then "allow" else "deny" end;
@@ -49,7 +51,7 @@ jq -e '
   (.assumptions | type == "array" and length >= 4) and
   (.does_not_prove | type == "array" and length >= 4) and
   (.proves | type == "array" and length >= 2) and
-  (.cases | type == "array" and length == 17) and
+  (.cases | type == "array" and length == 19) and
   ([.cases[].id] | length == (unique | length)) and
   all(.cases[];
     (.id | type == "string" and length > 0) and
@@ -67,6 +69,10 @@ jq -e '
     (.replay_world_equivalent | type == "boolean") and
     (.new_protected_effect_requested | type == "boolean") and
     (.fresh_authorization | type == "boolean") and
+    (.followon_action | IN("alpha", "beta")) and
+    (.requesting_principal | IN("principal_operator", "principal_other")) and
+    ((.fresh_authorized_action == null) or (.fresh_authorized_action | IN("alpha", "beta"))) and
+    ((.fresh_authorized_principal == null) or (.fresh_authorized_principal | IN("principal_operator", "principal_other"))) and
     (.current_authority_revoked | type == "boolean") and
     (.expected | keys | sort == ["dispatch", "history", "replay"]) and
     (.expected.history | IN("VERIFIED", "REJECTED", "UNRESOLVED")) and
@@ -93,7 +99,9 @@ jq -e '
     ["historical-valid-after-current-revocation", "VERIFIED", "VERIFIED", "deny"],
     ["new-authority-required-for-followon", "VERIFIED", "VERIFIED", "allow"],
     ["live-world-drift-despite-replay", "VERIFIED", "REJECTED", "deny"],
-    ["fresh-authorization-revoked", "VERIFIED", "VERIFIED", "deny"]
+    ["fresh-authorization-revoked", "VERIFIED", "VERIFIED", "deny"],
+    ["fresh-authorization-wrong-action", "VERIFIED", "VERIFIED", "deny"],
+    ["fresh-authorization-wrong-principal", "VERIFIED", "VERIFIED", "deny"]
   ] | all(.[]; . as $e | any($root.cases[];
     .id == $e[0] and
     .expected.history == $e[1] and
@@ -108,7 +116,9 @@ jq -e '
   (any(.cases[]; .id == "capture-scope-unverified" and .capture_complete == false)) and
   (any(.cases[]; .id == "declared-replay-dependency-missing" and ((.declared_dependencies - .available_dependencies) | length) > 0)) and
   (any(.cases[]; .id == "historical-valid-after-current-revocation" and .current_authority_revoked == true)) and
-  (any(.cases[]; .id == "fresh-authorization-revoked" and .fresh_authorization == true and .current_authority_revoked == true))
+  (any(.cases[]; .id == "fresh-authorization-revoked" and .fresh_authorization == true and .current_authority_revoked == true)) and
+  (any(.cases[]; .id == "fresh-authorization-wrong-action" and .fresh_authorized_action != .followon_action)) and
+  (any(.cases[]; .id == "fresh-authorization-wrong-principal" and .fresh_authorized_principal != .requesting_principal))
 ' "$fixture" >/dev/null || fail "proof-of-execution replay fixture invariants failed"
 
-echo "Proof-of-execution and replay fixture validation passed (17 synthetic cases)"
+echo "Proof-of-execution and replay fixture validation passed (19 synthetic cases)"
