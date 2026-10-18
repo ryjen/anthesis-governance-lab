@@ -33,4 +33,6 @@ expect_rejected "required case deleted" 'del(.cases[] | select(.id == "missing-i
 expect_rejected "forged evidence revision identity" '(.cases[] | select(.id == "real-mechanism-treatment") | .evidence_ref) = "fixture:evidence/forged"'
 expect_rejected "condition revision drift" '(.cases[] | select(.id == "placebo-irrelevant-mechanism") | .condition_revision) = "fixture:condition-treatment-v2"'
 expect_rejected "evaluator revision drift" '(.cases[] | select(.id == "overcapable-evaluator-confounder") | .evaluator_revision) = "fixture:evaluator-v2"'
+expect_rejected "strengthened precondition promoted" '(.cases[] | select(.id == "proof-with-strengthened-precondition") | .source_requirement_covered) = true'
+expect_rejected "strengthened precondition case removed" 'del(.cases[] | select(.id == "proof-with-strengthened-precondition"))'
 echo "Evaluator control-task mutation oracle: $case_index negative mutations rejected"
