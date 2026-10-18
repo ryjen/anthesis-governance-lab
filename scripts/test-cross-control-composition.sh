@@ -18,7 +18,11 @@ for spec in \
   'quarantined-recovery:recovery_attributable:false' \
   'quarantined-recovery:independent_root_continues:false' \
   'positive-composition:effect_id:delete' \
-  'positive-composition:local_authority_pass:string'; do
+  'positive-composition:local_authority_pass:string' \
+  'positive-composition:security_requirements_pass:false' \
+  'positive-composition:terminal_effects:delete' \
+  'quarantined-recovery:open_contaminated_effect_ids:delete' \
+  'positive-composition:utility_observation:delete'; do
   id="${spec%%:*}"; remainder="${spec#*:}"; field="${remainder%%:*}"; value="${remainder#*:}"
   jq --arg id "$id" --arg field "$field" --arg value "$value" '
     (.cases[] | select(.id == $id)) |= (
