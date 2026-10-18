@@ -21,6 +21,8 @@ jq -e '
   ([.cases[].id] | sort == (["lookup-then-write","write-before-lookup","forged-history"] | sort)) and
   all(.cases[];
     (.steps | type == "array" and length == 2) and
+    ([.steps[].kind] | sort == ["lookup","write"]) and
+    ([.steps[] | select(.kind == "write") | .status] == ["proposed"]) and
     (all(.steps[]; (.kind | IN("lookup","write")) and (.status | IN("completed","claimed","proposed")))) and
     (.write_authorized | type == "boolean") and
     (.expected | IN("ALLOW","DENY")) and
