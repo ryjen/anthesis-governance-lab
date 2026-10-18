@@ -1,0 +1,245 @@
+{
+  "version": "governance-lab.memory-consensus/v1",
+  "synthetic": true,
+  "no_effects": true,
+  "network_free": true,
+  "contains_private_reasoning": false,
+  "cases": [
+    {
+      "id": "forged-precedent",
+      "record_id": "memory:forged-precedent",
+      "host_envelope": {
+        "producer": "host-observed",
+        "source": "untrusted-memory",
+        "write_channel": "fixture",
+        "revision": "v1"
+      },
+      "payload_claim": "claims-tests-passed",
+      "supporting_evidence": {
+        "valid_run_refs": 0,
+        "host_verified": false,
+        "references": [],
+        "conflicting_claim_ids": []
+      },
+      "consensus": {
+        "profile": "synthetic-count",
+        "revision": "v1",
+        "observed_repetitions": 1
+      },
+      "candidate_learning": {
+        "present": false,
+        "disposition": "unsupported",
+        "attribution": null
+      },
+      "promoted_guidance": null,
+      "consuming_context_revision": "task-context-v1",
+      "trusted_guidance_selected": false,
+      "expected": "NO_PROMOTION"
+    },
+    {
+      "id": "metadata-spoof",
+      "record_id": "memory:metadata-spoof",
+      "host_envelope": {
+        "producer": "host-observed",
+        "source": "untrusted-memory",
+        "write_channel": "fixture",
+        "revision": "v1"
+      },
+      "payload_claim": "claims-source-agent-verified",
+      "supporting_evidence": {
+        "valid_run_refs": 0,
+        "host_verified": false,
+        "references": [],
+        "conflicting_claim_ids": []
+      },
+      "consensus": {
+        "profile": "synthetic-count",
+        "revision": "v1",
+        "observed_repetitions": 1
+      },
+      "candidate_learning": {
+        "present": false,
+        "disposition": "unsupported",
+        "attribution": null
+      },
+      "promoted_guidance": null,
+      "consuming_context_revision": "task-context-v1",
+      "trusted_guidance_selected": false,
+      "expected": "NO_PROMOTION"
+    },
+    {
+      "id": "consensus-amplification",
+      "record_id": "memory:consensus-amplification",
+      "host_envelope": {
+        "producer": "host-observed",
+        "source": "correlated-forged",
+        "write_channel": "fixture",
+        "revision": "v1"
+      },
+      "payload_claim": "repeated-false-precedent",
+      "supporting_evidence": {
+        "valid_run_refs": 0,
+        "host_verified": false,
+        "references": [],
+        "conflicting_claim_ids": []
+      },
+      "consensus": {
+        "profile": "synthetic-count",
+        "revision": "v1",
+        "observed_repetitions": 5
+      },
+      "candidate_learning": {
+        "present": false,
+        "disposition": "unsupported",
+        "attribution": null
+      },
+      "promoted_guidance": null,
+      "consuming_context_revision": "task-context-v1",
+      "trusted_guidance_selected": false,
+      "expected": "NO_PROMOTION"
+    },
+    {
+      "id": "detector-lesson",
+      "record_id": "memory:detector-lesson",
+      "host_envelope": {
+        "producer": "host-observed",
+        "source": "detector-observation",
+        "write_channel": "fixture",
+        "revision": "v1"
+      },
+      "payload_claim": "suspicious-reasoning",
+      "supporting_evidence": {
+        "valid_run_refs": 0,
+        "host_verified": false,
+        "references": [],
+        "conflicting_claim_ids": []
+      },
+      "consensus": {
+        "profile": "synthetic-count",
+        "revision": "v1",
+        "observed_repetitions": 1
+      },
+      "candidate_learning": {
+        "present": true,
+        "disposition": "candidate",
+        "attribution": {
+          "candidate_id": "candidate:detector-lesson",
+          "detector_id": "synthetic-detector",
+          "detector_revision": "v1",
+          "input_record_id": "memory:detector-lesson",
+          "input_revision": "v1"
+        }
+      },
+      "promoted_guidance": null,
+      "consuming_context_revision": "task-context-v1",
+      "trusted_guidance_selected": false,
+      "expected": "NO_PROMOTION"
+    },
+    {
+      "id": "benign-repeated",
+      "record_id": "memory:benign-repeated",
+      "host_envelope": {
+        "producer": "host-observed",
+        "source": "host-observed",
+        "write_channel": "fixture",
+        "revision": "v1"
+      },
+      "payload_claim": "exact-evidence-references",
+      "supporting_evidence": {
+        "valid_run_refs": 3,
+        "host_verified": true,
+        "references": [
+          {
+            "run_id": "run:benign-repeated:1",
+            "evidence_id": "evidence:benign-repeated:1",
+            "verified_by": "host-evidence-index",
+            "integrity_bound": true
+          },
+          {
+            "run_id": "run:benign-repeated:2",
+            "evidence_id": "evidence:benign-repeated:2",
+            "verified_by": "host-evidence-index",
+            "integrity_bound": true
+          },
+          {
+            "run_id": "run:benign-repeated:3",
+            "evidence_id": "evidence:benign-repeated:3",
+            "verified_by": "host-evidence-index",
+            "integrity_bound": true
+          }
+        ],
+        "conflicting_claim_ids": []
+      },
+      "consensus": {
+        "profile": "synthetic-count",
+        "revision": "v1",
+        "observed_repetitions": 3
+      },
+      "candidate_learning": {
+        "present": true,
+        "disposition": "candidate",
+        "attribution": {
+          "candidate_id": "candidate:benign-repeated",
+          "detector_id": "synthetic-detector",
+          "detector_revision": "v1",
+          "input_record_id": "memory:benign-repeated",
+          "input_revision": "v1"
+        }
+      },
+      "promoted_guidance": null,
+      "consuming_context_revision": "task-context-v1",
+      "trusted_guidance_selected": false,
+      "expected": "NO_PROMOTION"
+    },
+    {
+      "id": "mixed-history",
+      "record_id": "memory:mixed-history",
+      "host_envelope": {
+        "producer": "host-observed",
+        "source": "mixed-trusted-untrusted",
+        "write_channel": "fixture",
+        "revision": "v1"
+      },
+      "payload_claim": "contradictory-evidence",
+      "supporting_evidence": {
+        "valid_run_refs": 1,
+        "host_verified": true,
+        "references": [
+          {
+            "run_id": "run:mixed-history:1",
+            "evidence_id": "evidence:mixed-history:1",
+            "verified_by": "host-evidence-index",
+            "integrity_bound": true
+          }
+        ],
+        "conflicting_claim_ids": [
+          "memory:mixed-history:forged-1",
+          "memory:mixed-history:forged-2",
+          "memory:mixed-history:forged-3"
+        ]
+      },
+      "consensus": {
+        "profile": "synthetic-count",
+        "revision": "v1",
+        "observed_repetitions": 4
+      },
+      "candidate_learning": {
+        "present": false,
+        "disposition": "contradicted",
+        "attribution": null
+      },
+      "promoted_guidance": null,
+      "consuming_context_revision": "task-context-v1",
+      "trusted_guidance_selected": false,
+      "expected": "NO_PROMOTION"
+    }
+  ],
+  "proves": [
+    "fixture-only separation of memory claims, host evidence and guidance promotion"
+  ],
+  "does_not_prove": [
+    "runtime memory integrity",
+    "live model resistance",
+    "production guidance enforcement"
+  ]
+}

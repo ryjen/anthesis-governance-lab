@@ -838,4 +838,7 @@ bash "$repo_root/scripts/test-semantic-judge-narrowing.sh"
 bash "$repo_root/scripts/validate-task-source-sdlc.sh"
 bash "$repo_root/scripts/test-task-source-sdlc.sh"
 
+bash "$repo_root/scripts/validate-memory-consensus.sh"
+bash "$repo_root/scripts/test-memory-consensus.sh"
+
 echo "External agent-security fixture validation passed"
