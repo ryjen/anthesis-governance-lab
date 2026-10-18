@@ -47,11 +47,11 @@
         }
       ],
       "open_contaminated_effect_ids": [],
-      "security_requirements_pass": true,
       "utility_observation": "bounded",
       "latency_observation": "not_measured",
       "cost_observation": "not_measured",
-      "origin_root": "root:parent"
+      "origin_root": "root:parent",
+      "modeled_security_gate_pass": true
     },
     {
       "source_id": "observation:trusted-1",
@@ -84,11 +84,11 @@
         }
       ],
       "open_contaminated_effect_ids": [],
-      "security_requirements_pass": false,
       "utility_observation": "bounded",
       "latency_observation": "not_measured",
       "cost_observation": "not_measured",
-      "origin_root": "root:parent"
+      "origin_root": "root:parent",
+      "modeled_security_gate_pass": false
     },
     {
       "source_id": "observation:trusted-1",
@@ -121,11 +121,11 @@
         }
       ],
       "open_contaminated_effect_ids": [],
-      "security_requirements_pass": false,
       "utility_observation": "bounded",
       "latency_observation": "not_measured",
       "cost_observation": "not_measured",
-      "origin_root": "root:parent"
+      "origin_root": "root:parent",
+      "modeled_security_gate_pass": false
     },
     {
       "source_id": "observation:trusted-1",
@@ -158,11 +158,11 @@
         }
       ],
       "open_contaminated_effect_ids": [],
-      "security_requirements_pass": false,
       "utility_observation": "bounded",
       "latency_observation": "not_measured",
       "cost_observation": "not_measured",
-      "origin_root": "root:parent"
+      "origin_root": "root:parent",
+      "modeled_security_gate_pass": false
     },
     {
       "source_id": "observation:trusted-1",
@@ -197,11 +197,11 @@
       "open_contaminated_effect_ids": [
         "effect:write-1"
       ],
-      "security_requirements_pass": false,
       "utility_observation": "bounded",
       "latency_observation": "not_measured",
       "cost_observation": "not_measured",
-      "origin_root": "root:parent"
+      "origin_root": "root:parent",
+      "modeled_security_gate_pass": false
     },
     {
       "source_id": "observation:trusted-1",
@@ -228,11 +228,11 @@
       "id": "quarantined-recovery",
       "terminal_effects": [],
       "open_contaminated_effect_ids": [],
-      "security_requirements_pass": true,
       "utility_observation": "bounded",
       "latency_observation": "not_measured",
       "cost_observation": "not_measured",
-      "origin_root": "root:parent"
+      "origin_root": "root:parent",
+      "modeled_security_gate_pass": true
     }
   ]
 }
