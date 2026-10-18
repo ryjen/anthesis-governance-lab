@@ -41,7 +41,7 @@ jq -e '
     (.effect_id | type == "string" and startswith("effect:")) and
     (.terminal_effects | type == "array") and
     (all(.terminal_effects[]; .effect_id == "effect:write-1" and .origin_root == "root:parent" and .disposition == "committed")) and
-    ([.terminal_effects[].effect_id] | unique | length == (.terminal_effects | length)) and
+    ((.terminal_effects | length) == ([.terminal_effects[].effect_id] | unique | length)) and
     (.effect_committed == (any(.terminal_effects[]; .effect_id == "effect:write-1" and .disposition == "committed"))) and
     (.open_contaminated_effect_ids | type == "array") and
     (.contaminated_path_live == ((.open_contaminated_effect_ids | length) > 0)) and
