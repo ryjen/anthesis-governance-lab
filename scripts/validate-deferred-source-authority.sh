@@ -5,7 +5,7 @@ fixture="${1:-$root/fixtures/external-security/deferred-source-authority-v1.json
 [[ "$#" -le 1 && -f "$fixture" && ! -L "$fixture" ]] || exit 1
 jq -e '
  def verdict:
-  if (.independent_grant != null) and .independent_grant.current == true and
+  if .request.kind != "protected-write" and (.independent_grant != null) and .independent_grant.current == true and
      .independent_grant.kind == .request.kind and
      .independent_grant.scope == .request.scope
   then "ALLOW" else "DENY" end;
