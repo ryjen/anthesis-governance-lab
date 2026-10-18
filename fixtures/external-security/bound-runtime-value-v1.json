@@ -1,0 +1,120 @@
+{
+  "version": "anthesis-governance-lab.bound-runtime-value/v1",
+  "synthetic": true,
+  "executes_effects": false,
+  "requires_network": false,
+  "requires_credentials": false,
+  "policy_revision": "policy:1",
+  "cases": [
+    {
+      "id": "exact-bound-write",
+      "lookup": {
+        "source": "trusted-structured",
+        "revision": "lookup:1",
+        "recipient": "recipient:A",
+        "amount": 125
+      },
+      "write": {
+        "recipient": "recipient:A",
+        "amount": 125,
+        "lookup_revision": "lookup:1"
+      },
+      "unrelated_state_revision": "other:1",
+      "authorized": true,
+      "expected": "ALLOW"
+    },
+    {
+      "id": "changed-recipient",
+      "lookup": {
+        "source": "trusted-structured",
+        "revision": "lookup:1",
+        "recipient": "recipient:A",
+        "amount": 125
+      },
+      "write": {
+        "recipient": "recipient:B",
+        "amount": 125,
+        "lookup_revision": "lookup:1"
+      },
+      "unrelated_state_revision": "other:1",
+      "authorized": true,
+      "expected": "DENY"
+    },
+    {
+      "id": "changed-amount",
+      "lookup": {
+        "source": "trusted-structured",
+        "revision": "lookup:1",
+        "recipient": "recipient:A",
+        "amount": 125
+      },
+      "write": {
+        "recipient": "recipient:A",
+        "amount": 126,
+        "lookup_revision": "lookup:1"
+      },
+      "unrelated_state_revision": "other:1",
+      "authorized": true,
+      "expected": "DENY"
+    },
+    {
+      "id": "stale-lookup",
+      "lookup": {
+        "source": "trusted-structured",
+        "revision": "lookup:2",
+        "recipient": "recipient:A",
+        "amount": 125
+      },
+      "write": {
+        "recipient": "recipient:A",
+        "amount": 125,
+        "lookup_revision": "lookup:1"
+      },
+      "unrelated_state_revision": "other:1",
+      "authorized": true,
+      "expected": "DENY"
+    },
+    {
+      "id": "untrusted-source",
+      "lookup": {
+        "source": "untrusted-text",
+        "revision": "lookup:1",
+        "recipient": "recipient:A",
+        "amount": 125
+      },
+      "write": {
+        "recipient": "recipient:A",
+        "amount": 125,
+        "lookup_revision": "lookup:1"
+      },
+      "unrelated_state_revision": "other:1",
+      "authorized": true,
+      "expected": "DENY"
+    },
+    {
+      "id": "unrelated-state-change",
+      "lookup": {
+        "source": "trusted-structured",
+        "revision": "lookup:1",
+        "recipient": "recipient:A",
+        "amount": 125
+      },
+      "write": {
+        "recipient": "recipient:A",
+        "amount": 125,
+        "lookup_revision": "lookup:1"
+      },
+      "unrelated_state_revision": "other:2",
+      "authorized": true,
+      "expected": "ALLOW"
+    }
+  ],
+  "proves": [
+    "synthetic exact value and lookup revision consistency"
+  ],
+  "does_not_prove": [
+    "runtime lookup authenticity",
+    "actual authorization or effects",
+    "concurrent state integrity"
+  ]
+}
