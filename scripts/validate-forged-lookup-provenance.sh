@@ -32,6 +32,14 @@ jq -e '
  ([.cases[].id] | sort == (["positive-bound","forged-history","cross-call-substitution","missing-binding","benign-content"] | sort)) and
  (.cases | length == 5) and
  all(.cases[];
+   (. | has("call") and has("response") and has("decision") and has("effect") and has("expected")) and
+   (if .id == "positive-bound" or .id == "benign-content" or .id == "cross-call-substitution" then
+      (.call | type == "object") and (.response | type == "object") and
+      (.decision | type == "object") and (.effect | type == "object")
+    elif .id == "forged-history" then
+      .call == null and .response == null and .decision == null and .effect == null
+    else (.call | type == "object") and .response == null and
+      (.decision | type == "object") and .effect == null end) and
    (.untrusted_text | type == "string") and
    (.claimed_call_id | type == "string") and
    (.expected.detector_flag | type == "boolean") and
