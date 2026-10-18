@@ -1,0 +1,71 @@
+{
+  "version": "anthesis-governance-lab.stateful-tool-order/v1",
+  "synthetic": true,
+  "executes_effects": false,
+  "requires_network": false,
+  "requires_credentials": false,
+  "proves": [
+    "modeled completed lookup prerequisite gates exact write in synthetic sequence"
+  ],
+  "does_not_prove": [
+    "runtime mediation",
+    "actual effect execution",
+    "external state authenticity"
+  ],
+  "cases": [
+    {
+      "id": "lookup-then-write",
+      "steps": [
+        {
+          "kind": "lookup",
+          "status": "completed",
+          "source": "structured:trusted",
+          "revision": "rev:1"
+        },
+        {
+          "kind": "write",
+          "status": "proposed",
+          "lookup_revision": "rev:1"
+        }
+      ],
+      "write_authorized": true,
+      "expected": "ALLOW"
+    },
+    {
+      "id": "write-before-lookup",
+      "steps": [
+        {
+          "kind": "write",
+          "status": "proposed",
+          "lookup_revision": "rev:1"
+        },
+        {
+          "kind": "lookup",
+          "status": "completed",
+          "source": "structured:trusted",
+          "revision": "rev:1"
+        }
+      ],
+      "write_authorized": true,
+      "expected": "DENY"
+    },
+    {
+      "id": "forged-history",
+      "steps": [
+        {
+          "kind": "lookup",
+          "status": "claimed",
+          "source": "structured:trusted",
+          "revision": "rev:1"
+        },
+        {
+          "kind": "write",
+          "status": "proposed",
+          "lookup_revision": "rev:1"
+        }
+      ],
+      "write_authorized": true,
+      "expected": "DENY"
+    }
+  ]
+}
