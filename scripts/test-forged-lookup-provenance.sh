@@ -19,11 +19,14 @@ for spec in \
  'positive-bound:resource:resource-other' \
  'positive-bound:decision:false' \
  'positive-bound:effect:false' \
- 'benign-content:admission:deny'; do
+ 'benign-content:admission:deny' \
+ 'positive-bound:remove:response' \
+ 'missing-binding:remove:response'; do
  id="${spec%%:*}"; rest="${spec#*:}"; field="${rest%%:*}"; value="${rest#*:}"
  jq --arg id "$id" --arg field "$field" --arg value "$value" '
  (.cases[] | select(.id == $id)) |= (
-  if $field == "payload" then .untrusted_text = $value
+  if $field == "remove" then del(.[$value])
+  elif $field == "payload" then .untrusted_text = $value
   elif $field == "admission" then .expected.admission = $value
   elif $field == "evidence" then .expected.evidence = $value
   elif $field == "response" then .response.call_id = $value
