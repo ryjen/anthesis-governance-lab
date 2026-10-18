@@ -832,4 +832,7 @@ bash "$repo_root/scripts/test-deferred-source-authority.sh"
 bash "$repo_root/scripts/validate-commit-recovery.sh"
 bash "$repo_root/scripts/test-commit-recovery.sh"
 
+bash "$repo_root/scripts/validate-semantic-judge-narrowing.sh"
+bash "$repo_root/scripts/test-semantic-judge-narrowing.sh"
+
 echo "External agent-security fixture validation passed"
