@@ -33,4 +33,9 @@ for spec in \
  fi
  count=$((count+1))
 done
+jq '(.cases[] | select(.id == "hostile-page-protected-write")) |= (.independent_grant = {"kind":"protected-write","scope":"write:protected","current":true} | .expected = "ALLOW")' "$source" > "$tmp/mutated.json"
+if bash "$validator" "$tmp/mutated.json" >/dev/null 2>&1; then
+ echo "accepted protected write with injected matching grant" >&2; exit 1
+fi
+count=$((count+1))
 echo "Deferred-source authority negative oracle: $count mutations rejected"
