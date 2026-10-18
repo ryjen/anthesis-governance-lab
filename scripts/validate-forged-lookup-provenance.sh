@@ -17,7 +17,7 @@ jq -e '
        $c.decision.profile == $c.call.profile and
        $c.decision.action == "action-1" and $c.decision.decision_id == "decision-1") 
     else false end) as $bound |
-   (if $complete and (not $bound) then "mismatch"
+   (if $complete and ($bound | not) then "mismatch"
     elif $bound then "verified" else "insufficient" end) as $evidence |
    ($bound and $c.decision.allow == true) as $allowed |
    ($allowed and $c.effect != null and
