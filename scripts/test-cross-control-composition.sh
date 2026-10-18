@@ -22,7 +22,10 @@ for spec in \
   'positive-composition:security_requirements_pass:false' \
   'positive-composition:terminal_effects:delete' \
   'quarantined-recovery:open_contaminated_effect_ids:delete' \
-  'positive-composition:utility_observation:delete'; do
+  'positive-composition:utility_observation:delete' \
+  'positive-composition:origin_root:forged' \
+  'positive-composition:expected:INSECURE' \
+  'positive-composition:effect_id:forged'; do
   id="${spec%%:*}"; remainder="${spec#*:}"; field="${remainder%%:*}"; value="${remainder#*:}"
   jq --arg id "$id" --arg field "$field" --arg value "$value" '
     (.cases[] | select(.id == $id)) |= (
