@@ -6,8 +6,7 @@ fixture="${1:-$root/fixtures/external-security/cross-control-composition-v1.json
 command -v jq >/dev/null || exit 1
 jq -e '
   def derived:
-    if (.security_requirements_pass | not) or
-       .normalized_source_id != .source_id or
+    if .normalized_source_id != .source_id or
        .consumed_memory_revision != .memory_revision or
        .decision_delegation_id != .delegation_id or
        .decision_policy_revision != .policy_revision or
@@ -39,13 +38,15 @@ jq -e '
     (.policy_revision | type == "string" and startswith("policy:")) and
     (.decision_policy_revision | type == "string") and
     (.effect_id | type == "string" and startswith("effect:")) and
+    (.origin_root | type == "string" and startswith("root:")) and
     (.terminal_effects | type == "array") and
-    (all(.terminal_effects[]; .effect_id == "effect:write-1" and .origin_root == "root:parent" and .disposition == "committed")) and
+    . as $case |
+    (all(.terminal_effects[]; .effect_id == $case.effect_id and .origin_root == $case.origin_root and .disposition == "committed")) and
     ((.terminal_effects | length) == ([.terminal_effects[].effect_id] | unique | length)) and
-    (.effect_committed == (any(.terminal_effects[]; .effect_id == "effect:write-1" and .disposition == "committed"))) and
+    (.effect_committed == (any(.terminal_effects[]; .effect_id == $case.effect_id and .disposition == "committed"))) and
     (.open_contaminated_effect_ids | type == "array") and
     (.contaminated_path_live == ((.open_contaminated_effect_ids | length) > 0)) and
-    (all(.open_contaminated_effect_ids[]; . == "effect:write-1")) and
+    (all(.open_contaminated_effect_ids[]; . == $case.effect_id)) and
     (.security_requirements_pass | type == "boolean") and
     (.utility_observation | type == "string" and length > 0) and
     (.latency_observation | type == "string" and length > 0) and
@@ -53,7 +54,7 @@ jq -e '
     (all([.effect_committed,.delayed_effect,.local_provenance_pass,.local_authority_pass,.detected,.contaminated_path_live,.quarantined,.recovery_attributable,.independent_root_continues][]; type == "boolean")) and
     (.expected | IN("SECURE","INSECURE","INDETERMINATE")) and
     (.expected == derived) and
-    (.security_requirements_pass == (.expected == "SECURE")) and
+    (.security_requirements_pass == (derived == "SECURE")) and
     (if .id == "positive-composition" then .expected == "SECURE" and .effect_committed else true end) and
     (if .id == "provenance-drop" then .normalized_source_id == null and .local_provenance_pass and .local_authority_pass and .expected == "INSECURE" else true end) and
     (if .id == "authority-drop" then .decision_delegation_id == null and .local_provenance_pass and .local_authority_pass and .expected == "INSECURE" else true end) and
