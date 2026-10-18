@@ -33,7 +33,7 @@ jq -e '
   (.assumptions | type == "array" and length >= 3) and
   (.does_not_prove | type == "array" and length >= 3) and
   (.proves | type == "array" and length >= 3) and
-  (.cases | type == "array" and length == 9) and
+  (.cases | type == "array" and length == 10) and
   ([.cases[].id] | length == (unique | length)) and
   all(.cases[];
     (.id | type == "string" and length > 0) and
@@ -72,7 +72,8 @@ jq -e '
     ["unmatched-control-population", 10, 5, 5, "UNRESOLVED"],
     ["always-pass-imbalanced-task", 9, 9, 0, "NOT_SUPPORTED"],
     ["proof-of-weakened-specification", 10, 5, 5, "NOT_SUPPORTED"],
-    ["invalid-control-oracle", 10, 5, 5, "UNRESOLVED"]
+    ["invalid-control-oracle", 10, 5, 5, "UNRESOLVED"],
+    ["proof-with-strengthened-precondition", 10, 5, 5, "NOT_SUPPORTED"]
   ] | all(.[]; . as $e | any($root.cases[];
     .id == $e[0] and
     .expected.raw_correct == $e[1] and
@@ -83,7 +84,9 @@ jq -e '
   any(.cases[]; .id == "overcapable-evaluator-confounder" and .mechanism_active == true) and
   any(.cases[]; .id == "always-pass-imbalanced-task" and ([.task_predictions[]] | all(. == true))) and
   any(.cases[]; .id == "proof-of-weakened-specification" and .source_requirement_covered == false) and
+  any(.cases[]; .id == "proof-with-strengthened-precondition" and .source_requirement_covered == false and .source_requirement == "for_all_inputs:A_and_B" and .derived_property == "precondition_P_implies_A_and_B" and .precondition_required_by_source == false and .proof_result == "pass" and .correspondence_result == "fail") and
+  any(.cases[]; .id == "proof-of-weakened-specification" and .source_requirement == "A_and_B" and .derived_property == "A_only" and .proof_result == "pass" and .correspondence_result == "fail") and
   any(.cases[]; .id == "invalid-control-oracle" and .control_oracle_valid == false)
 ' "$fixture" >/dev/null || fail "evaluator-control task fixture invariants failed"
 
-echo "Evaluator control-task fixture validation passed (9 synthetic cases)"
+echo "Evaluator control-task fixture validation passed (10 synthetic cases)"
