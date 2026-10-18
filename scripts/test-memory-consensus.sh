@@ -25,7 +25,12 @@ for spec in \
  'mixed-history:verified:false' \
  'forged-precedent:record:memory:other' \
  'forged-precedent:channel:payload' \
- 'forged-precedent:context:other'; do
+ 'forged-precedent:context:other' \\
+ 'benign-repeated:run:run:wrong:1' \\
+ 'benign-repeated:integrity:false' \\
+ 'benign-repeated:detector:wrong-detector' \\
+ 'benign-repeated:input:memory:wrong' \\
+ 'mixed-history:conflicts:clear'; do
  id="${spec%%:*}"; rest="${spec#*:}"; field="${rest%%:*}"; value="${rest#*:}"
  jq --arg id "$id" --arg field "$field" --arg value "$value" '
  (.cases[] | select(.id == $id)) |= (
@@ -38,6 +43,11 @@ for spec in \
   elif $field == "record" then .record_id = $value
   elif $field == "channel" then .host_envelope.write_channel = $value
   elif $field == "context" then .consuming_context_revision = $value
+  elif $field == "run" then .supporting_evidence.references[0].run_id = $value
+  elif $field == "integrity" then .supporting_evidence.references[0].integrity_bound = ($value == "true")
+  elif $field == "detector" then .candidate_learning.attribution.detector_id = $value
+  elif $field == "input" then .candidate_learning.attribution.input_record_id = $value
+  elif $field == "conflicts" then .supporting_evidence.conflicting_claim_ids = []
   else . end
  )' "$source" > "$tmp/mutated.json"
  if bash "$validator" "$tmp/mutated.json" >/dev/null 2>&1; then
