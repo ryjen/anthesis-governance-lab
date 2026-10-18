@@ -25,7 +25,7 @@ jq -e '
   (.cases | type == "array" and length == 6) and
   ([.cases[].id] | unique | length == 6) and
   ([.cases[].id] | sort == (["positive-composition","provenance-drop","authority-drop","stale-state-delayed-effect","detected-without-containment","quarantined-recovery"] | sort)) and
-  all(.cases[];
+  all(.cases[]; . as $case |
     (.id | type == "string" and length > 0) and
     (.source_id | type == "string" and startswith("observation:")) and
     (.normalized_source_id == null or (.normalized_source_id | type == "string")) and
@@ -40,7 +40,6 @@ jq -e '
     (.effect_id | type == "string" and startswith("effect:")) and
     (.origin_root | type == "string" and startswith("root:")) and
     (.terminal_effects | type == "array") and
-    . as $case |
     (all(.terminal_effects[]; .effect_id == $case.effect_id and .origin_root == $case.origin_root and .disposition == "committed")) and
     ((.terminal_effects | length) == ([.terminal_effects[].effect_id] | unique | length)) and
     (.effect_committed == (any(.terminal_effects[]; .effect_id == $case.effect_id and .disposition == "committed"))) and
