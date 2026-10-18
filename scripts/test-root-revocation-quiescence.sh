@@ -40,4 +40,23 @@ for pair in \
   grep -Fq 'root quiescence fixture invariants failed' "$tmp/err"
   count=$((count + 1))
 done
+for pair in \
+  'cut-plus-provider-fence:origin_root' \
+  'cut-plus-provider-fence:delegation_epoch' \
+  'cut-plus-provider-fence:cut_sequence' \
+  'cut-plus-provider-fence:fence_sequence' \
+  'cut-plus-provider-fence:frontier_sequence' \
+  'shared-worker-exact-rebind:handoff_id' \
+  'shared-worker-exact-rebind:retry_effect_id' \
+  'cut-plus-provider-fence:terminal_disposition'; do
+  id="${pair%%:*}"
+  field="${pair#*:}"
+  jq --arg id "$id" --arg field "$field" '(.cases[] | select(.id == $id) | .[$field]) = "tampered"' "$source" > "$tmp/fixture.json"
+  if bash "$validator" "$tmp/fixture.json" > "$tmp/out" 2> "$tmp/err"; then
+    echo "provenance or ordering mutation accepted for $id/$field" >&2
+    exit 1
+  fi
+  count=$((count + 1))
+done
 echo "Root quiescence negative oracle: $count false promotions rejected"
+
