@@ -38,7 +38,20 @@
       "recovery_attributable": true,
       "independent_root_continues": true,
       "expected": "SECURE",
-      "id": "positive-composition"
+      "id": "positive-composition",
+      "terminal_effects": [
+        {
+          "effect_id": "effect:write-1",
+          "origin_root": "root:parent",
+          "disposition": "committed"
+        }
+      ],
+      "open_contaminated_effect_ids": [],
+      "utility_observation": "bounded",
+      "latency_observation": "not_measured",
+      "cost_observation": "not_measured",
+      "origin_root": "root:parent",
+      "modeled_security_gate_pass": true
     },
     {
       "source_id": "observation:trusted-1",
@@ -62,7 +75,20 @@
       "recovery_attributable": true,
       "independent_root_continues": true,
       "expected": "INSECURE",
-      "id": "provenance-drop"
+      "id": "provenance-drop",
+      "terminal_effects": [
+        {
+          "effect_id": "effect:write-1",
+          "origin_root": "root:parent",
+          "disposition": "committed"
+        }
+      ],
+      "open_contaminated_effect_ids": [],
+      "utility_observation": "bounded",
+      "latency_observation": "not_measured",
+      "cost_observation": "not_measured",
+      "origin_root": "root:parent",
+      "modeled_security_gate_pass": false
     },
     {
       "source_id": "observation:trusted-1",
@@ -86,7 +112,20 @@
       "recovery_attributable": true,
       "independent_root_continues": true,
       "expected": "INSECURE",
-      "id": "authority-drop"
+      "id": "authority-drop",
+      "terminal_effects": [
+        {
+          "effect_id": "effect:write-1",
+          "origin_root": "root:parent",
+          "disposition": "committed"
+        }
+      ],
+      "open_contaminated_effect_ids": [],
+      "utility_observation": "bounded",
+      "latency_observation": "not_measured",
+      "cost_observation": "not_measured",
+      "origin_root": "root:parent",
+      "modeled_security_gate_pass": false
     },
     {
       "source_id": "observation:trusted-1",
@@ -110,7 +149,20 @@
       "recovery_attributable": true,
       "independent_root_continues": true,
       "expected": "INSECURE",
-      "id": "stale-state-delayed-effect"
+      "id": "stale-state-delayed-effect",
+      "terminal_effects": [
+        {
+          "effect_id": "effect:write-1",
+          "origin_root": "root:parent",
+          "disposition": "committed"
+        }
+      ],
+      "open_contaminated_effect_ids": [],
+      "utility_observation": "bounded",
+      "latency_observation": "not_measured",
+      "cost_observation": "not_measured",
+      "origin_root": "root:parent",
+      "modeled_security_gate_pass": false
     },
     {
       "source_id": "observation:trusted-1",
@@ -134,7 +186,22 @@
       "recovery_attributable": false,
       "independent_root_continues": true,
       "expected": "INSECURE",
-      "id": "detected-without-containment"
+      "id": "detected-without-containment",
+      "terminal_effects": [
+        {
+          "effect_id": "effect:write-1",
+          "origin_root": "root:parent",
+          "disposition": "committed"
+        }
+      ],
+      "open_contaminated_effect_ids": [
+        "effect:write-1"
+      ],
+      "utility_observation": "bounded",
+      "latency_observation": "not_measured",
+      "cost_observation": "not_measured",
+      "origin_root": "root:parent",
+      "modeled_security_gate_pass": false
     },
     {
       "source_id": "observation:trusted-1",
@@ -158,8 +225,14 @@
       "recovery_attributable": true,
       "independent_root_continues": true,
       "expected": "SECURE",
-      "id": "quarantined-recovery"
+      "id": "quarantined-recovery",
+      "terminal_effects": [],
+      "open_contaminated_effect_ids": [],
+      "utility_observation": "bounded",
+      "latency_observation": "not_measured",
+      "cost_observation": "not_measured",
+      "origin_root": "root:parent",
+      "modeled_security_gate_pass": true
     }
   ]
 }
-
