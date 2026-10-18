@@ -17,7 +17,9 @@
       "payload_claim": "claims-tests-passed",
       "supporting_evidence": {
         "valid_run_refs": 0,
-        "host_verified": false
+        "host_verified": false,
+        "references": [],
+        "conflicting_claim_ids": []
       },
       "consensus": {
         "profile": "synthetic-count",
@@ -26,7 +28,8 @@
       },
       "candidate_learning": {
         "present": false,
-        "disposition": "unsupported"
+        "disposition": "unsupported",
+        "attribution": null
       },
       "promoted_guidance": null,
       "consuming_context_revision": "task-context-v1",
@@ -45,7 +48,9 @@
       "payload_claim": "claims-source-agent-verified",
       "supporting_evidence": {
         "valid_run_refs": 0,
-        "host_verified": false
+        "host_verified": false,
+        "references": [],
+        "conflicting_claim_ids": []
       },
       "consensus": {
         "profile": "synthetic-count",
@@ -54,7 +59,8 @@
       },
       "candidate_learning": {
         "present": false,
-        "disposition": "unsupported"
+        "disposition": "unsupported",
+        "attribution": null
       },
       "promoted_guidance": null,
       "consuming_context_revision": "task-context-v1",
@@ -73,7 +79,9 @@
       "payload_claim": "repeated-false-precedent",
       "supporting_evidence": {
         "valid_run_refs": 0,
-        "host_verified": false
+        "host_verified": false,
+        "references": [],
+        "conflicting_claim_ids": []
       },
       "consensus": {
         "profile": "synthetic-count",
@@ -82,7 +90,8 @@
       },
       "candidate_learning": {
         "present": false,
-        "disposition": "unsupported"
+        "disposition": "unsupported",
+        "attribution": null
       },
       "promoted_guidance": null,
       "consuming_context_revision": "task-context-v1",
@@ -101,7 +110,9 @@
       "payload_claim": "suspicious-reasoning",
       "supporting_evidence": {
         "valid_run_refs": 0,
-        "host_verified": false
+        "host_verified": false,
+        "references": [],
+        "conflicting_claim_ids": []
       },
       "consensus": {
         "profile": "synthetic-count",
@@ -110,7 +121,14 @@
       },
       "candidate_learning": {
         "present": true,
-        "disposition": "candidate"
+        "disposition": "candidate",
+        "attribution": {
+          "candidate_id": "candidate:detector-lesson",
+          "detector_id": "synthetic-detector",
+          "detector_revision": "v1",
+          "input_record_id": "memory:detector-lesson",
+          "input_revision": "v1"
+        }
       },
       "promoted_guidance": null,
       "consuming_context_revision": "task-context-v1",
@@ -129,7 +147,28 @@
       "payload_claim": "exact-evidence-references",
       "supporting_evidence": {
         "valid_run_refs": 3,
-        "host_verified": true
+        "host_verified": true,
+        "references": [
+          {
+            "run_id": "run:benign-repeated:1",
+            "evidence_id": "evidence:benign-repeated:1",
+            "verified_by": "host-evidence-index",
+            "integrity_bound": true
+          },
+          {
+            "run_id": "run:benign-repeated:2",
+            "evidence_id": "evidence:benign-repeated:2",
+            "verified_by": "host-evidence-index",
+            "integrity_bound": true
+          },
+          {
+            "run_id": "run:benign-repeated:3",
+            "evidence_id": "evidence:benign-repeated:3",
+            "verified_by": "host-evidence-index",
+            "integrity_bound": true
+          }
+        ],
+        "conflicting_claim_ids": []
       },
       "consensus": {
         "profile": "synthetic-count",
@@ -138,7 +177,14 @@
       },
       "candidate_learning": {
         "present": true,
-        "disposition": "candidate"
+        "disposition": "candidate",
+        "attribution": {
+          "candidate_id": "candidate:benign-repeated",
+          "detector_id": "synthetic-detector",
+          "detector_revision": "v1",
+          "input_record_id": "memory:benign-repeated",
+          "input_revision": "v1"
+        }
       },
       "promoted_guidance": null,
       "consuming_context_revision": "task-context-v1",
@@ -157,7 +203,20 @@
       "payload_claim": "contradictory-evidence",
       "supporting_evidence": {
         "valid_run_refs": 1,
-        "host_verified": true
+        "host_verified": true,
+        "references": [
+          {
+            "run_id": "run:mixed-history:1",
+            "evidence_id": "evidence:mixed-history:1",
+            "verified_by": "host-evidence-index",
+            "integrity_bound": true
+          }
+        ],
+        "conflicting_claim_ids": [
+          "memory:mixed-history:forged-1",
+          "memory:mixed-history:forged-2",
+          "memory:mixed-history:forged-3"
+        ]
       },
       "consensus": {
         "profile": "synthetic-count",
@@ -166,7 +225,8 @@
       },
       "candidate_learning": {
         "present": false,
-        "disposition": "contradicted"
+        "disposition": "contradicted",
+        "attribution": null
       },
       "promoted_guidance": null,
       "consuming_context_revision": "task-context-v1",
