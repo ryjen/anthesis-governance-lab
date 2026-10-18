@@ -16,11 +16,13 @@ for spec in \
  'lookup-then-write:write_revision:rev:2' \
  'write-before-lookup:expected:ALLOW' \
  'forged-history:expected:ALLOW' \
- 'forged-history:lookup_status:completed'; do
+ 'forged-history:lookup_status:completed' \
+ 'lookup-then-write:duplicate_write:true'; do
  id="${spec%%:*}"; rest="${spec#*:}"; field="${rest%%:*}"; value="${rest#*:}"
  jq --arg id "$id" --arg field "$field" --arg value "$value" '
   (.cases[] | select(.id == $id)) |= (
-    if $field == "expected" then .expected = $value
+    if $field == "duplicate_write" then .steps[0] = .steps[1]
+    elif $field == "expected" then .expected = $value
     elif $field == "write_authorized" then .write_authorized = ($value == "true")
     elif $field == "lookup_status" then (.steps[] | select(.kind == "lookup") | .status) = $value
     elif $field == "lookup_source" then (.steps[] | select(.kind == "lookup") | .source) = $value
