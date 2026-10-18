@@ -4,12 +4,28 @@ root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 fixture="${1:-$root/fixtures/external-security/memory-consensus-v1.json}"
 [[ "$#" -le 1 && -f "$fixture" && ! -L "$fixture" ]] || exit 1
 jq -e '
+ def evidence_ok:
+   (.supporting_evidence.references | type == "array" and length == .supporting_evidence.valid_run_refs) and
+   ([.supporting_evidence.references[].run_id] | unique | length == .supporting_evidence.valid_run_refs) and
+   all(.supporting_evidence.references[];
+     .verified_by == "host-evidence-index" and .integrity_bound == true and
+     .run_id == ("run:" + $case_id + ":" + ((.run_id | split(":") | last))) and
+     .evidence_id == ("evidence:" + $case_id + ":" + ((.run_id | split(":") | last)))
+   );
  .version == "governance-lab.memory-consensus/v1" and
  .synthetic == true and .no_effects == true and .network_free == true and .contains_private_reasoning == false and
  (.cases | length == 6) and
  ([.cases[].id] | sort == (["forged-precedent","metadata-spoof","consensus-amplification","detector-lesson","benign-repeated","mixed-history"] | sort)) and
  all(.cases[];
-   .record_id == ("memory:" + .id) and
+   .record_id == ("memory:" + .id) and evidence_ok and
+   (.supporting_evidence.conflicting_claim_ids == (if .id == "mixed-history" then ["memory:mixed-history:forged-1","memory:mixed-history:forged-2","memory:mixed-history:forged-3"] else [] end)) and
+   (if .candidate_learning.present == true then
+     .candidate_learning.attribution.candidate_id == ("candidate:" + .id) and
+     .candidate_learning.attribution.detector_id == "synthetic-detector" and
+     .candidate_learning.attribution.detector_revision == "v1" and
+     .candidate_learning.attribution.input_record_id == .record_id and
+     .candidate_learning.attribution.input_revision == "v1"
+    else .candidate_learning.attribution == null end) and
    .host_envelope.producer == "host-observed" and .host_envelope.write_channel == "fixture" and .host_envelope.revision == "v1" and
    .consensus.profile == "synthetic-count" and .consensus.revision == "v1" and
    .consuming_context_revision == "task-context-v1" and
