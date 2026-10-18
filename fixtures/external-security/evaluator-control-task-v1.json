@@ -528,7 +528,12 @@
       },
       "control_oracle_valid": true,
       "condition_revision": "fixture:condition-proof-of-weakened-specification-v1",
-      "evidence_ref": "fixture:evidence/fixture:candidate-v1/fixture:evaluator-v1/fixture:harness-v1/fixture:condition-proof-of-weakened-specification-v1"
+      "evidence_ref": "fixture:evidence/fixture:candidate-v1/fixture:evaluator-v1/fixture:harness-v1/fixture:condition-proof-of-weakened-specification-v1",
+      "source_requirement": "A_and_B",
+      "derived_property": "A_only",
+      "precondition_required_by_source": null,
+      "proof_result": "pass",
+      "correspondence_result": "fail"
     },
     {
       "id": "invalid-control-oracle",
@@ -660,7 +665,12 @@
       },
       "control_oracle_valid": true,
       "condition_revision": "fixture:condition-proof-with-strengthened-precondition-v1",
-      "evidence_ref": "fixture:evidence/fixture:candidate-v1/fixture:evaluator-v1/fixture:harness-v1/fixture:condition-proof-with-strengthened-precondition-v1"
+      "evidence_ref": "fixture:evidence/fixture:candidate-v1/fixture:evaluator-v1/fixture:harness-v1/fixture:condition-proof-with-strengthened-precondition-v1",
+      "source_requirement": "for_all_inputs:A_and_B",
+      "derived_property": "precondition_P_implies_A_and_B",
+      "precondition_required_by_source": false,
+      "proof_result": "pass",
+      "correspondence_result": "fail"
     }
   ],
   "proves": [
