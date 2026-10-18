@@ -75,7 +75,9 @@
         "differential": 5,
         "attribution": "SUPPORTED"
       },
-      "control_oracle_valid": true
+      "control_oracle_valid": true,
+      "condition_revision": "fixture:condition-real-mechanism-treatment-v1",
+      "evidence_ref": "fixture:evidence/fixture:candidate-v1/fixture:evaluator-v1/fixture:harness-v1/fixture:condition-real-mechanism-treatment-v1"
     },
     {
       "id": "mechanism-absent",
@@ -139,7 +141,9 @@
         "differential": 0,
         "attribution": "NOT_SUPPORTED"
       },
-      "control_oracle_valid": true
+      "control_oracle_valid": true,
+      "condition_revision": "fixture:condition-mechanism-absent-v1",
+      "evidence_ref": "fixture:evidence/fixture:candidate-v1/fixture:evaluator-v1/fixture:harness-v1/fixture:condition-mechanism-absent-v1"
     },
     {
       "id": "placebo-irrelevant-mechanism",
@@ -203,7 +207,9 @@
         "differential": 0,
         "attribution": "NOT_SUPPORTED"
       },
-      "control_oracle_valid": true
+      "control_oracle_valid": true,
+      "condition_revision": "fixture:condition-placebo-irrelevant-mechanism-v1",
+      "evidence_ref": "fixture:evidence/fixture:candidate-v1/fixture:evaluator-v1/fixture:harness-v1/fixture:condition-placebo-irrelevant-mechanism-v1"
     },
     {
       "id": "overcapable-evaluator-confounder",
@@ -267,7 +273,9 @@
         "differential": 0,
         "attribution": "NOT_SUPPORTED"
       },
-      "control_oracle_valid": true
+      "control_oracle_valid": true,
+      "condition_revision": "fixture:condition-overcapable-evaluator-confounder-v1",
+      "evidence_ref": "fixture:evidence/fixture:candidate-v1/fixture:evaluator-v1/fixture:harness-v1/fixture:condition-overcapable-evaluator-confounder-v1"
     },
     {
       "id": "missing-independent-control",
@@ -320,7 +328,9 @@
         "differential": null,
         "attribution": "UNRESOLVED"
       },
-      "control_oracle_valid": true
+      "control_oracle_valid": true,
+      "condition_revision": "fixture:condition-missing-independent-control-v1",
+      "evidence_ref": "fixture:evidence/fixture:candidate-v1/fixture:evaluator-v1/fixture:harness-v1/fixture:condition-missing-independent-control-v1"
     },
     {
       "id": "unmatched-control-population",
@@ -384,7 +394,9 @@
         "differential": 5,
         "attribution": "UNRESOLVED"
       },
-      "control_oracle_valid": true
+      "control_oracle_valid": true,
+      "condition_revision": "fixture:condition-unmatched-control-population-v1",
+      "evidence_ref": "fixture:evidence/fixture:candidate-v1/fixture:evaluator-v1/fixture:harness-v1/fixture:condition-unmatched-control-population-v1"
     },
     {
       "id": "always-pass-imbalanced-task",
@@ -448,7 +460,9 @@
         "differential": 0,
         "attribution": "NOT_SUPPORTED"
       },
-      "control_oracle_valid": true
+      "control_oracle_valid": true,
+      "condition_revision": "fixture:condition-always-pass-imbalanced-task-v1",
+      "evidence_ref": "fixture:evidence/fixture:candidate-v1/fixture:evaluator-v1/fixture:harness-v1/fixture:condition-always-pass-imbalanced-task-v1"
     },
     {
       "id": "proof-of-weakened-specification",
@@ -512,7 +526,9 @@
         "differential": 5,
         "attribution": "NOT_SUPPORTED"
       },
-      "control_oracle_valid": true
+      "control_oracle_valid": true,
+      "condition_revision": "fixture:condition-proof-of-weakened-specification-v1",
+      "evidence_ref": "fixture:evidence/fixture:candidate-v1/fixture:evaluator-v1/fixture:harness-v1/fixture:condition-proof-of-weakened-specification-v1"
     },
     {
       "id": "invalid-control-oracle",
@@ -576,7 +592,9 @@
         "differential": 5,
         "attribution": "UNRESOLVED"
       },
-      "control_oracle_valid": false
+      "control_oracle_valid": false,
+      "condition_revision": "fixture:condition-invalid-control-oracle-v1",
+      "evidence_ref": "fixture:evidence/fixture:candidate-v1/fixture:evaluator-v1/fixture:harness-v1/fixture:condition-invalid-control-oracle-v1"
     }
   ],
   "proves": [
