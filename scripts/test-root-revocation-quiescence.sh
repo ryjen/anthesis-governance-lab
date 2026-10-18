@@ -58,5 +58,36 @@ for pair in \
   fi
   count=$((count + 1))
 done
+# Independently exercise schema rejection and cross-field evidence consistency.
+for spec in \
+  'cut-plus-provider-fence:cut_generation:string' \
+  'cut-plus-provider-fence:delegation_epoch:string' \
+  'cut-plus-provider-fence:cut_sequence:delete' \
+  'cut-plus-provider-fence:fence_sequence:delete' \
+  'cut-plus-provider-fence:terminal_disposition:delete' \
+  'durable-cut-unfenced-sink:terminal_disposition:fenced' \
+  'shared-worker-exact-rebind:handoff_id:invalid' \
+  'timeout-retry-exhaustion:retries_exhausted:false' \
+  'cut-plus-provider-fence:retries_exhausted:true'; do
+  id="${spec%%:*}"
+  remainder="${spec#*:}"
+  field="${remainder%%:*}"
+  mutation="${remainder#*:}"
+  jq --arg id "$id" --arg field "$field" --arg mutation "$mutation" '
+    (.cases[] | select(.id == $id)) |= (
+      if $mutation == "delete" then del(.[$field])
+      elif $mutation == "string" then .[$field] = "invalid-number"
+      elif $mutation == "false" then .[$field] = false
+      elif $mutation == "true" then .[$field] = true
+      elif $mutation == "fenced" then .[$field] = "fenced"
+      else .[$field] = "invalid" end
+    )
+  ' "$source" > "$tmp/fixture.json"
+  if bash "$validator" "$tmp/fixture.json" > "$tmp/out" 2> "$tmp/err"; then
+    echo "schema or cross-field mutation accepted for $id/$field/$mutation" >&2
+    exit 1
+  fi
+  count=$((count + 1))
+done
 echo "Root quiescence negative oracle: $count false promotions rejected"
 
