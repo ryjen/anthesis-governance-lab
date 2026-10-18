@@ -30,4 +30,7 @@ expect_rejected "weakened specification promoted" '(.cases[] | select(.id == "pr
 expect_rejected "always-pass mistaken for valid evaluator" '(.cases[] | select(.id == "always-pass-imbalanced-task") | .expected.attribution) = "SUPPORTED"'
 expect_rejected "invalid control oracle falsely trusted" '(.cases[] | select(.id == "real-mechanism-treatment") | .control_oracle_valid) = false'
 expect_rejected "required case deleted" 'del(.cases[] | select(.id == "missing-independent-control"))'
+expect_rejected "forged evidence revision identity" '(.cases[] | select(.id == "real-mechanism-treatment") | .evidence_ref) = "fixture:evidence/forged"'
+expect_rejected "condition revision drift" '(.cases[] | select(.id == "placebo-irrelevant-mechanism") | .condition_revision) = "fixture:condition-treatment-v2"'
+expect_rejected "evaluator revision drift" '(.cases[] | select(.id == "overcapable-evaluator-confounder") | .evaluator_revision) = "fixture:evaluator-v2"'
 echo "Evaluator control-task mutation oracle: $case_index negative mutations rejected"
