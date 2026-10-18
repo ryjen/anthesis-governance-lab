@@ -5,13 +5,14 @@ fixture="${1:-$root/fixtures/external-security/memory-consensus-v1.json}"
 [[ "$#" -le 1 && -f "$fixture" && ! -L "$fixture" ]] || exit 1
 jq -e '
  def evidence_ok:
-   .id as $case_id |
-   (.supporting_evidence.references | type == "array" and length == .supporting_evidence.valid_run_refs) and
-   ([.supporting_evidence.references[].run_id] | unique | length == .supporting_evidence.valid_run_refs) and
-   all(.supporting_evidence.references[];
+   . as $case |
+   ($case.supporting_evidence.references | type == "array") and
+   ($case.supporting_evidence.references | length == $case.supporting_evidence.valid_run_refs) and
+   ([$case.supporting_evidence.references[].run_id] | unique | length == $case.supporting_evidence.valid_run_refs) and
+   all($case.supporting_evidence.references[];
      .verified_by == "host-evidence-index" and .integrity_bound == true and
-     (.run_id | startswith("run:" + $case_id + ":")) and
-     .evidence_id == ("evidence:" + $case_id + ":" + ((.run_id | split(":") | last)))
+     (.run_id | startswith("run:" + $case.id + ":")) and
+     .evidence_id == ("evidence:" + $case.id + ":" + (.run_id | split(":") | last))
    );
  .version == "governance-lab.memory-consensus/v1" and
  .synthetic == true and .no_effects == true and .network_free == true and .contains_private_reasoning == false and
