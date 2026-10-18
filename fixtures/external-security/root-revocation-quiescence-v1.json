@@ -9,7 +9,8 @@
     "all provider, carrier and sink coverage flags are modeled and not independently attested",
     "frontier and fence ordering are fixture assertions, not physical timing proof",
     "late settlement is accepted only when commitment predates the fence",
-    "no global idleness, rollback, business completion or production certificate is asserted"
+    "no global idleness, rollback, business completion or production certificate is asserted",
+    "sequence numbers and support ancestry are synthetic evidence assertions, not independently attested ordering"
   ],
   "cases": [
     {
@@ -33,7 +34,16 @@
       "handoff_matched": true,
       "certificate_consistent": true,
       "retries_exhausted": false,
-      "expected": "NOT_QUIESCENT"
+      "expected": "NOT_QUIESCENT",
+      "origin_root": "root:A",
+      "delegation_epoch": 4,
+      "support_source": "delegation:root-A-epoch-4",
+      "cut_sequence": null,
+      "fence_sequence": null,
+      "frontier_sequence": 40,
+      "handoff_id": "handoff:stable-1",
+      "retry_effect_id": "effect:stable-1",
+      "terminal_disposition": "pending"
     },
     {
       "id": "process-token-revocation-only",
@@ -56,7 +66,16 @@
       "handoff_matched": true,
       "certificate_consistent": true,
       "retries_exhausted": false,
-      "expected": "NOT_QUIESCENT"
+      "expected": "NOT_QUIESCENT",
+      "origin_root": "root:A",
+      "delegation_epoch": 4,
+      "support_source": "delegation:root-A-epoch-4",
+      "cut_sequence": null,
+      "fence_sequence": 30,
+      "frontier_sequence": 40,
+      "handoff_id": "handoff:stable-1",
+      "retry_effect_id": "effect:stable-1",
+      "terminal_disposition": "fenced"
     },
     {
       "id": "durable-cut-unfenced-sink",
@@ -79,7 +98,16 @@
       "handoff_matched": true,
       "certificate_consistent": true,
       "retries_exhausted": false,
-      "expected": "NOT_QUIESCENT"
+      "expected": "NOT_QUIESCENT",
+      "origin_root": "root:A",
+      "delegation_epoch": 4,
+      "support_source": "delegation:root-A-epoch-4",
+      "cut_sequence": 20,
+      "fence_sequence": null,
+      "frontier_sequence": 40,
+      "handoff_id": "handoff:stable-1",
+      "retry_effect_id": "effect:stable-1",
+      "terminal_disposition": "pending"
     },
     {
       "id": "cut-plus-provider-fence",
@@ -102,7 +130,16 @@
       "handoff_matched": true,
       "certificate_consistent": true,
       "retries_exhausted": false,
-      "expected": "QUIESCENT"
+      "expected": "QUIESCENT",
+      "origin_root": "root:A",
+      "delegation_epoch": 4,
+      "support_source": "delegation:root-A-epoch-4",
+      "cut_sequence": 20,
+      "fence_sequence": 30,
+      "frontier_sequence": 40,
+      "handoff_id": "handoff:stable-1",
+      "retry_effect_id": "effect:stable-1",
+      "terminal_disposition": "fenced"
     },
     {
       "id": "precut-accepted-late-settlement",
@@ -125,7 +162,16 @@
       "handoff_matched": true,
       "certificate_consistent": true,
       "retries_exhausted": false,
-      "expected": "QUIESCENT"
+      "expected": "QUIESCENT",
+      "origin_root": "root:A",
+      "delegation_epoch": 4,
+      "support_source": "delegation:root-A-epoch-4",
+      "cut_sequence": 20,
+      "fence_sequence": 30,
+      "frontier_sequence": 40,
+      "handoff_id": "handoff:stable-1",
+      "retry_effect_id": "effect:stable-1",
+      "terminal_disposition": "fenced"
     },
     {
       "id": "stale-worker-retired-epoch",
@@ -148,7 +194,16 @@
       "handoff_matched": true,
       "certificate_consistent": true,
       "retries_exhausted": false,
-      "expected": "NOT_QUIESCENT"
+      "expected": "NOT_QUIESCENT",
+      "origin_root": "root:A",
+      "delegation_epoch": 4,
+      "support_source": "delegation:root-A-epoch-4",
+      "cut_sequence": 20,
+      "fence_sequence": 30,
+      "frontier_sequence": 40,
+      "handoff_id": "handoff:stable-1",
+      "retry_effect_id": "effect:stable-1",
+      "terminal_disposition": "fenced"
     },
     {
       "id": "shared-worker-exact-rebind",
@@ -171,7 +226,16 @@
       "handoff_matched": true,
       "certificate_consistent": true,
       "retries_exhausted": false,
-      "expected": "QUIESCENT"
+      "expected": "QUIESCENT",
+      "origin_root": "root:A",
+      "delegation_epoch": 4,
+      "support_source": "delegation:root-A-epoch-4",
+      "cut_sequence": 20,
+      "fence_sequence": 30,
+      "frontier_sequence": 40,
+      "handoff_id": "handoff:stable-1",
+      "retry_effect_id": "effect:stable-1",
+      "terminal_disposition": "fenced"
     },
     {
       "id": "provider-enumeration-missing",
@@ -194,7 +258,16 @@
       "handoff_matched": true,
       "certificate_consistent": true,
       "retries_exhausted": false,
-      "expected": "INDETERMINATE"
+      "expected": "INDETERMINATE",
+      "origin_root": "root:A",
+      "delegation_epoch": 4,
+      "support_source": "delegation:root-A-epoch-4",
+      "cut_sequence": 20,
+      "fence_sequence": 30,
+      "frontier_sequence": 40,
+      "handoff_id": "handoff:stable-1",
+      "retry_effect_id": "effect:stable-1",
+      "terminal_disposition": "fenced"
     },
     {
       "id": "duplicated-handoff-token",
@@ -217,7 +290,16 @@
       "handoff_matched": false,
       "certificate_consistent": true,
       "retries_exhausted": false,
-      "expected": "INDETERMINATE"
+      "expected": "INDETERMINATE",
+      "origin_root": "root:A",
+      "delegation_epoch": 4,
+      "support_source": "delegation:root-A-epoch-4",
+      "cut_sequence": 20,
+      "fence_sequence": 30,
+      "frontier_sequence": 40,
+      "handoff_id": null,
+      "retry_effect_id": "effect:mismatch",
+      "terminal_disposition": "fenced"
     },
     {
       "id": "conflicting-certificate-revision",
@@ -240,7 +322,16 @@
       "handoff_matched": true,
       "certificate_consistent": false,
       "retries_exhausted": false,
-      "expected": "INDETERMINATE"
+      "expected": "INDETERMINATE",
+      "origin_root": "root:A",
+      "delegation_epoch": 4,
+      "support_source": "delegation:root-A-epoch-4",
+      "cut_sequence": 20,
+      "fence_sequence": 30,
+      "frontier_sequence": 40,
+      "handoff_id": "handoff:stable-1",
+      "retry_effect_id": "effect:stable-1",
+      "terminal_disposition": "fenced"
     },
     {
       "id": "timeout-retry-exhaustion",
@@ -263,7 +354,16 @@
       "handoff_matched": true,
       "certificate_consistent": true,
       "retries_exhausted": true,
-      "expected": "INDETERMINATE"
+      "expected": "INDETERMINATE",
+      "origin_root": "root:A",
+      "delegation_epoch": 4,
+      "support_source": "delegation:root-A-epoch-4",
+      "cut_sequence": 20,
+      "fence_sequence": 30,
+      "frontier_sequence": 40,
+      "handoff_id": "handoff:stable-1",
+      "retry_effect_id": "effect:stable-1",
+      "terminal_disposition": "fenced"
     },
     {
       "id": "unrelated-root-preserved",
@@ -286,7 +386,17 @@
       "handoff_matched": true,
       "certificate_consistent": true,
       "retries_exhausted": false,
-      "expected": "QUIESCENT"
+      "expected": "QUIESCENT",
+      "origin_root": "root:A",
+      "delegation_epoch": 4,
+      "support_source": "delegation:root-A-epoch-4",
+      "cut_sequence": 20,
+      "fence_sequence": 30,
+      "frontier_sequence": 40,
+      "handoff_id": "handoff:stable-1",
+      "retry_effect_id": "effect:stable-1",
+      "terminal_disposition": "fenced"
     }
   ]
 }
+
