@@ -402,6 +402,16 @@ Verdicts are derived from explicit modeled coverage, fence, cut, live-support an
 
 **Evidence boundary:** All provider coverage, ordering, epoch and certificate facts are declared **fixture assumptions**, not authenticated proofs. This is neither a complete implementation of the paper nor a deployed revocation protocol. Anthesis owns revocation semantics; Dubnium owns runtime cuts/fences/recovery; Testule owns portable evidence. The lab only owns deterministic negative cases. The fixture also models origin-root and delegation epoch, support source, cut/fence/frontier sequence ordering, stable handoff and retry effect identities, and terminal disposition. These are checked for structural consistency with 29 negative mutations, but are not authenticated provider evidence, proof of manifest completeness, or physical-host revocation assurance.
 
+## Cross-control composition (synthetic)
+
+Fixture: [`../../fixtures/external-security/cross-control-composition-v1.json`](../../fixtures/external-security/cross-control-composition-v1.json)  
+Validator: [`../../scripts/validate-cross-control-composition.sh`](../../scripts/validate-cross-control-composition.sh)  
+Negative oracle: [`../../scripts/test-cross-control-composition.sh`](../../scripts/test-cross-control-composition.sh)
+
+Six deterministic, provider-neutral, no-effect scenarios for issue #77 cover positive composition, provenance drop, delegation loss, delayed stale-state reuse, detection without containment, and quarantined recovery with independent-root continuation. Two locally passing control assertions do not establish end-to-end composition when an identity is lost between stages. Mandatory security failures cannot be offset by utility, latency or cost.
+
+The fixture draws on Ling et al., *Toward Secure LLM Agents* (arXiv:2606.10749v2), a survey synthesizing research rather than proving a universal security stack. Source, policy, memory, delegation, effect and recovery fields are synthetic assertions. The checks do not establish real containment, physical effect mediation, provider evidence, production security or universal composability.
+
 ## Validation
 
 Run:
@@ -418,6 +428,8 @@ bash scripts/test-verifier-collapse-controls.sh
 bash scripts/validate-root-revocation-quiescence.sh
 bash scripts/test-root-revocation-quiescence.sh
 bash scripts/validate-effect-path-closure-fixture.sh
+bash scripts/validate-cross-control-composition.sh
+bash scripts/test-cross-control-composition.sh
 ```
 
 The validators check the fixture contracts and the critical paired invariants. They do not call a model, network, credential provider, policy service, signer, or external runtime.
