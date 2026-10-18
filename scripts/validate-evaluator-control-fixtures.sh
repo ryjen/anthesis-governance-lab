@@ -84,7 +84,8 @@ jq -e '
   any(.cases[]; .id == "overcapable-evaluator-confounder" and .mechanism_active == true) and
   any(.cases[]; .id == "always-pass-imbalanced-task" and ([.task_predictions[]] | all(. == true))) and
   any(.cases[]; .id == "proof-of-weakened-specification" and .source_requirement_covered == false) and
-  any(.cases[]; .id == "proof-with-strengthened-precondition" and .source_requirement_covered == false) and
+  any(.cases[]; .id == "proof-with-strengthened-precondition" and .source_requirement_covered == false and .source_requirement == "for_all_inputs:A_and_B" and .derived_property == "precondition_P_implies_A_and_B" and .precondition_required_by_source == false and .proof_result == "pass" and .correspondence_result == "fail") and
+  any(.cases[]; .id == "proof-of-weakened-specification" and .source_requirement == "A_and_B" and .derived_property == "A_only" and .proof_result == "pass" and .correspondence_result == "fail") and
   any(.cases[]; .id == "invalid-control-oracle" and .control_oracle_valid == false)
 ' "$fixture" >/dev/null || fail "evaluator-control task fixture invariants failed"
 
