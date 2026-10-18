@@ -826,4 +826,7 @@ bash "$repo_root/scripts/test-stateful-tool-order.sh"
 bash "$repo_root/scripts/validate-bound-runtime-value.sh"
 bash "$repo_root/scripts/test-bound-runtime-value.sh"
 
+bash "$repo_root/scripts/validate-deferred-source-authority.sh"
+bash "$repo_root/scripts/test-deferred-source-authority.sh"
+
 echo "External agent-security fixture validation passed"
