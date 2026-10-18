@@ -1,0 +1,115 @@
+{
+  "version": "anthesis-governance-lab.semantic-judge-narrowing/v1",
+  "synthetic": true,
+  "executes_effects": false,
+  "requires_network": false,
+  "requires_credentials": false,
+  "requires_live_model": false,
+  "policy_revision": "policy:1",
+  "cases": [
+    {
+      "id": "all-allow",
+      "semantic_judge": "ALLOW",
+      "deterministic": {
+        "scope": true,
+        "target": true,
+        "sequence": true,
+        "approval": true
+      },
+      "proposed_effect": false,
+      "expected": "ALLOW"
+    },
+    {
+      "id": "judge-narrows",
+      "semantic_judge": "DENY",
+      "deterministic": {
+        "scope": true,
+        "target": true,
+        "sequence": true,
+        "approval": true
+      },
+      "proposed_effect": false,
+      "expected": "DENY"
+    },
+    {
+      "id": "scope-denied",
+      "semantic_judge": "ALLOW",
+      "deterministic": {
+        "scope": false,
+        "target": true,
+        "sequence": true,
+        "approval": true
+      },
+      "proposed_effect": false,
+      "expected": "DENY"
+    },
+    {
+      "id": "target-denied",
+      "semantic_judge": "ALLOW",
+      "deterministic": {
+        "scope": true,
+        "target": false,
+        "sequence": true,
+        "approval": true
+      },
+      "proposed_effect": false,
+      "expected": "DENY"
+    },
+    {
+      "id": "sequence-denied",
+      "semantic_judge": "ALLOW",
+      "deterministic": {
+        "scope": true,
+        "target": true,
+        "sequence": false,
+        "approval": true
+      },
+      "proposed_effect": false,
+      "expected": "DENY"
+    },
+    {
+      "id": "approval-denied",
+      "semantic_judge": "ALLOW",
+      "deterministic": {
+        "scope": true,
+        "target": true,
+        "sequence": true,
+        "approval": false
+      },
+      "proposed_effect": false,
+      "expected": "DENY"
+    },
+    {
+      "id": "multiple-constraints-denied",
+      "semantic_judge": "ALLOW",
+      "deterministic": {
+        "scope": false,
+        "target": false,
+        "sequence": false,
+        "approval": false
+      },
+      "proposed_effect": false,
+      "expected": "DENY"
+    },
+    {
+      "id": "unknown-judge-denied",
+      "semantic_judge": "UNKNOWN",
+      "deterministic": {
+        "scope": true,
+        "target": true,
+        "sequence": true,
+        "approval": true
+      },
+      "proposed_effect": false,
+      "expected": "DENY"
+    }
+  ],
+  "proves": [
+    "synthetic semantic judge cannot override deterministic constraints"
+  ],
+  "does_not_prove": [
+    "real model behavior",
+    "runtime policy enforcement",
+    "effect-time complete mediation"
+  ]
+}
