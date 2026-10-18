@@ -841,4 +841,7 @@ bash "$repo_root/scripts/test-task-source-sdlc.sh"
 bash "$repo_root/scripts/validate-memory-consensus.sh"
 bash "$repo_root/scripts/test-memory-consensus.sh"
 
+bash "$repo_root/scripts/validate-forged-lookup-provenance.sh"
+bash "$repo_root/scripts/test-forged-lookup-provenance.sh"
+
 echo "External agent-security fixture validation passed"
