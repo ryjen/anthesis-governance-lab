@@ -40,6 +40,8 @@ jq -e '
     (.candidate_revision | type == "string" and startswith("fixture:")) and
     (.evaluator_revision | type == "string" and startswith("fixture:")) and
     (.harness_revision | type == "string" and startswith("fixture:")) and
+    (.condition_revision == ("fixture:condition-" + .id + "-v1")) and
+    (.evidence_ref == ("fixture:evidence/" + .candidate_revision + "/" + .evaluator_revision + "/" + .harness_revision + "/" + .condition_revision)) and
     (.mechanism_active | type == "boolean") and
     (.conditions_matched | type == "boolean") and
     (.control_oracle_valid | type == "boolean") and
