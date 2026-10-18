@@ -595,6 +595,72 @@
       "control_oracle_valid": false,
       "condition_revision": "fixture:condition-invalid-control-oracle-v1",
       "evidence_ref": "fixture:evidence/fixture:candidate-v1/fixture:evaluator-v1/fixture:harness-v1/fixture:condition-invalid-control-oracle-v1"
+    },
+    {
+      "id": "proof-with-strengthened-precondition",
+      "candidate_revision": "fixture:candidate-v1",
+      "evaluator_revision": "fixture:evaluator-v1",
+      "harness_revision": "fixture:harness-v1",
+      "mechanism_active": true,
+      "conditions_matched": true,
+      "source_requirement_covered": false,
+      "task_labels": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false
+      ],
+      "control_labels": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false
+      ],
+      "task_predictions": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false
+      ],
+      "control_predictions": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "expected": {
+        "raw_correct": 10,
+        "control_correct": 5,
+        "differential": 5,
+        "attribution": "NOT_SUPPORTED"
+      },
+      "control_oracle_valid": true,
+      "condition_revision": "fixture:condition-proof-with-strengthened-precondition-v1",
+      "evidence_ref": "fixture:evidence/fixture:candidate-v1/fixture:evaluator-v1/fixture:harness-v1/fixture:condition-proof-with-strengthened-precondition-v1"
     }
   ],
   "proves": [
