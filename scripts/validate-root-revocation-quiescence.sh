@@ -29,6 +29,20 @@ jq -e '
     (.provider | type == "string" and startswith("provider:")) and
     (.sink | type == "string" and startswith("sink:")) and
     (.effect_id | type == "string" and startswith("effect:")) and
+    (.origin_root == .root) and
+    (.delegation_epoch == .epoch) and
+    (.support_source | type == "string" and startswith("delegation:")) and
+    (.cut_sequence | if . == null then true else (type == "number" and . >= 0) end) and
+    (.fence_sequence | if . == null then true else (type == "number" and . >= 0) end) and
+    (.frontier_sequence | if . == null then true else (type == "number" and . >= 0) end) and
+    (.cut_durable == (.cut_sequence != null)) and
+    (.provider_fenced == (.fence_sequence != null)) and
+    (.frontier_known == (.frontier_sequence != null)) and
+    (if .cut_durable and .provider_fenced then .cut_sequence < .fence_sequence else true end) and
+    (if .provider_fenced and .frontier_known then .fence_sequence < .frontier_sequence else true end) and
+    (.handoff_id == (if .handoff_matched then "handoff:stable-1" else null end)) and
+    (.retry_effect_id == (if .handoff_matched then .effect_id else "effect:mismatch" end)) and
+    (.terminal_disposition == (if .provider_fenced then "fenced" else "pending" end)) and
     (.cut_durable | type == "boolean") and
     (.provider_enumerated | type == "boolean") and
     (.provider_fenced | type == "boolean") and
@@ -83,3 +97,4 @@ jq -e '
   any(.cases[]; .id == "shared-worker-exact-rebind" and .carrier == "carrier:shared-1" and .independent_root_preserved == true)
 ' "$fixture" >/dev/null || { echo "root quiescence fixture invariants failed" >&2; exit 1; }
 echo "Root quiescence fixtures passed (12 synthetic cases)"
+
