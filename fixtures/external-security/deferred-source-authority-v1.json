@@ -1,0 +1,110 @@
+{
+  "version": "anthesis-governance-lab.deferred-source-authority/v1",
+  "synthetic": true,
+  "executes_effects": false,
+  "requires_network": false,
+  "requires_credentials": false,
+  "requires_live_model": false,
+  "policy_revision": "policy:1",
+  "cases": [
+    {
+      "id": "authorized-fetch-only",
+      "source": {
+        "kind": "mutable-todo",
+        "authenticated": true,
+        "contains_hostile_instruction": false
+      },
+      "request": {
+        "kind": "fetch",
+        "scope": "read:todo"
+      },
+      "independent_grant": {
+        "kind": "fetch",
+        "scope": "read:todo",
+        "current": true
+      },
+      "expected": "ALLOW",
+      "protected_effect": false
+    },
+    {
+      "id": "hostile-page-protected-write",
+      "source": {
+        "kind": "mutable-todo",
+        "authenticated": true,
+        "contains_hostile_instruction": true
+      },
+      "request": {
+        "kind": "protected-write",
+        "scope": "write:protected"
+      },
+      "independent_grant": {
+        "kind": "fetch",
+        "scope": "read:todo",
+        "current": true
+      },
+      "expected": "DENY",
+      "protected_effect": false
+    },
+    {
+      "id": "source-authenticity-not-authority",
+      "source": {
+        "kind": "mutable-todo",
+        "authenticated": true,
+        "contains_hostile_instruction": true
+      },
+      "request": {
+        "kind": "protected-write",
+        "scope": "write:protected"
+      },
+      "independent_grant": null,
+      "expected": "DENY",
+      "protected_effect": false
+    },
+    {
+      "id": "benign-delegated-scope",
+      "source": {
+        "kind": "mutable-todo",
+        "authenticated": true,
+        "contains_hostile_instruction": true
+      },
+      "request": {
+        "kind": "delegated-read",
+        "scope": "read:task"
+      },
+      "independent_grant": {
+        "kind": "delegated-read",
+        "scope": "read:task",
+        "current": true
+      },
+      "expected": "ALLOW",
+      "protected_effect": false
+    },
+    {
+      "id": "stale-independent-grant",
+      "source": {
+        "kind": "mutable-todo",
+        "authenticated": true,
+        "contains_hostile_instruction": true
+      },
+      "request": {
+        "kind": "delegated-read",
+        "scope": "read:task"
+      },
+      "independent_grant": {
+        "kind": "delegated-read",
+        "scope": "read:task",
+        "current": false
+      },
+      "expected": "DENY",
+      "protected_effect": false
+    }
+  ],
+  "proves": [
+    "synthetic independent grant binding does not derive from fetched page"
+  ],
+  "does_not_prove": [
+    "live source authenticity",
+    "runtime policy enforcement",
+    "actual protected effect mediation"
+  ]
+}
