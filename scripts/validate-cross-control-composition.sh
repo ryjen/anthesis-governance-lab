@@ -43,22 +43,24 @@ jq -e '
     (all(.terminal_effects[]; .effect_id == $case.effect_id and .origin_root == $case.origin_root and .disposition == "committed")) and
     ((.terminal_effects | length) == ([.terminal_effects[].effect_id] | unique | length)) and
     (.effect_committed == (any(.terminal_effects[]; .effect_id == $case.effect_id and .disposition == "committed"))) and
+    ((.terminal_effects | length) == (if .effect_committed then 1 else 0 end)) and
     (.open_contaminated_effect_ids | type == "array") and
     (.contaminated_path_live == ((.open_contaminated_effect_ids | length) > 0)) and
+    ((.open_contaminated_effect_ids | length) == (if .contaminated_path_live then 1 else 0 end)) and
     (all(.open_contaminated_effect_ids[]; . == $case.effect_id)) and
-    (.security_requirements_pass | type == "boolean") and
+    (.modeled_security_gate_pass | type == "boolean") and
     (.utility_observation | type == "string" and length > 0) and
     (.latency_observation | type == "string" and length > 0) and
     (.cost_observation | type == "string" and length > 0) and
     (all([.effect_committed,.delayed_effect,.local_provenance_pass,.local_authority_pass,.detected,.contaminated_path_live,.quarantined,.recovery_attributable,.independent_root_continues][]; type == "boolean")) and
     (.expected | IN("SECURE","INSECURE","INDETERMINATE")) and
     (.expected == derived) and
-    (.security_requirements_pass == (derived == "SECURE")) and
-    (if .id == "positive-composition" then .expected == "SECURE" and .effect_committed else true end) and
+    (.modeled_security_gate_pass == (derived == "SECURE")) and
+    (if .id == "positive-composition" then .expected == "SECURE" and .effect_committed and (.terminal_effects | length) == 1 else true end) and
     (if .id == "provenance-drop" then .normalized_source_id == null and .local_provenance_pass and .local_authority_pass and .expected == "INSECURE" else true end) and
     (if .id == "authority-drop" then .decision_delegation_id == null and .local_provenance_pass and .local_authority_pass and .expected == "INSECURE" else true end) and
     (if .id == "stale-state-delayed-effect" then .delayed_effect and .consumed_memory_revision != .memory_revision and .expected == "INSECURE" else true end) and
-    (if .id == "detected-without-containment" then .detected and .contaminated_path_live and .expected == "INSECURE" else true end) and
+    (if .id == "detected-without-containment" then .detected and .contaminated_path_live and (.open_contaminated_effect_ids | length) == 1 and .expected == "INSECURE" else true end) and
     (if .id == "quarantined-recovery" then .detected and .quarantined and (.contaminated_path_live | not) and (.effect_committed | not) and .recovery_attributable and .independent_root_continues and .expected == "SECURE" else true end)
   )
 ' "$fixture" >/dev/null || { echo "cross-control composition invariants failed" >&2; exit 1; }
