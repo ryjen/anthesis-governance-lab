@@ -410,7 +410,7 @@ Negative oracle: [`../../scripts/test-cross-control-composition.sh`](../../scrip
 
 Six deterministic, provider-neutral, no-effect scenarios for issue #77 cover positive composition, provenance drop, delegation loss, delayed stale-state reuse, detection without containment, and quarantined recovery with independent-root continuation. Two locally passing control assertions do not establish end-to-end composition when an identity is lost between stages. Mandatory security failures cannot be offset by utility, latency or cost.
 
-The fixture draws on Ling et al., *Toward Secure LLM Agents* (arXiv:2606.10749v2), a survey synthesizing research rather than proving a universal security stack. Source, policy, memory, delegation, effect and recovery fields are synthetic assertions. The checks do not establish real containment, physical effect mediation, provider evidence, production security or universal composability.
+The fixture draws on Ling et al., *Toward Secure LLM Agents* (arXiv:2606.10749v2), a survey synthesizing research rather than proving a universal security stack. Source, policy, memory, delegation, effect and recovery fields are synthetic assertions. A modeled terminal-effect ledger and open-contamination identifiers are cross-checked against effect/containment flags; the mandatory security-requirement gate is evaluated separately from descriptive utility, latency and cost observations. The checks do not establish real containment, physical effect mediation, provider evidence, production security or universal composability.
 
 ## Validation
 
