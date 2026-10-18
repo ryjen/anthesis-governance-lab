@@ -35,4 +35,7 @@ expect_rejected "condition revision drift" '(.cases[] | select(.id == "placebo-i
 expect_rejected "evaluator revision drift" '(.cases[] | select(.id == "overcapable-evaluator-confounder") | .evaluator_revision) = "fixture:evaluator-v2"'
 expect_rejected "strengthened precondition promoted" '(.cases[] | select(.id == "proof-with-strengthened-precondition") | .source_requirement_covered) = true'
 expect_rejected "strengthened precondition case removed" 'del(.cases[] | select(.id == "proof-with-strengthened-precondition"))'
+expect_rejected "conditional proof mislabeled unconditional" '(.cases[] | select(.id == "proof-with-strengthened-precondition") | .derived_property) = "for_all_inputs:A_and_B"'
+expect_rejected "source falsely requires precondition" '(.cases[] | select(.id == "proof-with-strengthened-precondition") | .precondition_required_by_source) = true'
+expect_rejected "correspondence falsely passes" '(.cases[] | select(.id == "proof-with-strengthened-precondition") | .correspondence_result) = "pass"'
 echo "Evaluator control-task mutation oracle: $case_index negative mutations rejected"
