@@ -1,0 +1,33 @@
+{
+  "version": "anthesis-governance-lab.agentdrift-source-lock/v1",
+  "dataset": "AgentDrift",
+  "paper": "https://arxiv.org/abs/2609.06972v1",
+  "source_repo": "https://github.com/Asif-0209/AgentDrift",
+  "revision": "014a514fa998b4ac4519579fceb8a5884b379bda",
+  "license": "CC BY 4.0",
+  "split_profile": "data_taskdisjoint",
+  "split_method": "upstream task-disjoint split (seed 42); task-disjoint is not world-held-out",
+  "files": {
+    "train": {
+      "relative_path": "data_taskdisjoint/train.jsonl",
+      "git_blob_sha1": "fecf1269c7f260cef28273174df6423a86e7d751",
+      "count": 9081
+    },
+    "val": {
+      "relative_path": "data_taskdisjoint/val.jsonl",
+      "git_blob_sha1": "1d06b875f8c58eefcabebe121734838ebec13d20",
+      "count": 1733
+    },
+    "test": {
+      "relative_path": "data_taskdisjoint/test.jsonl",
+      "git_blob_sha1": "fd1bf582a063ea7ce01e6e154de6367e25924221",
+      "count": 1722
+    }
+  },
+  "not_vendored": "Only immutable source file identities; full trajectories and model thought/observation fields remain in the user-supplied local checkout.",
+  "claims_not_supported": [
+    "Source revision string alone does not prove bytes; verify Git blob SHA1 against each local JSONL.",
+    "Exact world object disjointness is weaker than protection against world identity or world-template leakage in model inputs.",
+    "No detector predictions or benchmark scores are included."
+  ]
+}
