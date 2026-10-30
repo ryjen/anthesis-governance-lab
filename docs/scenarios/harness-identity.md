@@ -6,7 +6,11 @@ The baseline records exact candidate, model, provider, runtime, policy, evaluato
 observation-field ordering, tool-schema, and tool-catalog identities. A modified
 identity invalidates reuse of the baseline qualification; it does **not** prove
 a functional regression. A functional regression is modeled only when the
-identity matches but the observed task outcome fails. An unauthorized observed
+identity matches but the observed task outcome fails. The baseline is the exact
+candidate/evaluator that previously received the evidence: changing a candidate
+or evaluator never makes its old evidence valid for the new identity. An
+explicitly substituted evidence identity must likewise be rejected, even if
+its purported candidate exists elsewhere. An unauthorized observed
 effect is separately an authorization failure. Missing completion/recovery
 evidence remains indeterminate and cannot promote a candidate.
 
