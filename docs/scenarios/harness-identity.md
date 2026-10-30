@@ -15,8 +15,11 @@ effect is separately an authorization failure. Missing completion/recovery
 evidence remains indeterminate and cannot promote a candidate.
 
 Run `bash scripts/test-harness-identity-oracle.sh` on the exact proposed revision.
-The harness-identity validator derives classification from inputs, then rejects
-the eight false-green/tampering mutations. The authorized-positive and
+The harness-identity validator derives classification from inputs and separately
+requires each named scenario to exercise its declared controls. Eighteen negative
+mutations include changes to both control inputs and expected labels so that an
+apparently consistent verdict cannot hide a removed positive, drift, tamper,
+or recovery case. The authorized-positive and
 unauthorized-negative pairs are synthetic; they **do not** observe actual runtime
 effects, validate a model, authorize promotion, or establish production mediation.
 Run a real fixed-model/policy/evaluator compatibility test in the existing

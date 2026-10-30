@@ -7,6 +7,72 @@ command -v jq >/dev/null || fail "jq required"
 [[ -f "$fixture" && ! -L "$fixture" ]] || fail "fixture missing or symlink"
 jq -e '
   .baseline as $baseline |
+  def same_evidence:
+    .evidence_candidate == $baseline.candidate and
+    .evidence_evaluator == $baseline.evaluator;
+  def unchanged: .changes == {};
+  def normal_positive:
+    .authorized == true and .effect_observed == true and
+    .task_succeeded == true and .execution_complete == true;
+  def changed_only($field):
+    (.changes | keys) == [$field] and
+    .changes[$field] != $baseline[$field];
+  def baseline_compatible:
+    unchanged and same_evidence;
+  def named_control:
+    if .id == "authorized-positive" then
+      baseline_compatible and normal_positive and .expected == "qualified"
+    elif .id == "unauthorized-negative" then
+      baseline_compatible and .authorized == false and
+      .effect_observed == false and .task_succeeded == false and
+      .execution_complete == true and .expected == "denied"
+    elif .id == "observation-order-drift" then
+      same_evidence and normal_positive and
+      changed_only("observation_fields") and
+      (.changes.observation_fields | sort) == ($baseline.observation_fields | sort) and
+      .expected == "requalify"
+    elif .id == "tool-schema-drift" then
+      same_evidence and normal_positive and
+      changed_only("tool_schema") and .expected == "requalify"
+    elif .id == "tool-catalog-drift" then
+      same_evidence and normal_positive and
+      changed_only("tool_catalog") and .expected == "requalify"
+    elif .id == "provider-switch" then
+      same_evidence and normal_positive and
+      changed_only("provider") and .expected == "requalify"
+    elif .id == "model-switch" then
+      same_evidence and normal_positive and
+      changed_only("model") and .expected == "requalify"
+    elif .id == "runtime-switch" then
+      same_evidence and normal_positive and
+      changed_only("runtime") and .expected == "requalify"
+    elif .id == "policy-switch" then
+      same_evidence and normal_positive and
+      changed_only("policy") and .expected == "requalify"
+    elif .id == "functional-regression" then
+      baseline_compatible and .authorized == true and
+      .effect_observed == true and .task_succeeded == false and
+      .execution_complete == true and .expected == "functional_regression"
+    elif .id == "unauthorized-effect-witness" then
+      baseline_compatible and .authorized == false and
+      .effect_observed == true and .task_succeeded == true and
+      .execution_complete == true and .expected == "authorization_failure"
+    elif .id == "evaluator-tamper" then
+      same_evidence and normal_positive and
+      changed_only("evaluator") and .expected == "unqualified"
+    elif .id == "evidence-substitution" then
+      unchanged and normal_positive and
+      .evidence_candidate != $baseline.candidate and
+      .evidence_evaluator == $baseline.evaluator and
+      .expected == "unqualified"
+    elif .id == "interrupted-recovery" then
+      baseline_compatible and .authorized == true and
+      .effect_observed == false and .task_succeeded == false and
+      .execution_complete == false and .expected == "indeterminate"
+    elif .id == "candidate-change" then
+      same_evidence and normal_positive and
+      changed_only("candidate") and .expected == "unqualified"
+    else false end;
   .version == "anthesis-governance-lab.harness-identity/v1" and
   .synthetic == true and .executes_effects == false and
   .requires_live_model == false and .requires_credentials == false and
@@ -26,6 +92,7 @@ jq -e '
     "candidate-change"] | sort) and
   all(.cases[];
     (.id | type == "string" and length > 0) and
+    named_control and
     (.changes | type == "object") and
     (all(.changes | keys[]; . as $k | $baseline | has($k))) and
     (.authorized | type == "boolean") and

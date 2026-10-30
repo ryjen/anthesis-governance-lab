@@ -42,4 +42,49 @@ reject_mutation unauthorized-effect-laundered '
 reject_mutation missing-positive '
   .cases |= map(select(.id != "authorized-positive"))
 '
-echo "harness identity oracle mutation regressions passed (8 rejected)"
+# The derived verdict alone is insufficient: mutate the controls and their
+# expected labels together, without changing the required scenario IDs.
+reject_mutation positive-converted-to-deny '
+  (.cases[] | select(.id == "authorized-positive")) |=
+    (.authorized = false | .effect_observed = false |
+     .task_succeeded = false | .expected = "denied")
+'
+reject_mutation provider-drift-removed '
+  (.cases[] | select(.id == "provider-switch")) |=
+    (.changes = {} | .expected = "qualified")
+'
+reject_mutation field-order-drift-removed '
+  (.cases[] | select(.id == "observation-order-drift")) |=
+    (.changes = {} | .expected = "qualified")
+'
+reject_mutation schema-drift-replaced-with-model '
+  (.cases[] | select(.id == "tool-schema-drift")) |=
+    (.changes = {"model": "fixture:model-b"} | .expected = "requalify")
+'
+reject_mutation catalog-drift-removed '
+  (.cases[] | select(.id == "tool-catalog-drift")) |=
+    (.changes = {} | .expected = "qualified")
+'
+reject_mutation negative-converted-to-positive '
+  (.cases[] | select(.id == "unauthorized-negative")) |=
+    (.authorized = true | .effect_observed = true |
+     .task_succeeded = true | .expected = "qualified")
+'
+reject_mutation evaluator-tamper-removed '
+  (.cases[] | select(.id == "evaluator-tamper")) |=
+    (.changes = {} | .expected = "qualified")
+'
+reject_mutation evidence-substitution-removed '
+  (.cases[] | select(.id == "evidence-substitution")) |=
+    (.evidence_candidate = "fixture:candidate-a" | .expected = "qualified")
+'
+reject_mutation recovery-rebranded-as-success '
+  (.cases[] | select(.id == "interrupted-recovery")) |=
+    (.execution_complete = true | .effect_observed = true |
+     .task_succeeded = true | .expected = "qualified")
+'
+reject_mutation unauthorized-effect-erased '
+  (.cases[] | select(.id == "unauthorized-effect-witness")) |=
+    (.effect_observed = false | .task_succeeded = false | .expected = "denied")
+'
+echo "harness identity oracle mutation regressions passed (18 rejected)"
