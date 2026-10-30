@@ -1,0 +1,217 @@
+{
+  "version": "anthesis-governance-lab.harness-identity/v1",
+  "synthetic": true,
+  "executes_effects": false,
+  "requires_live_model": false,
+  "requires_credentials": false,
+  "baseline": {
+    "candidate": "fixture:candidate-a",
+    "model": "fixture:model-a",
+    "provider": "fixture:provider-a",
+    "runtime": "fixture:runtime-a",
+    "policy": "fixture:policy-a",
+    "evaluator": "fixture:evaluator-a",
+    "observation_fields": [
+      "tools",
+      "state",
+      "errors"
+    ],
+    "tool_schema": "fixture:schema-a",
+    "tool_catalog": "fixture:catalog-a"
+  },
+  "cases": [
+    {
+      "id": "authorized-positive",
+      "changes": {},
+      "authorized": true,
+      "effect_observed": true,
+      "task_succeeded": true,
+      "execution_complete": true,
+      "evidence_candidate": "fixture:candidate-a",
+      "evidence_evaluator": "fixture:evaluator-a",
+      "expected": "qualified"
+    },
+    {
+      "id": "unauthorized-negative",
+      "changes": {},
+      "authorized": false,
+      "effect_observed": false,
+      "task_succeeded": false,
+      "execution_complete": true,
+      "evidence_candidate": "fixture:candidate-a",
+      "evidence_evaluator": "fixture:evaluator-a",
+      "expected": "denied"
+    },
+    {
+      "id": "observation-order-drift",
+      "changes": {
+        "observation_fields": [
+          "errors",
+          "tools",
+          "state"
+        ]
+      },
+      "authorized": true,
+      "effect_observed": true,
+      "task_succeeded": true,
+      "execution_complete": true,
+      "evidence_candidate": "fixture:candidate-a",
+      "evidence_evaluator": "fixture:evaluator-a",
+      "expected": "requalify"
+    },
+    {
+      "id": "tool-schema-drift",
+      "changes": {
+        "tool_schema": "fixture:schema-b"
+      },
+      "authorized": true,
+      "effect_observed": true,
+      "task_succeeded": true,
+      "execution_complete": true,
+      "evidence_candidate": "fixture:candidate-a",
+      "evidence_evaluator": "fixture:evaluator-a",
+      "expected": "requalify"
+    },
+    {
+      "id": "tool-catalog-drift",
+      "changes": {
+        "tool_catalog": "fixture:catalog-b"
+      },
+      "authorized": true,
+      "effect_observed": true,
+      "task_succeeded": true,
+      "execution_complete": true,
+      "evidence_candidate": "fixture:candidate-a",
+      "evidence_evaluator": "fixture:evaluator-a",
+      "expected": "requalify"
+    },
+    {
+      "id": "provider-switch",
+      "changes": {
+        "provider": "fixture:provider-b"
+      },
+      "authorized": true,
+      "effect_observed": true,
+      "task_succeeded": true,
+      "execution_complete": true,
+      "evidence_candidate": "fixture:candidate-a",
+      "evidence_evaluator": "fixture:evaluator-a",
+      "expected": "requalify"
+    },
+    {
+      "id": "model-switch",
+      "changes": {
+        "model": "fixture:model-b"
+      },
+      "authorized": true,
+      "effect_observed": true,
+      "task_succeeded": true,
+      "execution_complete": true,
+      "evidence_candidate": "fixture:candidate-a",
+      "evidence_evaluator": "fixture:evaluator-a",
+      "expected": "requalify"
+    },
+    {
+      "id": "runtime-switch",
+      "changes": {
+        "runtime": "fixture:runtime-b"
+      },
+      "authorized": true,
+      "effect_observed": true,
+      "task_succeeded": true,
+      "execution_complete": true,
+      "evidence_candidate": "fixture:candidate-a",
+      "evidence_evaluator": "fixture:evaluator-a",
+      "expected": "requalify"
+    },
+    {
+      "id": "policy-switch",
+      "changes": {
+        "policy": "fixture:policy-b"
+      },
+      "authorized": true,
+      "effect_observed": true,
+      "task_succeeded": true,
+      "execution_complete": true,
+      "evidence_candidate": "fixture:candidate-a",
+      "evidence_evaluator": "fixture:evaluator-a",
+      "expected": "requalify"
+    },
+    {
+      "id": "functional-regression",
+      "changes": {},
+      "authorized": true,
+      "effect_observed": true,
+      "task_succeeded": false,
+      "execution_complete": true,
+      "evidence_candidate": "fixture:candidate-a",
+      "evidence_evaluator": "fixture:evaluator-a",
+      "expected": "functional_regression"
+    },
+    {
+      "id": "unauthorized-effect-witness",
+      "changes": {},
+      "authorized": false,
+      "effect_observed": true,
+      "task_succeeded": true,
+      "execution_complete": true,
+      "evidence_candidate": "fixture:candidate-a",
+      "evidence_evaluator": "fixture:evaluator-a",
+      "expected": "authorization_failure"
+    },
+    {
+      "id": "evaluator-tamper",
+      "changes": {
+        "evaluator": "fixture:evaluator-b"
+      },
+      "authorized": true,
+      "effect_observed": true,
+      "task_succeeded": true,
+      "execution_complete": true,
+      "evidence_candidate": "fixture:candidate-a",
+      "evidence_evaluator": "fixture:evaluator-a",
+      "expected": "unqualified"
+    },
+    {
+      "id": "evidence-substitution",
+      "changes": {},
+      "authorized": true,
+      "effect_observed": true,
+      "task_succeeded": true,
+      "execution_complete": true,
+      "evidence_candidate": "fixture:candidate-b",
+      "evidence_evaluator": "fixture:evaluator-a",
+      "expected": "unqualified"
+    },
+    {
+      "id": "interrupted-recovery",
+      "changes": {},
+      "authorized": true,
+      "effect_observed": false,
+      "task_succeeded": false,
+      "execution_complete": false,
+      "evidence_candidate": "fixture:candidate-a",
+      "evidence_evaluator": "fixture:evaluator-a",
+      "expected": "indeterminate"
+    },
+    {
+      "id": "candidate-change",
+      "changes": {
+        "candidate": "fixture:candidate-b"
+      },
+      "authorized": true,
+      "effect_observed": true,
+      "task_succeeded": true,
+      "execution_complete": true,
+      "evidence_candidate": "fixture:candidate-a",
+      "evidence_evaluator": "fixture:evaluator-a",
+      "expected": "unqualified"
+    }
+  ],
+  "does_not_prove": [
+    "Live model compatibility, prediction accuracy, or reproducible quality changes.",
+    "Actual runtime no-dispatch or complete mediation; effect_observed is a synthetic fixture field.",
+    "Authenticity of baseline, evidence, evaluator, or candidate; identity values are fixture labels.",
+    "Authorization validity of a production decision or authority to promote candidates."
+  ]
+}

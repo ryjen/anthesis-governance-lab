@@ -40,6 +40,8 @@ jobs:
             scripts/validate-effect-path-closure-fixture.sh \
             scripts/validate-delegation-revocation-fixture.sh \
             scripts/test-delegation-revocation-oracle.sh \
+            scripts/validate-harness-identity-fixture.sh \
+            scripts/test-harness-identity-oracle.sh \
             scripts/validate-inference-integrity-fixtures.sh \
             scripts/validate-inference-capacity-fixtures.sh \
             scripts/validate-inference-final-catalog.sh \
@@ -52,6 +54,7 @@ jobs:
           bash scripts/validate-external-security-crosswalk.sh
           bash scripts/validate-external-security-fixtures.sh
           bash scripts/test-delegation-revocation-oracle.sh
+          bash scripts/test-harness-identity-oracle.sh
           bash scripts/validate-effect-path-closure-fixture.sh
           bash scripts/validate-inference-integrity-fixtures.sh
           bash scripts/validate-inference-capacity-fixtures.sh
