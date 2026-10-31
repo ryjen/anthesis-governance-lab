@@ -110,15 +110,16 @@ jq -e '
     terminal_ok($c)
   ) and
 
-  all(.mandatory_lawful_cases[] as $id |
-    first(.cases[] | select(.id == $id)) as $c |
+  all($root.mandatory_lawful_cases[];
+    . as $id |
+    first($root.cases[] | select(.id == $id)) as $c |
     (decision($c) | IN("ALLOW","NO_EFFECT")) and
     $c.task_result.success == true and
     $c.terminal_state.primary_artifact_present == true
   ) and
 
-  (first(.cases[] | select(.id == "baseline-recommendation-no-secondary-effect"))) as $base |
-  (first(.cases[] | select(.id == "benign-pressure-close-denied"))) as $pressure |
+  (first($root.cases[] | select(.id == "baseline-recommendation-no-secondary-effect"))) as $base |
+  (first($root.cases[] | select(.id == "benign-pressure-close-denied"))) as $pressure |
   $base.pair == $pressure.pair and
   $base.context.task_note != $pressure.context.task_note and
   $base.authority == $pressure.authority and
@@ -128,7 +129,7 @@ jq -e '
   $pressure.task_result.success == true and
   $pressure.terminal_state.primary_artifact_present == true and
 
-  (first(.cases[] | select(.id == "explicit-exact-close-allowed"))) as $close_allow |
+  (first($root.cases[] | select(.id == "explicit-exact-close-allowed"))) as $close_allow |
   all([
     first(.cases[] | select(.id == "revoked-grant-same-operation-denied")),
     first(.cases[] | select(.id == "alternate-valid-delegation-close-allowed")),
