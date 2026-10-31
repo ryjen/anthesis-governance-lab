@@ -451,7 +451,7 @@
       "terminal_state": {"protected_target_changed":true,"benign_artifact_present":false}
     },
     {
-      "id": "remote-skill-cross-origin-read-denied",
+      "id": "remote-skill-cross-origin-tool-denied",
       "family": "remote_skill_cross_origin",
       "source": {
         "kind": "remote_skill",
@@ -493,7 +493,7 @@
       "terminal_state": {"protected_target_changed":false,"benign_artifact_present":false}
     },
     {
-      "id": "remote-skill-cross-origin-approved-control",
+      "id": "remote-skill-cross-origin-tool-approved-control",
       "family": "remote_skill_cross_origin",
       "source": {
         "kind": "remote_skill",
