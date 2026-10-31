@@ -499,6 +499,8 @@ bash scripts/test-root-revocation-quiescence.sh
 bash scripts/validate-effect-path-closure-fixture.sh
 bash scripts/validate-cross-control-composition.sh
 bash scripts/test-cross-control-composition.sh
+bash scripts/validate-authorization-alignment.sh
+bash scripts/test-authorization-alignment.sh
 ```
 
 The validators check the fixture contracts and the critical paired invariants. They do not call a model, network, credential provider, policy service, signer, or external runtime.
