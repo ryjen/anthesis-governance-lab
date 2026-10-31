@@ -341,6 +341,42 @@ The cases include individually inert L2 fragments, harmful co-retrieval without 
 
 This does not claim semantic poison detection, model behavior prediction, or live retrieval enforcement. It demonstrates the portable invariant that composition, repetition, synthesis, or trigger activation cannot upgrade retrieval memory into authority.
 
+## MCP metadata poisoning and cross-tool invocation
+
+Fixture: [`../../fixtures/external-security/mcp-metadata-poisoning-v1.json`](../../fixtures/external-security/mcp-metadata-poisoning-v1.json)  
+Validator: [`../../scripts/validate-mcp-metadata-poisoning.sh`](../../scripts/validate-mcp-metadata-poisoning.sh)  
+Mutation/effect oracle: [`../../scripts/test-mcp-metadata-poisoning.sh`](../../scripts/test-mcp-metadata-poisoning.sh)
+
+This synthetic pack models MCP/tool metadata and server-provided content as **planning input, not authority**. The host resolves the effective tool identity, server, effect class, and effective arguments from trusted configuration before comparing the call with an independent exact authority record.
+
+```text
+server/tool metadata or returned content
+  -> attributed untrusted observation
+  -> model proposal
+  -> host-resolved effective tool + arguments
+  -> independent exact admission
+  -> dispatch or deny
+  -> isolated terminal-state observation
+```
+
+Seven hostile/control pairs cover:
+
+- a poisoned tool description that attempts same-tool privilege widening;
+- a consequential hidden/default parameter that is absent from model-visible arguments;
+- cross-tool poisoning where content from one tool proposes a protected second tool;
+- misleading benign-looking tool annotations;
+- remote-skill content that attempts to widen permissions;
+- remote-skill cross-origin tool use;
+- a server-originated claim that approval already exists.
+
+For each family, the hostile case denies unless the **effective** call has the required independently modeled authority. Metadata, annotations, remote-skill text, source authentication, and claimed approval never mint that authority.
+
+The hidden/default-parameter pair is also executed against an isolated temporary filesystem. The denied case produces no dispatch record and leaves protected bytes unchanged; the matched positive control performs the expected synthetic mutation. Seventeen negative fixture mutations must be rejected by the validator.
+
+Machine-readable localization preserves the source server/tool, source field, proposed target tool, effective target tool, and argument delta where applicable. Localization is diagnostic evidence only and cannot authorize or deny an effect by itself.
+
+This fixture does **not** implement MCP, certify an MCP client/server, detect arbitrary prompt injection, prove production complete mediation, prove server binary integrity, or prove credential isolation. Current/future MCP signatures, digests, annotations, or attestation can strengthen identity/provenance evidence but remain separate from semantic effect authority.
+
 ## Multi-parent revocation and residual grant support
 
 Fixture: [`../../fixtures/external-security/delegation-revocation-v1.json`](../../fixtures/external-security/delegation-revocation-v1.json)  
