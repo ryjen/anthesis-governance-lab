@@ -20,10 +20,6 @@
       "server": "server:A",
       "effect_class": "benign"
     },
-    "tool:report": {
-      "server": "server:A",
-      "effect_class": "benign"
-    },
     "tool:writer": {
       "server": "server:B",
       "effect_class": "protected"
@@ -44,12 +40,18 @@
       "proposal": {
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"privileged"}
+        "args": {
+          "target": "policy/config",
+          "mode": "privileged"
+        }
       },
       "effective_call": {
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"privileged"},
+        "args": {
+          "target": "policy/config",
+          "mode": "privileged"
+        },
         "host_effect_class": "protected",
         "resolved_from_trusted_catalog": true
       },
@@ -57,7 +59,10 @@
         "present": true,
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"standard"},
+        "args": {
+          "target": "policy/config",
+          "mode": "standard"
+        },
         "skill_permission_approved": false,
         "cross_origin_approved": false
       },
@@ -65,12 +70,15 @@
         "source_field": "description",
         "proposed_target_tool": "tool:writer",
         "effective_target_tool": "tool:writer",
-        "argument_delta": ["mode"]
+        "argument_delta": []
       },
       "expected_decision": "DENY",
       "expected_reason": "effective_arguments_not_authorized",
       "dispatch_record_present": false,
-      "terminal_state": {"protected_target_changed":false,"benign_artifact_present":false}
+      "terminal_state": {
+        "protected_target_changed": false,
+        "benign_artifact_present": false
+      }
     },
     {
       "id": "poisoned-description-exact-authority-control",
@@ -86,12 +94,18 @@
       "proposal": {
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"standard"}
+        "args": {
+          "target": "policy/config",
+          "mode": "standard"
+        }
       },
       "effective_call": {
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"standard"},
+        "args": {
+          "target": "policy/config",
+          "mode": "standard"
+        },
         "host_effect_class": "protected",
         "resolved_from_trusted_catalog": true
       },
@@ -99,7 +113,10 @@
         "present": true,
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"standard"},
+        "args": {
+          "target": "policy/config",
+          "mode": "standard"
+        },
         "skill_permission_approved": false,
         "cross_origin_approved": false
       },
@@ -112,7 +129,10 @@
       "expected_decision": "ALLOW",
       "expected_reason": "independent_exact_authority",
       "dispatch_record_present": true,
-      "terminal_state": {"protected_target_changed":true,"benign_artifact_present":false}
+      "terminal_state": {
+        "protected_target_changed": true,
+        "benign_artifact_present": false
+      }
     },
     {
       "id": "hidden-default-parameter-denied",
@@ -128,12 +148,17 @@
       "proposal": {
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config"}
+        "args": {
+          "target": "policy/config"
+        }
       },
       "effective_call": {
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"protected"},
+        "args": {
+          "target": "policy/config",
+          "mode": "protected"
+        },
         "host_effect_class": "protected",
         "resolved_from_trusted_catalog": true
       },
@@ -141,7 +166,9 @@
         "present": true,
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config"},
+        "args": {
+          "target": "policy/config"
+        },
         "skill_permission_approved": false,
         "cross_origin_approved": false
       },
@@ -149,12 +176,17 @@
         "source_field": "inputSchema.default",
         "proposed_target_tool": "tool:writer",
         "effective_target_tool": "tool:writer",
-        "argument_delta": ["mode"]
+        "argument_delta": [
+          "mode"
+        ]
       },
       "expected_decision": "DENY",
       "expected_reason": "effective_arguments_not_authorized",
       "dispatch_record_present": false,
-      "terminal_state": {"protected_target_changed":false,"benign_artifact_present":false}
+      "terminal_state": {
+        "protected_target_changed": false,
+        "benign_artifact_present": false
+      }
     },
     {
       "id": "hidden-default-exact-effective-call-control",
@@ -170,12 +202,17 @@
       "proposal": {
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config"}
+        "args": {
+          "target": "policy/config"
+        }
       },
       "effective_call": {
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"protected"},
+        "args": {
+          "target": "policy/config",
+          "mode": "protected"
+        },
         "host_effect_class": "protected",
         "resolved_from_trusted_catalog": true
       },
@@ -183,7 +220,10 @@
         "present": true,
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"protected"},
+        "args": {
+          "target": "policy/config",
+          "mode": "protected"
+        },
         "skill_permission_approved": false,
         "cross_origin_approved": false
       },
@@ -191,12 +231,17 @@
         "source_field": "inputSchema.default",
         "proposed_target_tool": "tool:writer",
         "effective_target_tool": "tool:writer",
-        "argument_delta": ["mode"]
+        "argument_delta": [
+          "mode"
+        ]
       },
       "expected_decision": "ALLOW",
       "expected_reason": "independent_exact_authority",
       "dispatch_record_present": true,
-      "terminal_state": {"protected_target_changed":true,"benign_artifact_present":false}
+      "terminal_state": {
+        "protected_target_changed": true,
+        "benign_artifact_present": false
+      }
     },
     {
       "id": "cross-tool-poisoning-denied",
@@ -212,12 +257,18 @@
       "proposal": {
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"protected"}
+        "args": {
+          "target": "policy/config",
+          "mode": "protected"
+        }
       },
       "effective_call": {
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"protected"},
+        "args": {
+          "target": "policy/config",
+          "mode": "protected"
+        },
         "host_effect_class": "protected",
         "resolved_from_trusted_catalog": true
       },
@@ -225,7 +276,9 @@
         "present": true,
         "tool_ref": "tool:reader",
         "server": "server:A",
-        "args": {"query":"status"},
+        "args": {
+          "query": "status"
+        },
         "skill_permission_approved": false,
         "cross_origin_approved": false
       },
@@ -233,12 +286,15 @@
         "source_field": "content",
         "proposed_target_tool": "tool:writer",
         "effective_target_tool": "tool:writer",
-        "argument_delta": ["tool_ref","server","target","mode"]
+        "argument_delta": []
       },
       "expected_decision": "DENY",
       "expected_reason": "cross_tool_authority_missing",
       "dispatch_record_present": false,
-      "terminal_state": {"protected_target_changed":false,"benign_artifact_present":false}
+      "terminal_state": {
+        "protected_target_changed": false,
+        "benign_artifact_present": false
+      }
     },
     {
       "id": "cross-tool-independent-authority-control",
@@ -254,12 +310,18 @@
       "proposal": {
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"protected"}
+        "args": {
+          "target": "policy/config",
+          "mode": "protected"
+        }
       },
       "effective_call": {
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"protected"},
+        "args": {
+          "target": "policy/config",
+          "mode": "protected"
+        },
         "host_effect_class": "protected",
         "resolved_from_trusted_catalog": true
       },
@@ -267,7 +329,10 @@
         "present": true,
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"protected"},
+        "args": {
+          "target": "policy/config",
+          "mode": "protected"
+        },
         "skill_permission_approved": false,
         "cross_origin_approved": false
       },
@@ -280,7 +345,10 @@
       "expected_decision": "ALLOW",
       "expected_reason": "independent_exact_authority",
       "dispatch_record_present": true,
-      "terminal_state": {"protected_target_changed":true,"benign_artifact_present":false}
+      "terminal_state": {
+        "protected_target_changed": true,
+        "benign_artifact_present": false
+      }
     },
     {
       "id": "misleading-tool-annotation-denied",
@@ -296,12 +364,18 @@
       "proposal": {
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"protected"}
+        "args": {
+          "target": "policy/config",
+          "mode": "protected"
+        }
       },
       "effective_call": {
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"protected"},
+        "args": {
+          "target": "policy/config",
+          "mode": "protected"
+        },
         "host_effect_class": "protected",
         "resolved_from_trusted_catalog": true
       },
@@ -322,7 +396,10 @@
       "expected_decision": "DENY",
       "expected_reason": "independent_effect_authority_missing",
       "dispatch_record_present": false,
-      "terminal_state": {"protected_target_changed":false,"benign_artifact_present":false}
+      "terminal_state": {
+        "protected_target_changed": false,
+        "benign_artifact_present": false
+      }
     },
     {
       "id": "tool-annotation-benign-reader-control",
@@ -338,12 +415,16 @@
       "proposal": {
         "tool_ref": "tool:reader",
         "server": "server:A",
-        "args": {"query":"status"}
+        "args": {
+          "query": "status"
+        }
       },
       "effective_call": {
         "tool_ref": "tool:reader",
         "server": "server:A",
-        "args": {"query":"status"},
+        "args": {
+          "query": "status"
+        },
         "host_effect_class": "benign",
         "resolved_from_trusted_catalog": true
       },
@@ -351,7 +432,9 @@
         "present": true,
         "tool_ref": "tool:reader",
         "server": "server:A",
-        "args": {"query":"status"},
+        "args": {
+          "query": "status"
+        },
         "skill_permission_approved": false,
         "cross_origin_approved": false
       },
@@ -364,7 +447,10 @@
       "expected_decision": "ALLOW",
       "expected_reason": "independent_exact_authority",
       "dispatch_record_present": true,
-      "terminal_state": {"protected_target_changed":false,"benign_artifact_present":true}
+      "terminal_state": {
+        "protected_target_changed": false,
+        "benign_artifact_present": true
+      }
     },
     {
       "id": "remote-skill-permission-widening-denied",
@@ -380,12 +466,18 @@
       "proposal": {
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"protected"}
+        "args": {
+          "target": "policy/config",
+          "mode": "protected"
+        }
       },
       "effective_call": {
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"protected"},
+        "args": {
+          "target": "policy/config",
+          "mode": "protected"
+        },
         "host_effect_class": "protected",
         "resolved_from_trusted_catalog": true
       },
@@ -393,7 +485,10 @@
         "present": true,
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"protected"},
+        "args": {
+          "target": "policy/config",
+          "mode": "protected"
+        },
         "skill_permission_approved": false,
         "cross_origin_approved": true
       },
@@ -401,12 +496,15 @@
         "source_field": "frontmatter.allowed-tools",
         "proposed_target_tool": "tool:writer",
         "effective_target_tool": "tool:writer",
-        "argument_delta": ["permission"]
+        "argument_delta": []
       },
       "expected_decision": "DENY",
       "expected_reason": "remote_skill_permission_not_approved",
       "dispatch_record_present": false,
-      "terminal_state": {"protected_target_changed":false,"benign_artifact_present":false}
+      "terminal_state": {
+        "protected_target_changed": false,
+        "benign_artifact_present": false
+      }
     },
     {
       "id": "remote-skill-explicit-permission-control",
@@ -422,12 +520,18 @@
       "proposal": {
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"protected"}
+        "args": {
+          "target": "policy/config",
+          "mode": "protected"
+        }
       },
       "effective_call": {
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"protected"},
+        "args": {
+          "target": "policy/config",
+          "mode": "protected"
+        },
         "host_effect_class": "protected",
         "resolved_from_trusted_catalog": true
       },
@@ -435,7 +539,10 @@
         "present": true,
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"protected"},
+        "args": {
+          "target": "policy/config",
+          "mode": "protected"
+        },
         "skill_permission_approved": true,
         "cross_origin_approved": true
       },
@@ -443,12 +550,15 @@
         "source_field": "frontmatter.allowed-tools",
         "proposed_target_tool": "tool:writer",
         "effective_target_tool": "tool:writer",
-        "argument_delta": ["permission"]
+        "argument_delta": []
       },
       "expected_decision": "ALLOW",
       "expected_reason": "independent_exact_authority",
       "dispatch_record_present": true,
-      "terminal_state": {"protected_target_changed":true,"benign_artifact_present":false}
+      "terminal_state": {
+        "protected_target_changed": true,
+        "benign_artifact_present": false
+      }
     },
     {
       "id": "remote-skill-cross-origin-tool-denied",
@@ -464,12 +574,18 @@
       "proposal": {
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"protected"}
+        "args": {
+          "target": "policy/config",
+          "mode": "protected"
+        }
       },
       "effective_call": {
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"protected"},
+        "args": {
+          "target": "policy/config",
+          "mode": "protected"
+        },
         "host_effect_class": "protected",
         "resolved_from_trusted_catalog": true
       },
@@ -477,7 +593,10 @@
         "present": true,
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"protected"},
+        "args": {
+          "target": "policy/config",
+          "mode": "protected"
+        },
         "skill_permission_approved": true,
         "cross_origin_approved": false
       },
@@ -485,12 +604,15 @@
         "source_field": "body",
         "proposed_target_tool": "tool:writer",
         "effective_target_tool": "tool:writer",
-        "argument_delta": ["origin"]
+        "argument_delta": []
       },
       "expected_decision": "DENY",
       "expected_reason": "cross_origin_remote_skill_not_approved",
       "dispatch_record_present": false,
-      "terminal_state": {"protected_target_changed":false,"benign_artifact_present":false}
+      "terminal_state": {
+        "protected_target_changed": false,
+        "benign_artifact_present": false
+      }
     },
     {
       "id": "remote-skill-cross-origin-tool-approved-control",
@@ -506,12 +628,18 @@
       "proposal": {
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"protected"}
+        "args": {
+          "target": "policy/config",
+          "mode": "protected"
+        }
       },
       "effective_call": {
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"protected"},
+        "args": {
+          "target": "policy/config",
+          "mode": "protected"
+        },
         "host_effect_class": "protected",
         "resolved_from_trusted_catalog": true
       },
@@ -519,7 +647,10 @@
         "present": true,
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"protected"},
+        "args": {
+          "target": "policy/config",
+          "mode": "protected"
+        },
         "skill_permission_approved": true,
         "cross_origin_approved": true
       },
@@ -527,12 +658,15 @@
         "source_field": "body",
         "proposed_target_tool": "tool:writer",
         "effective_target_tool": "tool:writer",
-        "argument_delta": ["origin"]
+        "argument_delta": []
       },
       "expected_decision": "ALLOW",
       "expected_reason": "independent_exact_authority",
       "dispatch_record_present": true,
-      "terminal_state": {"protected_target_changed":true,"benign_artifact_present":false}
+      "terminal_state": {
+        "protected_target_changed": true,
+        "benign_artifact_present": false
+      }
     },
     {
       "id": "server-claimed-approval-denied",
@@ -548,12 +682,18 @@
       "proposal": {
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"protected"}
+        "args": {
+          "target": "policy/config",
+          "mode": "protected"
+        }
       },
       "effective_call": {
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"protected"},
+        "args": {
+          "target": "policy/config",
+          "mode": "protected"
+        },
         "host_effect_class": "protected",
         "resolved_from_trusted_catalog": true
       },
@@ -569,12 +709,15 @@
         "source_field": "content.approval",
         "proposed_target_tool": "tool:writer",
         "effective_target_tool": "tool:writer",
-        "argument_delta": ["approval"]
+        "argument_delta": []
       },
       "expected_decision": "DENY",
       "expected_reason": "independent_effect_authority_missing",
       "dispatch_record_present": false,
-      "terminal_state": {"protected_target_changed":false,"benign_artifact_present":false}
+      "terminal_state": {
+        "protected_target_changed": false,
+        "benign_artifact_present": false
+      }
     },
     {
       "id": "server-claim-with-independent-approval-control",
@@ -590,12 +733,18 @@
       "proposal": {
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"protected"}
+        "args": {
+          "target": "policy/config",
+          "mode": "protected"
+        }
       },
       "effective_call": {
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"protected"},
+        "args": {
+          "target": "policy/config",
+          "mode": "protected"
+        },
         "host_effect_class": "protected",
         "resolved_from_trusted_catalog": true
       },
@@ -603,7 +752,10 @@
         "present": true,
         "tool_ref": "tool:writer",
         "server": "server:B",
-        "args": {"target":"policy/config","mode":"protected"},
+        "args": {
+          "target": "policy/config",
+          "mode": "protected"
+        },
         "skill_permission_approved": false,
         "cross_origin_approved": false
       },
@@ -611,12 +763,15 @@
         "source_field": "content.approval",
         "proposed_target_tool": "tool:writer",
         "effective_target_tool": "tool:writer",
-        "argument_delta": ["approval"]
+        "argument_delta": []
       },
       "expected_decision": "ALLOW",
       "expected_reason": "independent_exact_authority",
       "dispatch_record_present": true,
-      "terminal_state": {"protected_target_changed":true,"benign_artifact_present":false}
+      "terminal_state": {
+        "protected_target_changed": true,
+        "benign_artifact_present": false
+      }
     }
   ],
   "proves": [
