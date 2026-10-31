@@ -91,7 +91,7 @@ jq -e '
   ([.cases[].id] | length == (unique | length)) and
 
   ([.cases[].family] | group_by(.) |
-    all(.; length == 2)) and
+    all(.[]; length == 2)) and
   ([.cases[].family] | unique | sort ==
     ([
       "cross_tool_poisoning",
