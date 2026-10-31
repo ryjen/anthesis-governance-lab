@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-root="$(cd "$(dirname "\${BASH_SOURCE[0]}")/.." && pwd -P)"
-fixture="\${1:-$root/fixtures/external-security/mcp-metadata-poisoning-v1.json}"
+root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+fixture="${1:-$root/fixtures/external-security/mcp-metadata-poisoning-v1.json}"
 
 [[ "$#" -le 1 && -f "$fixture" && ! -L "$fixture" ]] || {
   echo "unsafe MCP metadata-poisoning fixture" >&2
