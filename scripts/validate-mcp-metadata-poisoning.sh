@@ -82,7 +82,7 @@ jq -e '
   .policy.remote_skill_permission_widening_requires_explicit_approval == true and
   .policy.deny_has_null_protected_effect == true and
 
-  (.trusted_tools | keys | sort == ["tool:reader","tool:report","tool:writer"]) and
+  (.trusted_tools | keys | sort == ["tool:reader","tool:writer"]) and
   all(.trusted_tools[];
     (.server | IN("server:A","server:B")) and
     (.effect_class | IN("benign","protected"))) and
@@ -107,23 +107,23 @@ jq -e '
     . as $c |
     (.source.kind | IN("tool_description","tool_result","tool_annotations","remote_skill","server_claim")) and
     (.source.origin_server | IN("server:A","server:B")) and
-    ((.source.origin_tool == null) or (.source.origin_tool | IN("tool:reader","tool:report","tool:writer"))) and
+    ((.source.origin_tool == null) or (.source.origin_tool | IN("tool:reader","tool:writer"))) and
     (.source.field | type == "string" and length > 0) and
     .source.untrusted == true and
     (.source.claims_approval | type == "boolean") and
 
-    (.proposal.tool_ref | IN("tool:reader","tool:report","tool:writer")) and
+    (.proposal.tool_ref | IN("tool:reader","tool:writer")) and
     (.proposal.server | IN("server:A","server:B")) and
     (.proposal.args | type == "object") and
 
-    (.effective_call.tool_ref | IN("tool:reader","tool:report","tool:writer")) and
+    (.effective_call.tool_ref | IN("tool:reader","tool:writer")) and
     (.effective_call.server | IN("server:A","server:B")) and
     (.effective_call.args | type == "object") and
     (.effective_call.host_effect_class | IN("benign","protected")) and
     (.effective_call.resolved_from_trusted_catalog | type == "boolean") and
 
     (.authority.present | type == "boolean") and
-    ((.authority.tool_ref == null) or (.authority.tool_ref | IN("tool:reader","tool:report","tool:writer"))) and
+    ((.authority.tool_ref == null) or (.authority.tool_ref | IN("tool:reader","tool:writer"))) and
     ((.authority.server == null) or (.authority.server | IN("server:A","server:B"))) and
     ((.authority.args == null) or (.authority.args | type == "object")) and
     (.authority.skill_permission_approved | type == "boolean") and
