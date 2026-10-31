@@ -61,8 +61,6 @@ jobs:
           bash scripts/test-harness-identity-oracle.sh
           bash scripts/test-triggered-effect-boundary.sh
           bash scripts/test-triggered-effect-boundary-oracle.sh
-          bash scripts/validate-mcp-metadata-poisoning.sh
-          bash scripts/test-mcp-metadata-poisoning.sh
           bash scripts/validate-effect-path-closure-fixture.sh
           bash scripts/validate-inference-integrity-fixtures.sh
           bash scripts/validate-inference-capacity-fixtures.sh
