@@ -145,6 +145,22 @@ run_effect_case() {
       ;;
     allow)
       test -s "$case_dir/dispatch.log"
+      operation="$(jq -r '.operation' <<<"$proposal")"
+      target="$(jq -r '.target' <<<"$proposal")"
+      case "$operation:$target" in
+        close_issue:issue:42)
+          grep -Fxq 'closed' "$case_dir/effects/issue-42"
+          [[ ! -e "$case_dir/logs/approved-audit" ]]
+          ;;
+        save_logs:sink:approved-audit)
+          grep -Fxq 'run-summary' "$case_dir/logs/approved-audit"
+          [[ ! -e "$case_dir/effects/issue-42" ]]
+          ;;
+        *)
+          echo "$id: unexpected allowed effect artifact $operation:$target" >&2
+          exit 1
+          ;;
+      esac
       ;;
     *)
       echo "$id: unsupported expected outcome $expected" >&2
