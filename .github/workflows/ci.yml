@@ -44,6 +44,8 @@ jobs:
             scripts/test-harness-identity-oracle.sh \
             scripts/test-triggered-effect-boundary.sh \
             scripts/test-triggered-effect-boundary-oracle.sh \
+            scripts/validate-mcp-metadata-poisoning.sh \
+            scripts/test-mcp-metadata-poisoning.sh \
             scripts/validate-inference-integrity-fixtures.sh \
             scripts/validate-inference-capacity-fixtures.sh \
             scripts/validate-inference-final-catalog.sh \
