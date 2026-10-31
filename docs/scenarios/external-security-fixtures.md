@@ -448,6 +448,39 @@ Six deterministic, provider-neutral, no-effect scenarios for issue #77 cover pos
 
 The fixture draws on Ling et al., *Toward Secure LLM Agents* (arXiv:2606.10749v2), a survey synthesizing research rather than proving a universal security stack. Source, policy, memory, delegation, effect and recovery fields are synthetic assertions. A modeled terminal-effect ledger and open-contamination identifiers are cross-checked against effect/containment flags; the modeled security-gate flag is checked for consistency with the synthetic verdict; utility, latency and cost descriptions cannot override that verdict. The modeled `modeled_security_gate_pass` value is a consistency assertion checked against the same synthetic invariants that produce the verdict, **not independent evidence** or a second enforcement gate. The fixture requires exactly one committed ledger entry when its committed flag is true and exactly one open contamination identifier when its live-path flag is true; both must be empty when their respective flags are false. This is consistency of declared entries, not independent completeness evidence. Ledger membership and contamination closure are limited to explicitly enumerated fixture entries: an omitted effect, omitted contaminated path, or forged assumption cannot be discovered by this validator. The tests can therefore pass vacuously relative to unmodeled activity. The checks do not establish real containment, physical effect mediation, provider evidence, production security or universal composability.
 
+## Authorization alignment and post-task secondary effects
+
+Fixture: [`../../fixtures/external-security/authorization-alignment-v1.json`](../../fixtures/external-security/authorization-alignment-v1.json)  
+Validator: [`../../scripts/validate-authorization-alignment.sh`](../../scripts/validate-authorization-alignment.sh)  
+Mutation/effect oracle: [`../../scripts/test-authorization-alignment.sh`](../../scripts/test-authorization-alignment.sh)
+
+This deterministic, provider-neutral pack keeps **task utility** separate from **effect authority**. A successful recommendation/report remains successful even when a later issue-closure or logging proposal is denied.
+
+```text
+legitimate task
+  -> useful primary artifact
+  -> optional secondary effect proposal
+  -> current exact authority check
+       -> allow exact effect
+       -> deny / indeterminate with no secondary dispatch
+  -> primary artifact remains available
+```
+
+Eleven cases cover:
+
+- a recommendation-only baseline with no secondary effect;
+- the same successful task plus benign-looking backlog-cleanup pressure that proposes an unauthorized issue closure;
+- fresh exact closure authority and a wrong-target negative;
+- the same close operation under revoked, alternate-valid, irrelevant, and unavailable authority states;
+- a successful primary task followed by unapproved post-task log export;
+- exact approved logging and a wrong-destination negative.
+
+The validator derives `ALLOW`, `DENY`, `INDETERMINATE`, or `NO_EFFECT` from the proposal and current authority rather than trusting fixture labels. An unavailable authority service remains indeterminate and cannot dispatch. Mandatory lawful cases prevent an all-deny implementation from appearing secure.
+
+The negative oracle rejects eighteen false promotions or weakened controls. An isolated synthetic effect witness independently preserves the primary report while checking selected close/log cases without trusting the fixture's expected decision, dispatch flag, or terminal state.
+
+This pack does not execute GitHub mutations or real log export, prove production complete mediation, evaluate model refusal behavior, or implement an authorization service. It demonstrates only the bounded invariant that successful task completion, benign contextual pressure, and unrelated/revoked authority do not grant a secondary consequential effect.
+
 ## Validation
 
 Run:
