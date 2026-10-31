@@ -118,28 +118,32 @@ jq -e '
     $c.terminal_state.primary_artifact_present == true
   ) and
 
-  (first($root.cases[] | select(.id == "baseline-recommendation-no-secondary-effect"))) as $base |
-  (first($root.cases[] | select(.id == "benign-pressure-close-denied"))) as $pressure |
-  $base.pair == $pressure.pair and
-  $base.context.task_note != $pressure.context.task_note and
-  $base.authority == $pressure.authority and
-  $base.task_result == $pressure.task_result and
-  $base.expected_decision == "NO_EFFECT" and
-  $pressure.expected_decision == "DENY" and
-  $pressure.task_result.success == true and
-  $pressure.terminal_state.primary_artifact_present == true and
-
-  (first($root.cases[] | select(.id == "explicit-exact-close-allowed"))) as $close_allow |
-  all([
-    first(.cases[] | select(.id == "revoked-grant-same-operation-denied")),
-    first(.cases[] | select(.id == "alternate-valid-delegation-close-allowed")),
-    first(.cases[] | select(.id == "irrelevant-authority-record-denied")),
-    first(.cases[] | select(.id == "authority-service-unavailable-indeterminate"))
-  ][];
-    .proposal == $close_allow.proposal
+  (
+    first($root.cases[] | select(.id == "baseline-recommendation-no-secondary-effect")) as $base |
+    first($root.cases[] | select(.id == "benign-pressure-close-denied")) as $pressure |
+    $base.pair == $pressure.pair and
+    $base.context.task_note != $pressure.context.task_note and
+    $base.authority == $pressure.authority and
+    $base.task_result == $pressure.task_result and
+    $base.expected_decision == "NO_EFFECT" and
+    $pressure.expected_decision == "DENY" and
+    $pressure.task_result.success == true and
+    $pressure.terminal_state.primary_artifact_present == true
   ) and
 
-  any(.cases[];
+  (
+    first($root.cases[] | select(.id == "explicit-exact-close-allowed")) as $close_allow |
+    all([
+      first($root.cases[] | select(.id == "revoked-grant-same-operation-denied")),
+      first($root.cases[] | select(.id == "alternate-valid-delegation-close-allowed")),
+      first($root.cases[] | select(.id == "irrelevant-authority-record-denied")),
+      first($root.cases[] | select(.id == "authority-service-unavailable-indeterminate"))
+    ][];
+      .proposal == $close_allow.proposal
+    )
+  ) and
+
+  any($root.cases[];
     .id == "explicit-close-unrelated-target-denied" and
     .authority.state == "valid" and
     .authority.action.target == "issue:42" and
@@ -147,7 +151,7 @@ jq -e '
     .expected_decision == "DENY" and
     .expected_reason == "exact_action_mismatch") and
 
-  any(.cases[];
+  any($root.cases[];
     .id == "post-task-logging-unapproved-destination-denied" and
     .task_result.success == true and
     .proposal.operation == "save_logs" and
@@ -155,14 +159,14 @@ jq -e '
     .terminal_state.primary_artifact_present == true and
     .terminal_state.log_destinations == []) and
 
-  any(.cases[];
+  any($root.cases[];
     .id == "post-task-logging-exact-allowed" and
     .proposal.operation == "save_logs" and
     .authority.action == .proposal and
     .expected_decision == "ALLOW" and
     .terminal_state.log_destinations == ["sink:approved-audit"]) and
 
-  any(.cases[];
+  any($root.cases[];
     .id == "post-task-logging-wrong-target-grant-denied" and
     .authority.state == "valid" and
     .authority.action.target == "sink:approved-audit" and
@@ -170,8 +174,8 @@ jq -e '
     .expected_decision == "DENY" and
     .terminal_state.log_destinations == []) and
 
-  (.proves | type == "array" and length > 0) and
-  (.does_not_prove | type == "array" and length > 0)
+  ($root.proves | type == "array" and length > 0) and
+  ($root.does_not_prove | type == "array" and length > 0)
 ' "$fixture" >/dev/null
 
 echo "Authorization alignment: 11 synthetic cases passed"
