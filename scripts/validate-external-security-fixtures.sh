@@ -13,11 +13,12 @@ experiment_fixture="$repo_root/fixtures/external-security/experimental-understan
 durable_memory_fixture="$repo_root/fixtures/external-security/durable-memory-write-v1.json"
 memory_composition_fixture="$repo_root/fixtures/external-security/memory-composition-trigger-v1.json"
 mcp_metadata_fixture="$repo_root/fixtures/external-security/mcp-metadata-poisoning-v1.json"
+authorization_alignment_fixture="$repo_root/fixtures/external-security/authorization-alignment-v1.json"
 
 fail() { echo "error: $*" >&2; exit 1; }
 command -v jq >/dev/null || fail "jq is required"
 
-for file in "$evidence_fixture" "$manifest_fixture" "$environment_fixture" "$execution_fixture" "$trace_fixture" "$memory_fixture" "$artifact_fixture" "$experiment_fixture" "$durable_memory_fixture" "$memory_composition_fixture" "$mcp_metadata_fixture"; do
+for file in "$evidence_fixture" "$manifest_fixture" "$environment_fixture" "$execution_fixture" "$trace_fixture" "$memory_fixture" "$artifact_fixture" "$experiment_fixture" "$durable_memory_fixture" "$memory_composition_fixture" "$mcp_metadata_fixture" "$authorization_alignment_fixture"; do
   [[ -f "$file" && ! -L "$file" ]] || fail "external security fixture must be a regular file: $file"
 done
 
@@ -847,5 +848,8 @@ bash "$repo_root/scripts/test-forged-lookup-provenance.sh"
 
 bash "$repo_root/scripts/validate-mcp-metadata-poisoning.sh" "$mcp_metadata_fixture"
 bash "$repo_root/scripts/test-mcp-metadata-poisoning.sh"
+
+bash "$repo_root/scripts/validate-authorization-alignment.sh" "$authorization_alignment_fixture"
+bash "$repo_root/scripts/test-authorization-alignment.sh"
 
 echo "External agent-security fixture validation passed"
