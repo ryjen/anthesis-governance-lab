@@ -26,6 +26,16 @@ Adjacent portable evidence:
 
 Coverage remains **not-demonstrated** for durable-memory write governance specifically. This fixture models repository/environment influence and should not be relabeled as a memory-write control.
 
+## CARI: action-triggered peer diagnostics (research follow-up, 2026-11-06)
+
+[**CARI**, arXiv:2610.38799v1](https://arxiv.org/html/2610.38799v1) evaluates adversarial messages delivered through legitimate runtime feedback from a peer-controlled backend. Its controlled Todo-app experiments show that an identical injected instruction can be more effective inside an action-triggered diagnostic than in static documentation. The reported aggregate 2,845/3,000 tool-observed successes reflect permissive benchmark conditions, **not production attack prevalence** and **not a claim about this lab**. This paper and its model artifacts have not been independently reproduced here.
+
+**What is already covered:** the existing `environmental-influence-v1.json` fixture and merged [PR #112](https://github.com/ryjen/anthesis-governance-lab/pull/112) model a single inert hostile observation with test-local, paired denied protected mutation / allowed benign artifact, a filesystem witness, and negative mutations. That does not represent a live peer responder, a retriggered diagnostic, a model interpreting it, or production tool mediation.
+
+**Targeted documentation/fixture extension — not yet implemented:** completed [issue #50](https://github.com/ryjen/anthesis-governance-lab/issues/50) covers the static environmental-influence pair; open [issue #61](https://github.com/ryjen/anthesis-governance-lab/issues/61) owns a candidate extension for a synthetic source-conditioned diagnostic responder that can reissue feedback on retry. Preserve the source role, event/attempt, observed message, exact proposed effect, current independent decision, dispatch/no-dispatch evidence and terminal-state witness. The protected action must deny **without changing protected bytes**; a legitimate bounded repair must still allow **with the hostile diagnostic present**. Include target substitution, stale authority, missing witness and retry-limit controls. The test must remain credential-free and network-free and must not execute real injected commands.
+
+This research expands a known attack *input channel* for a future conformance fixture; it does **not** create a new authorization rule, certify complete mediation, or prove general prompt-injection resistance. Governance contract ownership remains with Anthesis; the evidence-provenance and current authorization rules are outside this public lab. Runtime enforcement and host qualification remain separate.
+
 ## Research mapping
 
 The fixture operationalizes the ToolHazard-style path:
